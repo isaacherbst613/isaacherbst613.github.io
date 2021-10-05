@@ -1,0 +1,173 @@
+.body{
+    margin: 130px 3em 10px;
+    display: grid;
+    grid-template-columns: repeat(8,1fr);
+    grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+    gap: 1em;
+    justify-items: center;
+}
+
+.colorwheel{
+    display: grid;
+    grid-column: 1;
+    grid-row: 1/ span 2;
+    align-items: center;
+    text-align: center;
+}
+.colorwheel ol{
+    list-style-type: none;
+}
+
+.colorwheel li{
+    padding: 1em;
+    margin: 10px;
+    border: 1px solid;
+    border-radius: 4px;
+    transition: .4s;
+}
+
+#cyan { color: cyan;}
+#green { color: #00ff00;}
+#yellow { color: yellow;}
+#red { color: red;}
+#magenta { color: magenta;}
+#blue { color: blue;}
+
+#main {
+    position: relative;
+    grid-column: 2/span 4;
+    grid-row: 1/ span 2;
+    border: 2px solid;
+    border-radius: 3px;
+}
+
+.tblwrapper {
+    display: block;
+    width: 360px;
+    display: block;
+    overflow-y: auto;
+    max-height: 320px;
+    text-align: center;
+}
+
+.bottomMain{
+    position: absolute;
+    bottom: 2em;
+    width: 98%;
+}
+
+.colbtn{
+    text-align: center;
+}
+
+#sidebartop{
+    grid-column: 6/span 3;
+    grid-row: 1/ span 2;
+    width: 450px;
+    max-height: 265px;
+}
+
+
+table {
+    border-collapse: collapse;
+    margin: auto;
+    box-sizing: border-box;
+    width: 330px;
+    cursor: pointer;
+}
+
+#veiwed{
+    width: 430px;
+    cursor: auto;
+}
+
+
+td {
+    border: 5px solid darkgray;
+}
+
+th {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    color: black;
+    border: 5px solid darkgray;
+}
+
+
+
+#veiwer{
+    grid-column: 6/span 3;
+    grid-row: 2;
+    width: 300px;
+    height: 250px;
+    border: 1px solid;
+    border-radius: 3px;
+    padding: 3em;
+    font-weight: bolder;
+    text-align: center;
+}
+
+
+
+.rgbbox{
+    width: 300px;
+    height: 300px; 
+    position: relative;
+}
+#b1{
+    background-color: black;
+    grid-column: 2/span 3;
+    grid-row: 4/6;
+}
+#b2{
+    background-color: white;
+    grid-column: 5/span 3;
+    grid-row: 4/6;
+}
+
+.rgball{
+    width: 100px;
+    height: 100px;
+    border-radius: 50px;
+    position: absolute;
+    mix-blend-mode: difference;
+    display: inline-block;
+    float: none;
+}
+
+#bred.rgball, #bcyan.rgball{
+    background-color: red; 
+    top: 75px;
+    left: 100px;
+}
+#bgreen.rgball, #bmagenta.rgball{
+    background-color: #00ff00;
+    top: 125px;
+    left: 75px;
+}
+#bblue.rgball, #byellow.rgball{
+    background-color: blue;
+    top: 125px;
+    left: 125px;
+}
+.ballbtn{
+    display: grid;
+    grid-row: 4/6;
+    align-content: space-evenly;
+    height: 300px;
+}
+
+.bb1{
+    grid-column: 1;
+}
+.bb2{
+    grid-column: 8;
+}
+
+.label{
+    cursor: default;
+}
+/* .label:hover{
+turn off
+} */
