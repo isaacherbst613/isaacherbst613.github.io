@@ -2,7 +2,7 @@
     margin: 130px 3em 10px;
     display: grid;
     grid-template-columns: repeat(8,1fr);
-    grid-template-rows: 1fr 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 300px 1fr;
     gap: 1em;
     justify-items: center;
 }
@@ -67,7 +67,10 @@
     max-height: 265px;
 }
 
-
+#text{
+    overflow: auto;
+    max-height: 300px;
+}
 table {
     border-collapse: collapse;
     margin: auto;
@@ -107,8 +110,48 @@ th {
     font-weight: bolder;
     text-align: center;
 }
+#eyedrop{
+    grid-column: 3/span 4;
+    align-self: flex-end;
+    padding: 0;
+}
+#dropper{
+    margin-left: 45%;
+    }
+@media screen and (min-width: 1450px) {
+    .body{
+        grid-template-rows: 1fr 1fr .3fr 1fr 1fr;
+    }
+    #eyedrop{
+        grid-column: 4/span 2;
+        grid-row: 4;
+        align-self: center;
+        padding: 5em;
+    }
+    #dropper{
+    margin-left: 10px;
+    }
+}
 
 
+#dropper:hover{
+    transform: scale(1.1);
+    cursor: pointer;
+}
+#esc{
+    position: fixed;
+    top: 20px;
+    background-color: white;
+    padding: 0 15px;
+    border-radius: 10px;
+    border: 2px solid;
+    z-index: 9999;
+    display: none;
+}
+#rgbDrop{
+    display: none;
+    margin-left: 1em;
+}
 
 .rgbbox{
     width: 300px;
@@ -130,6 +173,7 @@ th {
     width: 100px;
     height: 100px;
     border-radius: 50px;
+    border: none;
     position: absolute;
     mix-blend-mode: difference;
     display: inline-block;
@@ -171,3 +215,52 @@ th {
 /* .label:hover{
 turn off
 } */
+
+#priP, #secP{
+    grid-row: 5;
+    padding: 2em;
+    text-align: justify;
+}
+#priP{
+    grid-column: 2/span 3;
+}
+#secP{
+    grid-column: 5/span 3;
+}
+
+footer{
+    grid-row: -1;
+    grid-column: 2/span 3;
+}
+
+@media screen and (max-width: 1345px){
+    .body{
+        width: 100%;
+    }
+    .banner{
+        position: fixed;
+        left: 0;
+        width: 100%;
+        height: 200px;
+        background-color: rgb(255, 238, 0);
+        color: black;
+        font-family: Arial, Helvetica, sans-serif; 
+        font-weight: 900;
+        text-align: center;        
+        transform-origin: left bottom;    
+        display: block;
+    }
+    .banner#banner1{     
+        top: 50px;
+        font-size: 8em;       
+        transform: skewy(25deg);
+        z-index: 101;
+  }
+  .banner#banner2{
+    bottom: 100px;
+    font-size: 7em;
+    transform: skewy(-20deg);
+    transform-origin: left bottom;
+    z-index: 100;
+}
+}

@@ -145,14 +145,7 @@
                 color: rgb(i1, i2, i3)
             };
 
-            data.push(clickedData);
-
-            const row = table.insertRow();
-            const clr = row.insertCell();
-
-            clr.innerText = clickedData.color;
-            clr.style.backgroundColor = clickedData.color;
-            page.style.backgroundColor = clickedData.color;
+            updatePageOnDisplayBtnClick(clickedData);
         }
     });
 
@@ -169,17 +162,25 @@
             const clickedData = {
                 color: color(inputcolor.value)
             };
+            updatePageOnDisplayBtnClick(clickedData);
 
-            data.push(clickedData);
-
-            const row = table.insertRow();
-            const clr = row.insertCell();
-
-            clr.innerText = clickedData.color;
-            clr.style.backgroundColor = clickedData.color;
-            page.style.backgroundColor = clickedData.color;
         }
     });
+
+    function updatePageOnDisplayBtnClick(clicked){
+        data.push(clicked);
+
+        const row = table.insertRow();
+        const clr = row.insertCell();
+
+        clr.innerText = clicked.color;
+        clr.style.backgroundColor = clicked.color;
+        page.style.backgroundColor = clicked.color;
+
+        clearInterval(inter);
+        inter = null;
+        start.innerText = 'start';
+    }
 
 
 
@@ -251,7 +252,7 @@
     }
 
     //for color input (translate text to rgb)
-    const color = input => {
+    function color (input) {
         //found this map online
         const wordToHex = {
             aliceblue: "#F0F8FF",
@@ -408,18 +409,20 @@
             let nword = word.replace(/\s+/g, '');//remove spaces from 2 word colors
             return wordToHex[nword.toLowerCase()];
         };
+            
+        const Frgb = htr(fromWord(input));
+        return Frgb
 
-        const htr = function () {
-            let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(fromWord(input));
-            return result ? {
-                r: parseInt(result[1], 16),
-                g: parseInt(result[2], 16),
-                b: parseInt(result[3], 16)
-            } : null;
-        }();
-
-        if (htr) {
-            return "rgb(" + htr.r + ", " + htr.g + ", " + htr.b + ")";
+    };
+    function htr(hex) {
+        let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        const r = result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+        if (r) {
+            return "rgb(" + r.r + ", " + r.g + ", " + r.b + ")";
         } else {
             return false;
         }
@@ -431,50 +434,9 @@
     const blackContainer = get("b1");
     const whiteContainer = get("b2");
 
-    const startMoving = function (divId, container, evt) {
-        divId.style.cursor = 'move';
-        const containerPos = container.getBoundingClientRect();
-        //get mouse pos in container
-        let posLeft = evt.clientX - containerPos.left,
-            posTop = evt.clientY - containerPos.top,
-            //get div pos/size
-            divTop = parseFloat(getComputedStyle(divId).top),
-            divLeft = parseFloat(getComputedStyle(divId).left),
-            divW = parseInt(getComputedStyle(divId).width),
-            divH = parseInt(getComputedStyle(divId).height),
-            //get container size
-            containerW = parseInt(getComputedStyle(container).width),
-            containerH = parseInt(getComputedStyle(container).height),
-            //mouse pos in div
-            diffX = posLeft - divLeft,
-            diffY = posTop - divTop;
-        document.onmousemove = function (evt) {
-            let posLeft = evt.clientX - containerPos.left,
-                posTop = evt.clientY - containerPos.top,
-                //new div pos (relative to mouse)    
-                aX = posLeft - diffX,
-                aY = posTop - diffY;
-
-            if (aX < 0) { aX = 0; }
-            if (aY < 0) { aY = 0; }
-            if (aX + divW > containerW) { aX = containerW - divW; }
-            if (aY + divH > containerH) { aY = containerH - divH; }
-            move(divId, aX, aY);
-        };
-    };
-    const move = function (divId, xpos, ypos) {
-        divId.style.left = xpos + 'px';
-        divId.style.top = ypos + 'px';
-    };
-    const stopMoving = function (divId) {
-        divId.style.cursor = 'default';
-        document.onmousemove = null;
-    };
-
+    //JQueryUI, see below for vanilla JS
     function attachListners(container, div) {
-        div.addEventListener("mousedown", (e) => startMoving(div, container, e));
-        div.addEventListener("mouseup", () => stopMoving(container));
-        div.addEventListener("mouseleave", () => stopMoving(container));
+        $(div).draggable({ containment: container });
     }
 
     for (let i = 0; i < 3; i++) {
@@ -484,9 +446,8 @@
         attachListners(whiteContainer, z);
     }
 
-
     //make balls darker/lighter
-    
+
     //get balls
     const bred = get("bred"),
         bgreen = get("bgreen"),
@@ -494,34 +455,34 @@
         bcyan = get("bcyan"),
         bmagenta = get("bmagenta"),
         byellow = get("byellow");
-    
+
     //get buttons and apply listeners and func to change it's backgroundColor
     const redbtns = get('redgrp');
-    bred.func = (x)=>{bred.style.backgroundColor = rgb(x, 0, 0);};
+    bred.func = (x) => { bred.style.backgroundColor = rgb(x, 0, 0); };
     incDecColors(redbtns, bred.func);
     const greenbtns = get('greengrp');
-    bgreen.func = (x)=>{bgreen.style.backgroundColor = rgb(0, x, 0);};
+    bgreen.func = (x) => { bgreen.style.backgroundColor = rgb(0, x, 0); };
     incDecColors(greenbtns, bgreen.func);
     const bluebtns = get('bluegrp');
-    bblue.func = (x)=>{bblue.style.backgroundColor = rgb(0, 0, x);};
+    bblue.func = (x) => { bblue.style.backgroundColor = rgb(0, 0, x); };
     incDecColors(bluebtns, bblue.func);
     const cyanbtns = get('cyangrp');
-    bcyan.func = (x)=>{bcyan.style.backgroundColor = rgb(x, 0, 0);};
+    bcyan.func = (x) => { bcyan.style.backgroundColor = rgb(x, 0, 0); };
     incDecColors(cyanbtns, bcyan.func);
     const magentabtns = get('magentagrp');
-    bmagenta.func = (x)=>{bmagenta.style.backgroundColor = rgb(0, x, 0);};
+    bmagenta.func = (x) => { bmagenta.style.backgroundColor = rgb(0, x, 0); };
     incDecColors(magentabtns, bmagenta.func);
     const yellowbtns = get('yellowgrp');
-    byellow.func = (x)=>{byellow.style.backgroundColor = rgb(0, 0, x);};
+    byellow.func = (x) => { byellow.style.backgroundColor = rgb(0, 0, x); };
     incDecColors(yellowbtns, byellow.func);
 
-//function to lighten/darken color balls
+    //function to lighten/darken color balls
     function incDecColors(btns, elemFunc) {
         let clrCode = 255;
         btns.addEventListener('click', function (e) {
             if (e.target.classList[2] === "increment") {
                 clrCode = inc(clrCode);
-                console.log(e, " inc ",clrCode);
+                console.log(e, " inc ", clrCode);
             } else if (e.target.classList[2] === "decrement") {
                 clrCode = dec(clrCode);
                 console.log(e, " dec ", clrCode);
@@ -530,19 +491,40 @@
         });
     }
     function inc(rgb) {
-        if (rgb <= 245) {
-            return rgb += 10;
+        if (rgb <= 250) {
+            return rgb += 5;
         }
         return rgb;
     }
     function dec(rgb) {
-        if (rgb >= 10) {
-            return rgb -= 10;
+        if (rgb >= 5) {
+            return rgb -= 5;
         }
         return rgb;
     }
 
+    //get color under cursor
+    /* there is no real way to do this without experimantel API */
 
+    $('#dropper').click((e) => {
+        if (!window.EyeDropper) {
+            console.log('Your browser does not support the EyeDropper API');
+            return;
+        }
+        const eyeDropper = new EyeDropper();
+
+        eyeDropper.open().then(result => {
+            $('#rgbDrop').text(htr(result.sRGBHex)).show().css('color', result.sRGBHex);
+
+        }).catch(e => {
+            console.log(e);
+        });
+        const esc = $('#esc').show()
+        setTimeout(() => {
+            esc.fadeOut("slow");
+        }, 4000);
+
+    })
 
     function get(id) {
         return document.getElementById(id);
@@ -551,3 +533,50 @@
         return container.getElementsByClassName(name);
     }
 }());
+
+
+
+/* const startMoving = function (divId, container, evt) {
+    divId.style.cursor = 'move';
+    const containerPos = container.getBoundingClientRect();
+    //get mouse pos in container
+    let posLeft = evt.clientX - containerPos.left,
+        posTop = evt.clientY - containerPos.top,
+        //get div pos/size
+        divTop = parseFloat(getComputedStyle(divId).top),
+        divLeft = parseFloat(getComputedStyle(divId).left),
+        divW = parseInt(getComputedStyle(divId).width),
+        divH = parseInt(getComputedStyle(divId).height),
+        //get container size
+        containerW = parseInt(getComputedStyle(container).width),
+        containerH = parseInt(getComputedStyle(container).height),
+        //mouse pos in div
+        diffX = posLeft - divLeft,
+        diffY = posTop - divTop;
+    document.onmousemove = function (evt) {
+        let posLeft = evt.clientX - containerPos.left,
+            posTop = evt.clientY - containerPos.top,
+            //new div pos (relative to mouse)
+            aX = posLeft - diffX,
+            aY = posTop - diffY;
+
+        if (aX < 0) { aX = 0; }
+        if (aY < 0) { aY = 0; }
+        if (aX + divW > containerW) { aX = containerW - divW; }
+        if (aY + divH > containerH) { aY = containerH - divH; }
+        move(divId, aX, aY);
+    };
+};
+const move = function (divId, xpos, ypos) {
+    divId.style.left = xpos + 'px';
+    divId.style.top = ypos + 'px';
+};
+const stopMoving = function (divId) {
+    divId.style.cursor = 'default';
+    document.onmousemove = null;
+};
+
+function attachListners(container, div) {
+div.addEventListener("mousedown", (e) => startMoving(div, container, e));
+    div.addEventListener("mouseup", () => stopMoving(container));
+    div.addEventListener("mouseleave", () => stopMoving(container)); */

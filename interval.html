@@ -36,7 +36,7 @@
                 <div class="navbar-toggler-icon"><span></span><span></span><span></span></div>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto px-3 mb-0 bg-match-light">
+                <ul class="navbar-nav me-auto px-3 mb-0">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
@@ -46,9 +46,8 @@
                             <li><a class="dropdown-item" href="https://jscolor.com/" target="_blank">jscolor.com</a>
                             </li>
                             <li><a class="dropdown-item" href="https://www.transparenttextures.com/"
-                                    target="_blank">Backround
-                                    colors/themes</a></li>
-                            <li><a class="dropdown-item" href="" target="_blank">...</a></li>
+                                    target="_blank">Backround colors/themes</a></li>
+                            <li><a class="dropdown-item" href="https://sites.google.com/site/scienceofcolour/how-colors-mix" target="_blank">science of colour</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -79,7 +78,11 @@
         <div id="main" class="container p-3">
             <section class="row row-cols-2 justify-content-around">
 
-                <p id="text" class="col-md align-self-top">On 'start' this box will slowly change it's color going through the 3 primary "light" colors RED GREEN BLUE (RGB), and the 3 primary pigment colors CYAN MAGENTA YELLOW (CMY), Press record at any time to see where your up to and add it to the table, find some colors that you like and click on them, you can also input your own rgb params or color name below</p>
+                <p id="text" class="col-md align-self-top">On 'start' this box will slowly change it's color going
+                    through the 3 primary "light" colors RED GREEN BLUE (RGB), and the 3 primary pigment colors CYAN
+                    MAGENTA YELLOW (CMY), Press record at any time to see where your up to and add it to the table, find
+                    some colors that you like and click on them, you can also input your own rgb params or color name
+                    below</p>
 
                 <div class="tblwrapper col">
                     <table id="table">
@@ -114,8 +117,8 @@
                 <div class="col-xxl-6">
                     <form class="d-flex mt-3">
                         <label for="display1" class="col-form-label me-1">color</label>
-                        <input class="form-control me-1" id="inputcolor" list="display1" type="text" placeholder="type color here"
-                            required>
+                        <input class="form-control me-1" id="inputcolor" list="display1" type="text"
+                            placeholder="type color here" required>
                         <datalist name="colors" id="display1">
                             <option value="alice blue">
                             <option value="antique white">
@@ -287,6 +290,20 @@
             <p>Some text to compare text-color to backround-color and help with your color scheme</p>
         </div>
 
+        <div id="eyedrop">
+            <label for="drop">Use the Eyedropper to see what the RGB values of what your looking at are.
+                You can drag the colors around, darken and lighten them.
+                <br> Can you make the same color from the RGB colors and the CMY colors?
+                <img id="dropper" src="items/pics/icons8-color-dropper-24.png" alt="dropper"><span
+                    id="rgbDrop">rgb(0,0,0)</span>
+            </label>
+
+
+        </div>
+        </div>
+        <div id="esc">Hit the <img src="items/pics/icons8-esc-48.png"> to close the Eyedropper without selecting a color
+        </div>
+
         <div id="b1" class="rgbbox">
             <div id="bred" class="rgball"></div>
             <div id="bgreen" class="rgball"></div>
@@ -316,6 +333,7 @@
                 <button name="blue" id="dblue" class="btn btn-outline-dark decrement">-</button>
             </div>
         </div>
+        <p id="priP">As can be observed above, to get different colors of light emitted from darkness (a black screen etc.) the 3 primary colors (RGB) is what you want, but when printing on white paper the secondary colors (CMY) is the way to go. <br> So there you have it, light colors vs. pigment colors.</p>
         <div class="ballbtn bb2">
             <div class="btn-group" id="cyangrp">
                 <button name="cyan" id="icyan" class="btn btn-outline-secondary increment">+</button>
@@ -332,8 +350,24 @@
                 <label for="yellow" class="btn btn-secondary label">yellow</label>
                 <button name="yellow" id="dyellow" class="btn btn-outline-secondary decrement">-</button>
             </div>
-
         </div>
+        <p id="secP">The study of the human eye also sheds light on how we perceive color. The visual system in the human eye is highly complex. It is unlike a camera or a television camera, which separate out one primary color from the others, because the eye's visual system can distinguish each color.
+            The human brain and the visual system are two of Nature's most amazing creations. What we do know about them reveals that they are far more complex than we ever imagined.</p>
+
+        <div class="banner" id="banner1">Responsiveness is</div>
+        <div class="banner" id="banner2">Under Construction</div>
+        <footer class="bd-footer py-2 mt-5 bg-match-dark">
+            <div class="container py-3">
+                        <h5>About this webpage</h5>
+                        <ul class="list-unstyled small text-muted">
+                            <li class="mb-2">Designed and built by yours truly, with a little help from <a
+                                    href="https://getbootstrap.com">Bootstrap</a> and some <a
+                                    href="https://jquery.com/">JQuery/JQueryUI</a>.</li>
+                            <li class="mb-2">The icons are from <a href="https://icons8.com/">icons8</a>.</li>   
+                        </ul>
+            </div>
+        </footer>
+
 
     </main>
 
@@ -341,6 +375,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
         crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.13.0/jquery-ui.js"></script>
+
     <script src="interval.js"></script>
 </body>
 
