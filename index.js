@@ -12,7 +12,7 @@
         $(`<div class="carousel-item active" data-bs-interval="3000">
                 <div class="qoutes d-block w-100">
                     <div class="carousel-caption">
-                        <p >This collection of quotes is updated every so often,<br>and are taken from</p>
+                        <p >This collection of quotes is updated every so often,<br>and is taken from</p>
                         <h6><a id="q1" href="https://github.com/lukePeavey/quotable" target="_blank">quotable.io</a></h6>
                     </div>
                 </div>
