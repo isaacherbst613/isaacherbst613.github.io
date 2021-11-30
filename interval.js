@@ -4,18 +4,19 @@
     ///intake form input, update page copy, add links, 
     //add comments to this js file
 
-    const page = get("main");//backround-color-changing container
-    const start = get("btn");//start button
-    const restrt = get("restart");//restart button
-    const rcd = get("rcd-btn");//record button
-    const table = get("table");//table for recorded colors
+    const page = $("#main");//backround-color-changing container
+    const mainButtons = $(".bottomMain :button");//container buttons
+    const text = $('.mtext')//container text
+    const start = $("#btn");//start button
+    const restrt = $("#restart");//restart button
+    const rcd = $("#rcd-btn");//record button
     //left sidebar colors
-    const cyan = get("cyan");
-    const green = get("green");
-    const yellow = get("yellow");
-    const red = get("red");
-    const magenta = get("magenta");
-    const blue = get("blue");
+    const green = $("#green");
+    green.scale = 0;
+    const red = $("#red");
+    red.scale = 0;
+    const blue = $("#blue");
+    blue.scale = 0;
 
     const veiwedTbl = get("veiwed");//table for reviewed colors
     const displayBox = get("veiwer");//box to compare text/backround
@@ -24,179 +25,164 @@
         return `rgb(${r},${g},${b})`;
     }
 
-    let r = 255, g = 255, b = 255, i = 0;
-    page.style.backgroundColor = rgb(r, g, b);
+    let r = 0, g = 0, b = 0, i = 1;
+    page.css('background-color', rgb(r, g, b));
     function changeColors() {
         if (i <= 255) {
-            r--;//0ff
-        } else if (i <= 511) {
-            b--;//0f0
-        } else if (i <= 767) {
-            r++;//ff0
-        } else if (i <= 1023) {
-            g--;//f00
-        } else if (i <= 1279) {
-            b++;//f0f
-        } else if (i <= 1535) {
-            r--;//00f
-        } else if (i <= 1791) {
-            b--;//000
-        } else if (i <= 2047) {
-            r++;
+            r++;//f00
+        } else if (i <= 510) {
+            r--;//0f0
             g++;
-            b++;//fff
+        } else if (i <= 765) {
+            r++;//ff0
+        } else if (i <= 1020) {
+            g--;//00f
+            r--;
+            b++;
+        } else if (i <= 1275) {
+            r++;//f0f
+        } else if (i <= 1530) {
+            r--;//0ff
+            g++;
+        } else if (i <= 1785) {
+            r++;//fff
+        } else if (i <= 2040) {
+            r--;
+            g--;
+            b--;//000
         }
-        else if (i === 2048) {
-            i = 0;
+        else if (i === 2041) {
+            i = 1;
+        }
+        growHighlighted(r, g, b);
+        i++;
+        page.css('background-color', rgb(r, g, b));
+        mainContainerTextColor(checkBrightness(r, g, b));
+    }
+
+    function highlighter(rgb, clr) {
+        clr.scale = rgb / 255;
+        clr.css('transform', `scale(${clr.scale})`);
+    }
+    function growHighlighted(r, g, b) {
+        highlighter(r, red);
+        highlighter(g, green);
+        highlighter(b, blue);
+    }
+    function restartHighlighted(clr) {
+        clr.scale = 0;
+        clr.css('transform', `scale(0)`);
+    }
+
+    function checkBrightness(r, g, b) {
+        let brightness = (Math.sqrt(
+            r * r * .241 +
+            g * g * .691 +
+            b * b * .068));
+
+        if (brightness > 130) {
+            return true;
+        } else {
+            return false;
         }
 
-        //highlight colors
-        if (i === 240) { highlightP(cyan); }
-        if (i === 280) { defaultP(cyan); }
-        if (i === 496) { highlightP(green); }
-        if (i === 536) { defaultP(green); }
-        if (i === 752) { highlightP(yellow); }
-        if (i === 792) { defaultP(yellow); }
-        if (i === 1008) { highlightP(red); }
-        if (i === 1048) { defaultP(red); }
-        if (i === 1254) { highlightP(magenta); }
-        if (i === 1294) { defaultP(magenta); }
-        if (i === 1520) { highlightP(blue); }
-        if (i === 1560) { defaultP(blue); }
-        if (i === 1778) {
-            highlightP(cyan);
-            highlightP(yellow);
-            highlightP(magenta);
+        //based on this = https://www.nbdtech.com/Blog/archive/2008/04/27/Calculating-the-Perceived-Brightness-of-a-Color.aspx
+    }
+
+    function mainContainerTextColor(bright) {
+        if (bright) {
+            text.css('color', 'black');
+            mainButtons.removeClass('btn-outline-light');
+            mainButtons.addClass('btn-outline-dark');
+        } else {
+            text.css('color', 'white');
+            mainButtons.removeClass('btn-outline-dark');
+            mainButtons.addClass('btn-outline-light');
         }
-        if (i === 1818) {
-            defaultP(cyan);
-            defaultP(yellow);
-            defaultP(magenta);
-        }
-        if (i === 2032) {
-            highlightP(green);
-            highlightP(red);
-            highlightP(blue);
-        }
-        if (i === 24) {
-            defaultP(green);
-            defaultP(red);
-            defaultP(blue);
-        }
-        i++;
-        page.style.backgroundColor = rgb(r, g, b);
     }
 
     let inter;
-    start.addEventListener('click', () => {
+    let notAtstart = false;
+    start.on('click', () => {
+        if (notAtstart) {
+            restart();
+            notAtstart = false;
+        }
+
         if (!inter) {
             inter = setInterval(changeColors, 20);
-            start.innerText = 'stop';
+            start.text('stop');
         } else {
             clearInterval(inter);
             inter = null;
-            start.innerText = 'start';
+            start.text('start');
         }
     });
 
-    restrt.addEventListener('click', () => {
-        r = 255; g = 255; b = 255; i = 0;
-        page.style.backgroundColor = rgb(r, g, b);
+    restrt.on('click', () => {
+        restart();
     });
+    function restart() {
+        r = 0; g = 0; b = 0; i = 0;
+        page.css('background-color', rgb(r, g, b));
+        restartHighlighted(red);
+        restartHighlighted(green);
+        restartHighlighted(blue);
+        mainContainerTextColor(checkBrightness(r, g, b));
+    }
 
-    //save all recorded colors to display in table
-    const data = [];
 
-    const firstRow = {
-        color: page.style.backgroundColor,
-        text: rgb(0, 0, 0),
-    };
-    data.push(firstRow);
-
-
-    rcd.addEventListener('click', () => {
+    //save all recorded colors in veiwedTbl
+    rcd.on('click', () => {
         const clickedData = {
-            color: page.style.backgroundColor,
+            color: page.css('background-color')
         };
-
-        data.push(clickedData);
-
-        const row = table.insertRow();
-        const clr = row.insertCell();
-
-        clr.innerText = clickedData.color;
-        clr.style.backgroundColor = page.style.backgroundColor;
+        updateViewedTbl(clickedData);
     });
 
+
+    //handle display buttons
     const display = get("display");//display button
     display.addEventListener('click', (event) => {
-
         event.preventDefault();//so page should'nt refresh
-
         const i1 = get("input1").value;
         const i2 = get("input2").value;
         const i3 = get("input3").value;
 
         if (i1 > 255 || i2 > 255 || i3 > 255 || i1 === "" || i2 === "" || i3 === "" || i1 < 0 || i2 < 0 || i3 < 0) {
             alert("please enter valid color numbers (0 - 255)");
-
         } else {
             const clickedData = {
                 color: rgb(i1, i2, i3)
             };
-
+            notAtstart = true;
+            growHighlighted(i1, i2, i3);
             updatePageOnDisplayBtnClick(clickedData);
         }
     });
 
-    const inputcolor = get("inputcolor");
-    const inputColorButton = get("display2");
+    const inputcolor = $("#inputcolor");
+    const inputColorButton = $("#display2");
 
-    inputColorButton.addEventListener('click', (event) => {
+    inputColorButton.on('click', (event) => {
         event.preventDefault();//so page should'nt refresh
 
-        if (!color(inputcolor.value)) {
+        if (!color(inputcolor.val())) {
             alert("please enter valid css color, please note that your chosen color might not be recognised by this software");
-
         } else {
             const clickedData = {
-                color: color(inputcolor.value)
+                color: color(inputcolor.val())
             };
             updatePageOnDisplayBtnClick(clickedData);
-
+            ({ r, g, b } = getRGBValues(clickedData.color));
+            growHighlighted(r, g, b);
+            notAtstart = true;
         }
+
     });
 
-    function updatePageOnDisplayBtnClick(clicked){
-        data.push(clicked);
-
-        const row = table.insertRow();
-        const clr = row.insertCell();
-
-        clr.innerText = clicked.color;
-        clr.style.backgroundColor = clicked.color;
-        page.style.backgroundColor = clicked.color;
-
-        clearInterval(inter);
-        inter = null;
-        start.innerText = 'start';
-    }
-
-
-
-    const reveiwed = [];
-    table.addEventListener('click', event => {
-
-        const clickRow = event.target.parentElement.rowIndex;
-        page.style.backgroundColor = data[clickRow].color;
-
-        const veiwedData = {
-            color: data[clickRow].color,
-            text: data[clickRow].text,
-        };
-
-        reveiwed.push(veiwedData);
-
+    let data = []
+    function updateViewedTbl(clickedData) {
         const textbtn = document.createElement('button');
         textbtn.className = 'btn';
         textbtn.innerText = "text";
@@ -209,50 +195,59 @@
         removebtn.className = 'btn';
         removebtn.innerHTML = '<img src="/items/pics/trash.png" width="20px" alt="delete">';
 
-        const r = veiwedTbl.insertRow();
-        const c = r.insertCell();
-        c.style.backgroundColor = data[clickRow].color;
-        c.innerText = data[clickRow].color;
-        const b = r.insertCell();
-        b.style.backgroundColor = data[clickRow].color;
-        b.appendChild(textbtn);
-        b.appendChild(dbtn);
-        b.appendChild(removebtn);
+        const row = veiwedTbl.insertRow();
+        const c = row.insertCell();
+        c.style.backgroundColor = clickedData.color;
+        c.innerText = clickedData.color;
+        const cell2 = row.insertCell();
+        cell2.style.backgroundColor = clickedData.color;
+        cell2.appendChild(textbtn);
+        cell2.appendChild(dbtn);
+        cell2.appendChild(removebtn);
+
+        ({ r, g, b } = getRGBValues(clickedData.color));
+        if (checkBrightness(r, g, b)) {
+            row.style.color = 'black';
+        } else {
+            row.style.color = 'white';
+        }
 
         dbtn.addEventListener('click', () => {
-            displayBox.style.backgroundColor = data[clickRow].color;
+            displayBox.style.backgroundColor = clickedData.color;
         });
 
         textbtn.addEventListener('click', () => {
-            displayBox.style.color = data[clickRow].color;
+            displayBox.style.color = clickedData.color;
         });
 
         removebtn.addEventListener('click', () => {
-            r.remove();
+            row.remove();
         });
+        data.push(clickedData);
+        localStorage.setItem('viewed_colors', JSON.stringify(data));
+    }
+    function reassignStorage(){
+        data = JSON.parse(localStorage.getItem('viewed_colors')) || [];
+        data.forEach(e=>{
+            updateViewedTbl(e);
+            console.log(e);
+        });
+    }
+    reassignStorage();
 
-
+    function updatePageOnDisplayBtnClick(clickedData) {
+        page.css('background-color', clickedData.color);
+        ({ r, g, b } = getRGBValues(clickedData.color));
+        mainContainerTextColor(checkBrightness(r, g, b));
+        updateViewedTbl(clickedData);
         clearInterval(inter);
         inter = null;
-        start.innerText = 'start';
+        start.text('start');
+    };
 
-    });
-
-    //left col wheel-color functions
-    function defaultP(clr) {
-        clr.style.color = "";//will go back to css hard coded color
-        clr.style.backgroundColor = "inherit";
-        clr.style.transform = "scale(1)";
-    }
-    function highlightP(clr) {
-        const temp = window.getComputedStyle(clr).color;//save original color before changing it
-        clr.style.color = "black";
-        clr.style.backgroundColor = temp;
-        clr.style.transform = "scale(1.3)";
-    }
 
     //for color input (translate text to rgb)
-    function color (input) {
+    function color(input) {
         //found this map online
         const wordToHex = {
             aliceblue: "#F0F8FF",
@@ -269,6 +264,7 @@
             brown: "#A52A2A",
             burlywood: "#DEB887",
             cadetblue: "#5F9EA0",
+            carmine: "#960018",
             chartreuse: "#7FFF00",
             chocolate: "#D2691E",
             coral: "#FF7F50",
@@ -369,6 +365,7 @@
             palevioletred: "#DB7093",
             papayawhip: "#FFEFD5",
             peachpuff: "#FFDAB9",
+            peacockblue: "#326872",
             peru: "#CD853F",
             pink: "#FFC0CB",
             plum: "#DDA0DD",
@@ -409,24 +406,37 @@
             let nword = word.replace(/\s+/g, '');//remove spaces from 2 word colors
             return wordToHex[nword.toLowerCase()];
         };
-            
+
         const Frgb = htr(fromWord(input));
-        return Frgb
+        if (Frgb) {
+            return `rgb(${Frgb.r},${Frgb.g},${Frgb.b})`;
+        } else {
+            return false;
+        }
 
     };
     function htr(hex) {
         let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-        const r = result ? {
+        const res = result ? {
             r: parseInt(result[1], 16),
             g: parseInt(result[2], 16),
             b: parseInt(result[3], 16)
         } : null;
-        if (r) {
-            return "rgb(" + r.r + ", " + r.g + ", " + r.b + ")";
+        if (res) {
+            return { r: res.r, g: res.g, b: res.b };
         } else {
             return false;
         }
     };
+    //get values from rgb string
+    function getRGBValues(str) {
+        let vals = str.substring(str.indexOf('(') + 1, str.length - 1).split(',');
+        return {
+            'r': vals[0],
+            'g': vals[1],
+            'b': vals[2]
+        };
+    }
 
 
 
@@ -514,8 +524,10 @@
         const eyeDropper = new EyeDropper();
 
         eyeDropper.open().then(result => {
-            $('#rgbDrop').text(htr(result.sRGBHex)).show().css('color', result.sRGBHex);
-
+            const Frgb = htr(result.sRGBHex);
+            if (Frgb) {
+                $('#rgbDrop').text(`rgb(${Frgb.r},${Frgb.g},${Frgb.b})`).show().css('color', result.sRGBHex);
+            }
         }).catch(e => {
             console.log(e);
         });
@@ -532,6 +544,40 @@
     function classN(container, name) {
         return container.getElementsByClassName(name);
     }
+
+
+
+
+    /* navbar on scroll behaviour */
+    let lastScrollTop;
+    let hiding;
+    const navbar = $("#navbar");
+    navbar.on('mouseover', () => {
+        navbar.css('top', '0');
+        clearTimeout(hiding);
+    }).on('mouseout', () => {
+        navbarHide();
+    });
+
+    window.addEventListener('scroll', function () {
+        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        if (scrollTop > lastScrollTop) {
+            navbar.css('top', '-110px');
+        } else {
+            navbar.css('top', '0');
+            clearTimeout(hiding);
+            navbarHide();
+        }
+        lastScrollTop = scrollTop;
+    });
+    function navbarHide() {
+        hiding = setTimeout(() => {
+            if (window.pageYOffset > 150) {
+                navbar.css('top', '-110px');
+            }
+        }, 1500);
+    }
+
 }());
 
 

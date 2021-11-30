@@ -103,10 +103,9 @@
     }
 
     /* navbar on scroll behaviour */
-    var lastScrollTop;
-
+    let lastScrollTop;
     window.addEventListener('scroll', function () {
-        var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         if (scrollTop > lastScrollTop) {
             navbar.style.top = '-100px';
         }

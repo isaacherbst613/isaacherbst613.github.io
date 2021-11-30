@@ -16,8 +16,8 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/interval.css">
     <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/interval.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500&display=swap" rel="stylesheet">
@@ -26,7 +26,7 @@
 
 <body id="body">
     <!--links to cool color articals-->
-    <nav class="navbar navbar-expand-lg px-5 py-4 fixed-top">
+    <nav id="navbar" class="navbar navbar-expand-lg px-5 py-4 fixed-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="index.html">
                 <div class="nav-image"></div>
@@ -47,7 +47,9 @@
                             </li>
                             <li><a class="dropdown-item" href="https://www.transparenttextures.com/"
                                     target="_blank">Backround colors/themes</a></li>
-                            <li><a class="dropdown-item" href="https://sites.google.com/site/scienceofcolour/how-colors-mix" target="_blank">science of colour</a></li>
+                            <li><a class="dropdown-item"
+                                    href="https://sites.google.com/site/scienceofcolour/how-colors-mix"
+                                    target="_blank">science of colour</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -63,60 +65,156 @@
             </div>
         </div>
     </nav>
-
+    <div class="hero container rounded-3 border shadow mb-4">
+        <div class="heroInner p-5">
+            <h2 class="text-center">RGB vs. RYB</h2>
+            Every pixel on your screen is made up of 3 color lights, red, green, and blue (RGB). These colors are
+            known
+            as the 3 primary colors.<br><br>
+            wait...<br>Aren't the primary colors red <i>yellow</i> and blue??<br><br>
+            <h4>First some history</h4> Color theorists since the seventeenth
+            century, and many artists and designers since that time, have taken red, yellow, and blue to be the
+            primary
+            colors. This RYB system, in "traditional color theory", is often used to order and compare colors, and
+            sometimes proposed as a system of mixing pigments to get a wide range of, or "all", colors. Of course,
+            the
+            notion that all colors can be mixed from RYB primaries is not true, just as it is not true in any system
+            of
+            real primaries.
+            For example, if the blue pigment is a deep Prussian blue, then a muddy desaturated green may be the best
+            that can be had by mixing with yellow. To achieve a larger gamut of colors via mixing, the red and blue
+            pigments used in illustrative materials are often closer to peacock blue and carmine,
+            respectively. Printers traditionally used inks of such colors, known as "process blue" and "process
+            red", before modern color science and the printing industry converged on the process colors (and names)
+            <i>cyan</i>
+            and <i>magenta</i>, in addition to yellow, hence CMY.
+            <br><br>
+            <h4>Subtractive vs. Additive</h4>
+            The <i>subtractive</i> color mixing model predicts the resultant spectral power distribution of light
+            filtered
+            through overlaid partially absorbing materials, often in the context of an underlying reflective surface
+            such as white paper. Each layer partially absorbs some wavelengths of light from the illumination
+            spectrum
+            while letting others pass through, resulting in a colored appearance. The resultant spectral power
+            distribution is predicted by sequentially taking the product of the spectral power distributions of the
+            incoming light and transmissivity at each filter. Overlapping layers of ink in printing mix
+            subtractively over
+            reflecting white paper, while the reflected light mixes in a partitive way to generate color
+            images.<br>The RGB color
+            model (mentioned above) on the other hand, is <i>additive</i> in the sense that the three light beams
+            are added together,
+            and their light spectra add, wavelength for wavelength, to make the final color's spectrum. This is
+            essentially
+            opposite to the subtractive color model. Because of properties, these three colors create white, this is
+            in
+            stark contrast to physical colors (which by definition are subtractive), such as dyes which create black
+            when mixed.<br>This can be observed below.
+            <br><br>
+            In code, RGB is typically refered to as <i>rgb ('r', 'g', 'b')</i>, with red as <i>rgb ('r', 0, 0)</i>,
+            and yellow
+            which is observed when both the red green lights are on as <i>rgb ('r', 'g', 0)</i> etc.. And since LCD
+            screens can
+            emit each of the 3 lights in any given pixel in 255 strengths, with 0 being off and 255 being the
+            brightest,
+            a bright red would be refered to as <i>rgb (255, 0, 0)</i> and so on, thus giving a total of
+            <b>16,581,375 different
+                colors!</b>
+        </div>
+    </div>
+    </div>
     <main class="body">
-        <div class="container colorwheel">
-            <ol class="ps-0">
-                <li class="wheel" id="cyan">cyan</li>
-                <li class="wheel" id="green">green</li>
-                <li class="wheel" id="yellow">yellow</li>
-                <li class="wheel" id="red">red</li>
-                <li class="wheel" id="magenta">magenta</li>
-                <li class="wheel" id="blue">blue</li>
-            </ol>
+        <div id="eyedrop">
+            <label for="drop">Use the Eyedropper to see what the RGB values of what you're looking at are.
+                You can drag the colors around, darken and lighten them.
+                <br> Can you produce the same color from the RGB colors and the CMY colors?
+                <img id="dropper" src="items/pics/icons8-color-dropper-24.png" alt="dropper"><span
+                    id="rgbDrop">rgb(0,0,0)</span>
+            </label>
+        </div>
+        <div id="esc">Hit the <img src="items/pics/icons8-esc-48.png"> to close the Eyedropper without selecting a color
+        </div>
+
+        <div id="b1" class="rgbbox">
+            <div id="bred" class="rgball"></div>
+            <div id="bgreen" class="rgball"></div>
+            <div id="bblue" class="rgball"></div>
+        </div>
+
+        <div id="b2" class="rgbbox">
+            <div id="bcyan" class="rgball"></div>
+            <div id="bmagenta" class="rgball"></div>
+            <div id="byellow" class="rgball"></div>
+        </div>
+
+        <div class="ballbtn bb1">
+            <div class="btn-group" id="redgrp">
+                <button name="red" id="ired" class="btn btn-outline-dark increment">+</button>
+                <label for="red" class="btn btn-dark label">red</label>
+                <button name="red" id="dred" class="btn btn-outline-dark decrement">-</button>
+            </div>
+            <div class="btn-group" id="greengrp">
+                <button name="green" id="igreen" class="btn btn-outline-dark increment">+</button>
+                <label for="green" class="btn btn-dark label">green</label>
+                <button name="green" id="dgreen" class="btn btn-outline-dark decrement">-</button>
+            </div>
+            <div class="btn-group" id="bluegrp">
+                <button name="blue" id="iblue" class="btn btn-outline-dark increment">+</button>
+                <label for="blue" class="btn btn-dark label">blue</label>
+                <button name="blue" id="dblue" class="btn btn-outline-dark decrement">-</button>
+            </div>
+        </div>
+        <div class="ballbtn bb2">
+            <div class="btn-group" id="cyangrp">
+                <button name="cyan" id="icyan" class="btn btn-outline-secondary increment">+</button>
+                <label for="cyan" class="btn btn-secondary label">cyan</label>
+                <button name="cyan" id="dcyan" class="btn btn-outline-secondary decrement">-</button>
+            </div>
+            <div class="btn-group" id="magentagrp">
+                <button name="magenta" id="imagenta" class="btn btn-outline-secondary increment">+</button>
+                <label for="magenta" class="btn btn-secondary label">magenta</label>
+                <button name="magenta" id="dmagenta" class="btn btn-outline-secondary decrement">-</button>
+            </div>
+            <div class="btn-group" id="yellowgrp">
+                <button name="yellow" id="iyellow" class="btn btn-outline-secondary increment">+</button>
+                <label for="yellow" class="btn btn-secondary label">yellow</label>
+                <button name="yellow" id="dyellow" class="btn btn-outline-secondary decrement">-</button>
+            </div>
+        </div>
+
+        <div class="container row colorwheel justify-content-center">
+            <div class="wheel" id="red"></div>
+            <div class="wheel" id="green"></div>
+            <div class="wheel" id="blue"></div>
         </div>
         <div id="main" class="container p-3">
             <section class="row row-cols-2 justify-content-around">
-
-                <p id="text" class="col-md align-self-top">On 'start' this box will slowly change it's color going
-                    through the 3 primary "light" colors RED GREEN BLUE (RGB), and the 3 primary pigment colors CYAN
-                    MAGENTA YELLOW (CMY), Press record at any time to see where your up to and add it to the table, find
-                    some colors that you like and click on them, you can also input your own rgb params or color name
-                    below</p>
-
-                <div class="tblwrapper col">
-                    <table id="table">
-                        <thead>
-                            <th>color (rgb 255,255,255)</th>
-                        </thead>
-                        <tbody>
-                            <!--dynamically added rows-->
-                        </tbody>
-                    </table>
-                </div>
+                <p class="mtext" class="col-md align-self-top">on 'start' this box will start cycling through the 8
+                    combinations that can be made using RGB (that is, with each bulb being either on or off). </p>
             </section>
             <section class="bottomMain row justify-content-around">
-                <div class="col colbtn">
-                    <button id="btn" class="btn btn-outline-dark px-lg-5" type="submit">start</button>
+                <div class="mainButtons row col-lg-12">
+                    <div class="col colbtn">
+                        <button id="btn" class="btn btn-outline-light px-xl-5" type="submit">start</button>
+                    </div>
+                    <div class="col colbtn">
+                        <button id="rcd-btn" class="btn btn-outline-light px-xl-5" type="submit">record</button>
+                    </div>
+                    <div class="col colbtn">
+                        <button id="restart" class="btn btn-outline-light px-xl-5" type="submit">restart</button>
+                    </div>
                 </div>
-                <div class="col colbtn">
-                    <button id="rcd-btn" class="btn btn-outline-dark px-lg-5" type="submit">record</button>
-                </div>
-                <div class="col colbtn">
-                    <button id="restart" class="btn btn-outline-dark px-lg-5" type="submit">restart</button>
-                </div>
-                <div class="col-xxl-5">
+                <div class="col-xxl-6">
                     <form class="d-flex mt-3">
-                        <label for="input1" class="col-form-label me-1">rgb</label>
+                        <label for="input1" class="mtext col-form-label me-1">rgb</label>
                         <input class="form-control" id="input1" type="number" min="0" max="255" value="0" required>
                         <input class="form-control" id="input2" type="number" min="0" max="255" value="0" required>
                         <input class="form-control me-1" id="input3" type="number" min="0" max="255" value="0" required>
-                        <button class="btn btn-outline-dark" id="display" type="submit">display</button>
+                        <button class="btn btn-outline-light" id="display" type="submit">display</button>
                     </form>
                 </div>
                 <div class="col-xxl-6">
                     <form class="d-flex mt-3">
-                        <label for="display1" class="col-form-label me-1">color</label>
+                        <label for="display1" class="mtext col-form-label me-1">color</label>
                         <input class="form-control me-1" id="inputcolor" list="display1" type="text"
                             placeholder="type color here" required>
                         <datalist name="colors" id="display1">
@@ -134,6 +232,7 @@
                             <option value="brown">
                             <option value="burly wood">
                             <option value="cadet blue">
+                            <option value="carmine">
                             <option value="chartreuse">
                             <option value="chocolate">
                             <option value="coral">
@@ -234,6 +333,7 @@
                             <option value="pale violet red">
                             <option value="papaya whip">
                             <option value="peachpuff">
+                            <option value="peacock blue">
                             <option value="peru">
                             <option value="pink">
                             <option value="plum">
@@ -269,7 +369,7 @@
                             <option value="yellow">
                             <option value="yellowgreen">
                         </datalist>
-                        <button class="btn btn-outline-dark" id="display2" type="submit">display</button>
+                        <button class="btn btn-outline-light" id="display2" type="submit">display</button>
                     </form>
                 </div>
             </section>
@@ -290,81 +390,29 @@
             <p>Some text to compare text-color to backround-color and help with your color scheme</p>
         </div>
 
-        <div id="eyedrop">
-            <label for="drop">Use the Eyedropper to see what the RGB values of what your looking at are.
-                You can drag the colors around, darken and lighten them.
-                <br> Can you make the same color from the RGB colors and the CMY colors?
-                <img id="dropper" src="items/pics/icons8-color-dropper-24.png" alt="dropper"><span
-                    id="rgbDrop">rgb(0,0,0)</span>
-            </label>
 
-
-        </div>
-        </div>
-        <div id="esc">Hit the <img src="items/pics/icons8-esc-48.png"> to close the Eyedropper without selecting a color
-        </div>
-
-        <div id="b1" class="rgbbox">
-            <div id="bred" class="rgball"></div>
-            <div id="bgreen" class="rgball"></div>
-            <div id="bblue" class="rgball"></div>
-        </div>
-
-        <div id="b2" class="rgbbox">
-            <div id="bcyan" class="rgball"></div>
-            <div id="bmagenta" class="rgball"></div>
-            <div id="byellow" class="rgball"></div>
-
-        </div>
-        <div class="ballbtn bb1">
-            <div class="btn-group" id="redgrp">
-                <button name="red" id="ired" class="btn btn-outline-dark increment">+</button>
-                <label for="red" class="btn btn-dark label">red</label>
-                <button name="red" id="dred" class="btn btn-outline-dark decrement">-</button>
-            </div>
-            <div class="btn-group" id="greengrp">
-                <button name="green" id="igreen" class="btn btn-outline-dark increment">+</button>
-                <label for="green" class="btn btn-dark label">green</label>
-                <button name="green" id="dgreen" class="btn btn-outline-dark decrement">-</button>
-            </div>
-            <div class="btn-group" id="bluegrp">
-                <button name="blue" id="iblue" class="btn btn-outline-dark increment">+</button>
-                <label for="blue" class="btn btn-dark label">blue</label>
-                <button name="blue" id="dblue" class="btn btn-outline-dark decrement">-</button>
+        <div id="secP" class="hero rounded-3 border shadow">
+            <div class="heroInner rounded-3 p-5">
+                <p>The study of the human eye also sheds light on how we perceive color. The visual system in the
+                    human eye is highly complex. It is unlike a camera or a television camera, which separate out one
+                    primary color from the others, because the eye's visual system can distinguish each color.
+                    The human brain and the visual system are two of Nature's most amazing creations. What we do know
+                    about them reveals that they are far more complex than we ever imagined.</p>
             </div>
         </div>
-        <p id="priP">As can be observed above, to get different colors of light emitted from darkness (a black screen etc.) the 3 primary colors (RGB) is what you want, but when printing on white paper the secondary colors (CMY) is the way to go. <br> So there you have it, light colors vs. pigment colors.</p>
-        <div class="ballbtn bb2">
-            <div class="btn-group" id="cyangrp">
-                <button name="cyan" id="icyan" class="btn btn-outline-secondary increment">+</button>
-                <label for="cyan" class="btn btn-secondary label">cyan</label>
-                <button name="cyan" id="dcyan" class="btn btn-outline-secondary decrement">-</button>
-            </div>
-            <div class="btn-group" id="magentagrp">
-                <button name="magenta" id="imagenta" class="btn btn-outline-secondary increment">+</button>
-                <label for="magenta" class="btn btn-secondary label">magenta</label>
-                <button name="magenta" id="dmagenta" class="btn btn-outline-secondary decrement">-</button>
-            </div>
-            <div class="btn-group" id="yellowgrp">
-                <button name="yellow" id="iyellow" class="btn btn-outline-secondary increment">+</button>
-                <label for="yellow" class="btn btn-secondary label">yellow</label>
-                <button name="yellow" id="dyellow" class="btn btn-outline-secondary decrement">-</button>
-            </div>
         </div>
-        <p id="secP">The study of the human eye also sheds light on how we perceive color. The visual system in the human eye is highly complex. It is unlike a camera or a television camera, which separate out one primary color from the others, because the eye's visual system can distinguish each color.
-            The human brain and the visual system are two of Nature's most amazing creations. What we do know about them reveals that they are far more complex than we ever imagined.</p>
 
-        <div class="banner" id="banner1">Responsiveness is</div>
-        <div class="banner" id="banner2">Under Construction</div>
         <footer class="bd-footer py-2 mt-5 bg-match-dark">
             <div class="container py-3">
-                        <h5>About this webpage</h5>
-                        <ul class="list-unstyled small text-muted">
-                            <li class="mb-2">Designed and built by yours truly, with a little help from <a
-                                    href="https://getbootstrap.com">Bootstrap</a> and some <a
-                                    href="https://jquery.com/">JQuery/JQueryUI</a>.</li>
-                            <li class="mb-2">The icons are from <a href="https://icons8.com/">icons8</a>.</li>   
-                        </ul>
+                <h5>About this webpage</h5>
+                <ul class="list-unstyled small text-muted">
+                    <li class="mb-2">Designed using css-grid with a little help from <a
+                            href="https://getbootstrap.com">Bootstrap</a> and some <a
+                            href="https://jquery.com/">JQuery/JQueryUI</a>.</li>
+                    <li class="mb-2">The icons are from <a href="https://icons8.com/">icons8</a>.</li>
+                    <li class="mb-2">And the copy is (more or less) from <a
+                            href="https://en.wikipedia.org/wiki/RGB_color_model">wikipedia</a>.</li>
+                </ul>
             </div>
         </footer>
 

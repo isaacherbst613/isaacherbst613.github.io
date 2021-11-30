@@ -1,139 +1,67 @@
+:root{
+    --footer: #FC997C;
+    --font-color: #000;
+    --footer-muted:#2733b3;
+}
+body{
+    background-image: linear-gradient(to top, #00d2ff 0%, #fff 100%);
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 18px;
+}
+/*navbar, overwrite some of what it inherits from index.css*/
+.navbar{
+    background: linear-gradient(90deg, #00d2ff 0%, #3a47d5 100%);
+}
+.navbar a{
+    color: #a1eeff;
+}
+.navbar a:hover{
+    color: var(--footer);
+}
+
+/* article container */
+.hero{
+    margin-top: 250px;
+    background-image: url("/items/trianglify-lowres.png");
+    background-size: cover; 
+    height: auto;
+}
+.heroInner{
+    width: 800px;
+    height: auto;
+    background-color: #fff;
+    color: var(--font-color);
+    font-size: 20px;
+    line-height: 1.5;
+    border-radius: 3px;
+}
+.heroInner h2, .heroInner h4{
+    font-weight: bold;
+    background: url("/items/trianglify-lowres.png") no-repeat center center;
+    background-size: cover;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip:text;
+}
+/* main playground grid */
 .body{
     margin: 130px 3em 10px;
     display: grid;
     grid-template-columns: repeat(8,1fr);
-    grid-template-rows: 1fr 1fr 1fr 300px 1fr;
+    grid-template-rows: 300px 1fr 1fr 1fr 500px;
     gap: 1em;
     justify-items: center;
 }
-
-.colorwheel{
-    display: grid;
-    grid-column: 1;
-    grid-row: 1/ span 2;
-    align-items: center;
-    text-align: center;
-}
-.colorwheel ol{
-    list-style-type: none;
-}
-
-.colorwheel li{
-    padding: 1em;
-    margin: 10px;
-    border: 1px solid;
-    border-radius: 4px;
-    transition: .4s;
-}
-
-#cyan { color: cyan;}
-#green { color: #00ff00;}
-#yellow { color: yellow;}
-#red { color: red;}
-#magenta { color: magenta;}
-#blue { color: blue;}
-
-#main {
-    position: relative;
-    grid-column: 2/span 4;
-    grid-row: 1/ span 2;
-    border: 2px solid;
-    border-radius: 3px;
-}
-
-.tblwrapper {
-    display: block;
-    width: 360px;
-    display: block;
-    overflow-y: auto;
-    max-height: 320px;
-    text-align: center;
-}
-
-.bottomMain{
-    position: absolute;
-    bottom: 2em;
-    width: 98%;
-}
-
-.colbtn{
-    text-align: center;
-}
-
-#sidebartop{
-    grid-column: 6/span 3;
-    grid-row: 1/ span 2;
-    width: 450px;
-    max-height: 265px;
-}
-
-#text{
-    overflow: auto;
-    max-height: 300px;
-}
-table {
-    border-collapse: collapse;
-    margin: auto;
-    box-sizing: border-box;
-    width: 330px;
-    cursor: pointer;
-}
-
-#veiwed{
-    width: 430px;
-    cursor: auto;
-}
-
-
-td {
-    border: 5px solid darkgray;
-}
-
-th {
-    position: sticky;
-    top: 0;
-    background-color: white;
-    color: black;
-    border: 5px solid darkgray;
-}
-
-
-
-#veiwer{
-    grid-column: 6/span 3;
-    grid-row: 2;
-    width: 300px;
-    height: 250px;
-    border: 1px solid;
-    border-radius: 3px;
-    padding: 3em;
-    font-weight: bolder;
-    text-align: center;
-}
+/* eyedrop near draggable rgballs */
 #eyedrop{
     grid-column: 3/span 4;
-    align-self: flex-end;
+    grid-row: 2;
+    align-self: flex-start;
     padding: 0;
 }
 #dropper{
     margin-left: 45%;
-    }
-@media screen and (min-width: 1450px) {
-    .body{
-        grid-template-rows: 1fr 1fr .3fr 1fr 1fr;
-    }
-    #eyedrop{
-        grid-column: 4/span 2;
-        grid-row: 4;
-        align-self: center;
-        padding: 5em;
-    }
-    #dropper{
-    margin-left: 10px;
-    }
 }
-
-
 #dropper:hover{
     transform: scale(1.1);
     cursor: pointer;
@@ -153,6 +81,7 @@ th {
     margin-left: 1em;
 }
 
+/* box with draggable balls */
 .rgbbox{
     width: 300px;
     height: 300px; 
@@ -161,14 +90,13 @@ th {
 #b1{
     background-color: black;
     grid-column: 2/span 3;
-    grid-row: 4/6;
+    grid-row: 1/6;
 }
 #b2{
     background-color: white;
     grid-column: 5/span 3;
-    grid-row: 4/6;
+    grid-row: 1/6;
 }
-
 .rgball{
     width: 100px;
     height: 100px;
@@ -179,7 +107,6 @@ th {
     display: inline-block;
     float: none;
 }
-
 #bred.rgball, #bcyan.rgball{
     background-color: red; 
     top: 75px;
@@ -197,70 +124,170 @@ th {
 }
 .ballbtn{
     display: grid;
-    grid-row: 4/6;
+    grid-row: 1/6;
     align-content: space-evenly;
     height: 300px;
 }
-
 .bb1{
     grid-column: 1;
 }
 .bb2{
     grid-column: 8;
 }
-
-.label{
+.label{/* label in middle of buttons */
     cursor: default;
 }
-/* .label:hover{
-turn off
-} */
 
-#priP, #secP{
+
+/* growing shrinking ball near #main */
+.colorwheel{
+    grid-column: 1;
+    grid-row: 3/ span 2;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.colorwheel div{
+    width: 80px;
+    height: 80px;
+    border-radius: 50px;
+    transform: scale(0);
+}
+
+#green { background-color: #00ff00;}
+#red { background-color: red;}
+#blue { background-color: blue;}
+
+
+/* background changing container */
+#main {
+    position: relative;
+    grid-column: 2/span 4;
+    grid-row: 3/ span 2;
+    border: 2px solid;
+    border-radius: 3px;
+    color: white;
+}
+.bottomMain{
+    position: absolute;
+    bottom: 2em;
+    width: 98%;
+}
+.colbtn{
+    text-align: center;
+}
+
+/* viewed table */
+#sidebartop{
+    grid-column: 6/span 3;
+    grid-row: 3/ span 2;
+    width: 450px;
+    max-height: 265px;
+    display: block;
+    overflow-y: auto;
+    text-align: center;
+}
+#veiwed{
+    width: 430px;
+    cursor: auto;
+}
+th {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    color: black;
+}
+/* box under table */
+#veiwer{
+    grid-column: 6/span 3;
+    grid-row: 4;
+    width: 300px;
+    height: 250px;
+    border: 1px solid;
+    border-radius: 3px;
+    padding: 3em;
+    font-weight: bolder;
+    text-align: center;
+}
+
+/* ending paragragh */
+#secP{
     grid-row: 5;
     padding: 2em;
     text-align: justify;
-}
-#priP{
-    grid-column: 2/span 3;
-}
-#secP{
-    grid-column: 5/span 3;
+    height: 400px;
+    margin-top: 100px;
+    grid-column: 2/span 6;
 }
 
+/* footer */
 footer{
     grid-row: -1;
     grid-column: 2/span 3;
+    color: var(--footer-muted);
+}
+footer li{
+    color: var(--footer-muted);
+}
+.bd-footer a{
+    color: var(--footer);
+}
+.bd-footer a:hover{
+    color: #fff;
 }
 
-@media screen and (max-width: 1345px){
-    .body{
-        width: 100%;
+@media screen and (max-width: 1330px){
+    #dropper{
+        margin-left: 10px;
     }
-    .banner{
-        position: fixed;
-        left: 0;
-        width: 100%;
-        height: 200px;
-        background-color: rgb(255, 238, 0);
-        color: black;
-        font-family: Arial, Helvetica, sans-serif; 
-        font-weight: 900;
-        text-align: center;        
-        transform-origin: left bottom;    
-        display: block;
+    .colbtn, .colbtn .btn{
+        width: 100px;
     }
-    .banner#banner1{     
-        top: 50px;
-        font-size: 8em;       
-        transform: skewy(25deg);
-        z-index: 101;
-  }
-  .banner#banner2{
-    bottom: 100px;
-    font-size: 7em;
-    transform: skewy(-20deg);
-    transform-origin: left bottom;
-    z-index: 100;
 }
+@media screen and (min-width: 1450px) {
+    .body{
+        grid-template-rows: 300px 1fr 1fr 1fr 500px;
+    }
+    #eyedrop{
+        grid-column: 4/span 2;
+        grid-row: 1;
+        align-self: center;
+        padding: 5em;
+    }
+    #dropper{
+        margin-left: 10px;
+    }
+}
+
+@media screen and (min-width: 2500px){
+    
+    .bb1{
+        grid-column: 2;
+    }
+    .bb2{
+        grid-column: 7;
+    }
+    #main{
+        grid-column: 2/span 3;
+    }
+    .colorwheel{
+        padding-top: 90px;
+        padding-left: 150px;
+    }
+    #veiwer{
+        grid-row: 3/ span 2;
+        grid-column: 5/span 2;
+        height: 350px;
+    }
+    .tblwrapper {
+        max-height: 350px;
+    }
+    #sidebartop{
+        max-height: 350px;
+    }
+    #secP{
+        grid-column: 3/span 4;
+    }
+    
 }
