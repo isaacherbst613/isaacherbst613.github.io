@@ -47,10 +47,10 @@
         <ul class="navbar-nav me-auto px-3 mb-0">
 
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#about">Bio</a>
+            <a class="nav-link active" aria-current="page" href="about.html">Profile</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#contact">Contact Me</a>
+            <a class="nav-link active" aria-current="page" href="#" id="contact">Contact Me</a>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown"
@@ -68,18 +68,17 @@
 
   <main>
     <div class="hero container rounded-1 border shadow-lg mb-4">
-      <div class="row p-4 pb-2 pe-lg-0 pt-lg-5 align-items-end ">
-        <div class="col-lg-7 py-md-5 p-lg-5 pt-lg-3">
-          <h1 class="display-1 fw-bold lh-1 py-5">HEY! I'm<br> Isaac Herbst</h1>
-          <h2 class="display-6">fullstack <br> software developer</h2>
+      <img src="items/1.png" alt="memoji1" id="mainmemoji">
+      <div class="p-4 pb-2 pe-lg-0 pt-5 align-items-end">
+        <div class="py-md-5 p-lg-5 pt-lg-5">
+          <h1 class="display-1 fw-bold lh-1 py-5">HEY! I'm Isaac Herbst</h1>
+          <h2 class="display-6">fullstack software developer</h2>
           <h4> - not UI/UX designer</h4>
-          <p class="lead">Though I don't mind stepping out of my comfort zone, hence this site. Oh yeah, and thanx
+          <p class="lead w-75">Though I don't mind stepping out of my comfort zone, hence this site. Oh yeah, and thanx
             bootstrap;)</p>
-          <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4 mb-lg-3">
+          <div class="logoDiv d-md-flex justify-content-md-end mb-4 mb-lg-3"> 
+                   <img id="logo" class="img-fluid" src="items/iHnew.png" alt="logo" width="275">
           </div>
-        </div>
-        <div class="col-lg-3 offset-lg-1 p-1 overflow-hidden">
-          <img class="img-fluid" src="items/iHnew.png" alt="" width="275">
         </div>
       </div>
     </div>
@@ -100,33 +99,37 @@
       </div>
     </div>
 
-    <div class="about container row">
-      <div class="edu pt-4 col-md-6 col-lg-5" id="about">
-        <h3 class="mb-3 aHead1 ">About Me</h3>
-        <p class="p-3">I am a web developer with a strong sense of responsibility and enjoy the challenge of piecing
-          together solutions to difficult problems. I am a quick learner who enjoys gaining new skills. </p>
-      </div>
-      <div class="edu pt-4 skills col-md-5 col-lg-3">
+
+    <div class="d-flex w-75 m-auto justify-content-between">
+      <div class="edu pt-4 col-lg-3" id="about">
         <h3 class="mb-3 aHead1">My Stack</h3>
         <ul>
-          <li>Java</li>
-          <li>Python</li>
-          <li>Javascript</li>
-          <li>HTML</li>
-          <li>CSS</li>
-          <li>Bootstrap</li>
-          <li>JQuery</li>
-          <li>MySql</li>
-          <li>React</li>
+          <li class="aPlus">Javascript</li>
+          <li class="aPlus">HTML</li>
+          <li class="aPlus">CSS</li>
+          <li class="aMinus">Java</li>
+          <li class="aMinus">Python</li>
+          <li class="aMinus">MySql</li>
+          <li class="b">React</li>
         </ul>
       </div>
-      <div class="edu pt-4 col-lg-3">
+      <div class="edu pt-4 skills col-md-5 col-lg-3">
+        <h3 class="mb-3 aHead1">My Toolbox</h3>
+        <ul>
+          <li class="aPlus">Bootstrap</li>
+          <li class="aPlus">JQuery</li>
+          <li class="aMinus">Git</li>
+          <li class="aMInus">Webpack</li>
+        </ul>
+      </div>
+      <div class="edu pt-4  col-md-6 col-lg-5">
         <h3 class="mb-1 aHead1">My Education</h3>
         <img src="items/pcs.png">
         <p class="p-3">As class president I got a unique education that combined in depth programming with
           management/leadership skills</p>
       </div>
     </div>
+    <div id="hubspot"></div>
   </main>
 
   <footer class="bd-footer py-2 mt-5 bg-match-dark">
@@ -137,7 +140,7 @@
             <li class="mb-2"><img id="git" src="items/pics/icons8-github-30.png"><a
                 href="https://github.com/isaacherbst613" target="_blank"> #isaacHerbst613</a></li>
             <li class="mb-2"><img id="linked" src="items/pics/icons8-linkedin-50.png"><a
-                href="https://linkedin.com/isaacherbst613" target="_blank"> #isaacHerbst</a></li>
+                href="https://www.linkedin.com/in/isaac-herbst-712001207/" target="_blank"> #isaacHerbst</a></li>
           </ul>
         </div>
         <div class="col-md-4 mb-3">
@@ -154,8 +157,6 @@
     </div>
   </footer>
 
-
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
     crossorigin="anonymous"></script>
@@ -164,7 +165,7 @@
   <script src="index.js"></script>
   <!-- Start of HubSpot Embed Code -->
   <script type="text/javascript" id="hs-script-loader" async defer src="//js-na1.hs-scripts.com/21072484.js"></script>
-<!-- End of HubSpot Embed Code -->
+  <!-- End of HubSpot Embed Code -->
 </body>
 
 </html>

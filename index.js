@@ -61,20 +61,13 @@
         if (e.target.checked) {
             document.documentElement.setAttribute('data-theme', 'dark');
             setDarkImgs();
-
-
             localStorage.setItem('theme', 'dark');
-
         }
         else {
             document.documentElement.setAttribute('data-theme', 'light');
-            $('body').css('background-image', 'url(items/brushed-alum.png)');
-            $('.edu').css('background-image', 'url(items/brushed-alum.png)');
             $('.img-fluid').attr('src', 'items/iHnew.png');
-            $('#at-sign').attr('src', 'items/pics/icons8-at-sign-30.png');
             $('#linked').attr('src', 'items/pics/icons8-linkedin-50.png');
             $('#git').attr('src', 'items/pics/icons8-github-30.png');
-            $('#phone').attr('src', 'items/pics/icons8-phone-50.png');
 
             localStorage.setItem('theme', 'light');
         }
@@ -96,26 +89,53 @@
         $('body').css('background-image', 'url(items/asfalt-light.png)');
         $('.edu').css('background-image', 'url(items/asfalt-light.png)');
         $('.img-fluid').attr('src', 'items/iHnew-light.png');
-        $('#at-sign').attr('src', 'items/pics/icons8-at-sign-30-lt.png');
         $('#linked').attr('src', 'items/pics/icons8-linkedin-50-lt.png');
         $('#git').attr('src', 'items/pics/icons8-github-30-lt.png');
-        $('#phone').attr('src', 'items/pics/icons8-phone-50-lt.png');
     }
 
     /* navbar on scroll behaviour */
     let lastScrollTop;
+    let hiding;
+    const navbar = $("#navbar");
+    navbar.on('mouseover', () => {
+        navbar.css('top', '0');
+        clearTimeout(hiding);
+    }).on('mouseout', () => {
+        navbarHide();
+    });
+
     window.addEventListener('scroll', function () {
         let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         if (scrollTop > lastScrollTop) {
-            navbar.style.top = '-100px';
-        }
-        else {
-            navbar.style.top = '0';
+            navbar.css('top', '-110px');
+        } else {
+            navbar.css('top', '0');
+            clearTimeout(hiding);
+            navbarHide();
         }
         lastScrollTop = scrollTop;
     });
+    function navbarHide() {
+        hiding = setTimeout(() => {
+            if (window.pageYOffset > 150) {
+                navbar.css('top', '-110px');
+            }
+        }, 1500);
+    }
 
-
+    //contact me button to highlight hubspot
+    let works = true;
+    $('#contact').on('click', () => {
+        if (works) {
+        $('#hubspot').css({'display': 'block'});
+        works = false;
+        setTimeout(() => {
+            $('#hubspot').css({'display': 'none'});
+            works = true;
+        }, 3500);
+        }
+        
+    });
 
 }());
 

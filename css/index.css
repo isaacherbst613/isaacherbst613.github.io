@@ -1,8 +1,9 @@
 :root{
   --main-color-lt: #594922;
-  --main-bg-color-light: #fefee7;
+  --main-bg-color-light: #ffffff;
   --secondary-color-lt: #4dd897;
   --font-color: #212529;
+  --font-color-light: #f8f9fa;
   --footer-muted:#d1c199;
   --nav-img: url(/items/iHnew2.png);
   --img-background: none;
@@ -12,6 +13,7 @@
   --main-bg-color-light: #221c0c;
   --secondary-color-lt: #4dd897;
   --font-color: #f8f9fa;
+  --font-color-light: #212529;
   --footer-muted:#b9ac88;
   --nav-img: url(/items/iHnew2-light.png);
   --img-background: #fefee7;
@@ -21,7 +23,6 @@ html{
   scroll-padding-top: 150px;
 }
 body{
-   background-image: url(/items/brushed-alum.png);
     font-family: 'Comfortaa', cursive;
     background-color: var(--main-bg-color-light);
     color: var(--font-color);
@@ -37,7 +38,7 @@ h6{/* auther */
 }
 
 .bg-match-light{
-    background-image: url(/items/brushed-alum.png);
+    background-image: url("/items/brushed-alum.png");
     /*background-color: #594922;*/
     color: var(--main-bg-color-light);
 }
@@ -122,7 +123,7 @@ a, a.nav-link, a.nav-link:focus, .bd-footer a {
   width: 15px;
 }
 
-a.nav-link:hover,  a.nav-link:focus, .bd-footer a:hover, .bd-footer a:focus{
+a.nav-link:hover,  .bd-footer a:hover, .bd-footer a:focus{
   color: var(--secondary-color-lt);
 }
  .nav-link::before{
@@ -162,41 +163,63 @@ transform: scale(1, 1)
   }
 }
 
+#mainmemoji{
+  width: 275px;
+  border-radius: 50%;
+  position: absolute;
+  top: 150px;
+  left: 50%;
+  margin-left: -150px;
+  box-shadow: 1px 1px 10px #000000;
+  padding: 0;
+}
+.hero{
+  margin-top: 300px; 
+}
+.logoDiv{
+  margin-top: -120px;
+}
+#logo{
+  filter: opacity(0.5);
+  transform: rotate(-22deg);
+}
 @media screen and (min-width: 995px) {
   .hero{
-    margin-top: 150px;
     margin-bottom: 150px;
     height: 750px;
   }
 }
 @media  screen and (max-width: 768px) {
   .hero{
-    margin-top: 150px;
     height: 880px;
   }
 }
 
-.about{
-  margin: auto;
-  background-color: var(--main-bg-color-light);
-  border-radius: 20px;
-  box-shadow: inset 1px 1px 20px -10px;
-  padding: 25px;
-  justify-content: space-around;
-}
 .edu{
   box-sizing: border-box;
-  box-shadow: 2px 4px 15px 1px;
-  border-radius: 20px;
+  box-shadow: 0px 10px 13px -7px var(--font-color);
+  border-radius: 5px;
   padding: 15px;
   margin: 10px;
-  background-image: url(/items/brushed-alum.png);
+  background-color: var(--main-bg-color-light);
+
 }
 .edu img{
   display: block;
   margin: auto;
   background-color: var(--img-background);
   border-radius: 10px;
+}
+.aPlus{
+  font-weight: 900;
+  font-size: large;
+}
+.aMinus{
+  font-weight: 100;
+  font-size: medium;
+}
+.b{
+  font-size: small;
 }
 
 .aHead1{
@@ -244,7 +267,24 @@ transform: scale(1, 1)
 
 }
 
+/* hubspot button */
+#hubspot{
+  display: none;
+  width: 60px;
+  height: 60px;
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  border-radius: 50%;
+  animation: glow .5s infinite alternate;
+  animation-iteration-count: 6;
+}
 
+@keyframes glow {
+    to {
+      box-shadow: 1px 1px 100px 35px rgba(126,0,126,1);
+    }
+}
 footer{
   color: var(--main-color-lt);
 }
@@ -389,3 +429,11 @@ input:checked + .slider:before {
   border-radius: 3px;
   border: 1px solid #000000;
 }
+
+
+
+
+
+
+
+
