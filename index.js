@@ -137,6 +137,19 @@
         
     });
 
+    //css animation on scroll
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (!entry.isIntersecting) {
+                return;
+            }
+            entry.target.classList.add('edu-animation');
+        });
+    });
+
+    observer.observe(document.querySelector('.edu-box'));
+
+
 }());
 
 

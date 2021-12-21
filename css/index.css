@@ -172,26 +172,38 @@ transform: scale(1, 1)
   margin-left: -150px;
   box-shadow: 1px 1px 10px #000000;
   padding: 0;
+  animation-duration: .75s;
+  animation-name: slideinLeft;
 }
 .hero{
   margin-top: 300px; 
 }
+.hero h1, .hero h2{
+  animation-duration: .75s;
+  animation-name: slideinRight;
+}
 .logoDiv{
-  margin-top: -120px;
+  margin-top: -100px;
 }
 #logo{
-  filter: opacity(0.5);
-  transform: rotate(-22deg);
+  filter: opacity(0.3);
+  padding-right: 50px;
 }
 @media screen and (min-width: 995px) {
   .hero{
     margin-bottom: 150px;
     height: 750px;
   }
+  .logoDiv{
+    margin-top: -120px;
+  }
 }
 @media  screen and (max-width: 768px) {
   .hero{
     height: 880px;
+  }
+  .logoDiv{
+    margin-top: 0px;
   }
 }
 
@@ -202,7 +214,6 @@ transform: scale(1, 1)
   padding: 15px;
   margin: 10px;
   background-color: var(--main-bg-color-light);
-
 }
 .edu img{
   display: block;
@@ -228,12 +239,11 @@ transform: scale(1, 1)
 }
 
 .carousel-inner{
-  border-radius: 10px;
-  height: 150px;
+  height: 200px;
 }
 .qoutes{
   text-align: center;
-  height: 150px;
+  height: 200px;
 
 }
 .qoutes p{
@@ -241,7 +251,8 @@ transform: scale(1, 1)
 }
 .qText{  
   font-family: 'Delius Swash Caps', cursive;
-  font-size: 1.5em;
+  font-size: 1.7em;
+  font-weight: 900;
 }
 #q1{
   color: #ccc;
@@ -431,6 +442,35 @@ input:checked + .slider:before {
 }
 
 
+@keyframes slideinRight{
+    from{
+    transform: translateX(100%);
+    }
+    to{
+    transform: translateX(0);
+    }
+}
+@keyframes slideinLeft{
+    from{
+    transform: translateX(-100%);
+    }
+    to{
+    transform: translateX(0);
+    }
+}
+
+.edu-animation{
+  animation-duration: 1s;
+  animation-name: wipe-enter;
+}
+@keyframes wipe-enter {
+	0% {
+		transform: scale(0, .025);
+	}
+	50% {
+		transform: scale(1, .025);
+	}
+}
 
 
 
