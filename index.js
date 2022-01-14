@@ -31,7 +31,7 @@
         }
     }
     let i = 1;
-    setTimeout(() => getQuote(`https://api.quotable.io/quotes?page=${i}tags=inspirational|technology&maxLength=70`), 5000);
+    setTimeout(() => getQuote(`https://api.quotable.io/quotes?page=${i}tags=inspirational|technology&maxLength=70`), 4000);
     setInterval(() => {
         if (i === pages + 1) {//turn it back AFTER it ran through all pages
             i = 1
