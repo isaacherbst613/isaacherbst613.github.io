@@ -4,7 +4,7 @@
   --secondary-color-lt: #4dd897;
   --font-color: #212529;
   --font-color-light: #f8f9fa;
-  --footer-muted:#d1c199;
+  --footer-muted:#c0b18d;
   --nav-img: url(/items/iHnew2.png);
   --img-background: none;
 }
@@ -231,11 +231,6 @@ transform: scale(1, 1)
 }
 .b{
   font-size: small;
-}
-
-.aHead1{
-  text-align: center;
-  margin-bottom: 2em;
 }
 
 .carousel-inner{

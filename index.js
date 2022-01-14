@@ -149,6 +149,15 @@
 
     observer.observe(document.querySelector('.edu-box'));
 
+    //title
+    const t = ['Hello World', "I'm Isaac Herbst", 'FullStack Software Developer',"You've come to the right place", 'HELLOOO', 'A CHANGING TAB!', 'How often do you see that!!', 'Drop me a line', 'Click that green button', 'on the bottom right of the page', 'KIT'];
+    setInterval(() => {
+        document.title = `${t[i++]}`;
+        if (i === t.length) {
+            i = 0;
+        }
+    }, 2500);
+
 
 }());
 
