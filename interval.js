@@ -104,6 +104,7 @@
     let inter;
     let notAtstart = false;
     start.on('click', () => {
+        //handle start after custom input
         if (notAtstart) {
             restart();
             notAtstart = false;
@@ -182,7 +183,7 @@
     });
 
     let data = []
-    function updateViewedTbl(clickedData) {
+    function updateViewedTbl(clickedData, save = true) {
         const textbtn = document.createElement('button');
         textbtn.className = 'btn';
         textbtn.innerText = "text";
@@ -221,17 +222,21 @@
         });
 
         removebtn.addEventListener('click', () => {
+            data.splice(row.rowIndex-1, 1);
             row.remove();
+            localStorage.setItem('viewed_colors', JSON.stringify(data));
         });
-        data.push(clickedData);
-        localStorage.setItem('viewed_colors', JSON.stringify(data));
+        if (save) {
+            data.push(clickedData);
+            localStorage.setItem('viewed_colors', JSON.stringify(data));
+        }
     }
-    function reassignStorage(){
+    function reassignStorage() {
         data = JSON.parse(localStorage.getItem('viewed_colors')) || [];
-        data.forEach(e=>{
-            updateViewedTbl(e);
-            console.log(e);
+        data.forEach(e => {
+            updateViewedTbl(e, false);
         });
+        r = 0, g = 0, b = 0;
     }
     reassignStorage();
 
