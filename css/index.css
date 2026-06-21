@@ -795,12 +795,97 @@ a.nav-link:hover::before {
 }
 
 .card-sub {
-    font-size: 0.78rem;
+    font-size: 0.82rem;
     color: var(--ink-soft);
     text-align: center;
-    margin: -0.5rem 0 1rem;
+    margin: 0.5rem 0 1rem;
     font-style: italic;
-    line-height: 1.4;
+    line-height: 1.5;
+}
+
+.card-headline {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    text-align: center;
+    margin: 0.25rem 0 0.25rem;
+    color: var(--ink);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+}
+
+.card-headline .strike {
+    position: relative;
+    color: var(--ink-soft);
+    display: inline-block;
+}
+
+.card-headline .strike::after {
+    content: '';
+    position: absolute;
+    left: -4%;
+    right: -4%;
+    top: 55%;
+    height: 3px;
+    background: var(--accent-2);
+    border-radius: 2px;
+    transform: rotate(-3deg);
+    transform-origin: left center;
+    animation: strikeIn 0.8s 0.4s cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+@keyframes strikeIn {
+    from { transform: rotate(-3deg) scaleX(0); }
+    to { transform: rotate(-3deg) scaleX(1); }
+}
+
+.hero-tool {
+    display: flex;
+    justify-content: center;
+    margin: 0.5rem 0 0.75rem;
+    padding: 0;
+    list-style: none;
+}
+
+.hero-tool .claude-pill {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.15rem !important;
+    font-weight: 900 !important;
+    padding: 0.85rem 1.5rem !important;
+    background: linear-gradient(135deg, var(--accent-2), var(--accent-3)) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 999px !important;
+    box-shadow: 0 12px 30px -10px var(--accent-2), 0 0 0 4px color-mix(in srgb, var(--accent-2) 18%, transparent);
+    letter-spacing: 0.01em;
+    position: relative;
+    animation: pulseGlow 2.6s ease-in-out infinite;
+}
+
+.hero-tool .claude-pill::before {
+    content: '';
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    background: white;
+    border-radius: 50%;
+    margin-right: 0.55rem;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.35);
+    animation: liveDot 1.4s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 12px 30px -10px var(--accent-2), 0 0 0 4px color-mix(in srgb, var(--accent-2) 18%, transparent); }
+    50% { box-shadow: 0 18px 40px -8px var(--accent-2), 0 0 0 8px color-mix(in srgb, var(--accent-2) 12%, transparent); }
+}
+
+@keyframes liveDot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(0.85); }
+}
+
+.hero-tool .claude-pill:hover {
+    transform: translateY(-3px) rotate(-1deg);
 }
 
 .edu h3 .card-icon {
