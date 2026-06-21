@@ -178,24 +178,26 @@
 
     function animateCount(el, target, duration) {
         const suffix = el.dataset.suffix || '';
+        const prefix = el.dataset.prefix || '';
         const start = performance.now();
         const step = (now) => {
             const t = Math.min(1, (now - start) / duration);
             const eased = 1 - Math.pow(1 - t, 3);
-            el.textContent = Math.floor(eased * target).toString() + (t === 1 ? suffix : '');
+            el.textContent = prefix + Math.floor(eased * target).toString() + (t === 1 ? suffix : '');
             if (t < 1) requestAnimationFrame(step);
-            else el.textContent = target.toString() + suffix;
+            else el.textContent = prefix + target.toString() + suffix;
         };
         requestAnimationFrame(step);
     }
 
     // ============ TYPEWRITER ============
     const roles = [
-        'FullStack Software Developer',
-        'JavaScript Enthusiast',
-        'Class President',
-        'Occasional UI Pretender',
-        'Builder of Fun Things',
+        'Lead Software Engineer',
+        'Cloud + AI Architect',
+        'RAG Pipeline Wrangler',
+        'Distributed Systems Nerd',
+        'Healthcare Infra Tinkerer',
+        'Recovering FullStack Dev',
         'Prompt Wrangler (as of 2026)'
     ];
     const typer = document.getElementById('typewriter');
@@ -291,7 +293,7 @@
     });
 
     // ============ TITLE TICKER ============
-    const t = ['Hello World', "I'm Isaac Herbst", 'FullStack Software Developer', "You've come to the right place", 'HELLOOO', 'A CHANGING TAB!', 'How often do you see that?!', 'Drop me a line', 'Click that green button', 'on the bottom right of the page', 'KIT'];
+    const t = ['Hello World', "I'm Isaac Herbst", 'Lead Software Engineer', "You've come to the right place", 'HELLOOO', 'A CHANGING TAB!', 'How often do you see that?!', 'Drop me a line', 'Click that green button', 'on the bottom right of the page', 'KIT'];
     let tIdx = 1;
     setInterval(() => {
         document.title = `${t[tIdx++]}`;

@@ -803,6 +803,23 @@ a.nav-link:hover::before {
     line-height: 1.5;
 }
 
+.card-sub em {
+    color: var(--accent-2);
+    font-style: normal;
+    font-weight: 700;
+}
+
+.edu-aside {
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    text-align: center;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed var(--line);
+    font-style: italic;
+    line-height: 1.45;
+}
+
 .card-headline {
     font-family: 'Montserrat', sans-serif;
     font-weight: 800;
