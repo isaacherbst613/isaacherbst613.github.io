@@ -250,7 +250,7 @@ a.nav-link:hover::before {
 /* ====== HERO ====== */
 .hero-wrap {
     position: relative;
-    margin: 190px auto 5rem;
+    margin: 225px auto 5rem;
     width: calc(100% - 2rem);
     max-width: 1140px;
 }
@@ -579,7 +579,7 @@ a.nav-link:hover::before {
 
 @media screen and (max-width: 768px) {
     .hero-wrap {
-        margin-top: 140px;
+        margin-top: 175px;
         width: calc(100% - 1.5rem);
     }
     .hero-inner {
