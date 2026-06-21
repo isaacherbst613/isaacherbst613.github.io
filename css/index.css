@@ -58,7 +58,7 @@
 }
 
 html {
-    scroll-padding-top: 150px;
+    scroll-padding-top: 100px;
     scroll-behavior: smooth;
 }
 
@@ -142,18 +142,23 @@ h6 {
 }
 
 .nav-image {
-    width: 56px;
+    width: 42px;
     background-image: var(--nav-img);
-    background-size: 56px 130px;
-    height: 65px;
+    background-size: 42px 98px;
+    height: 49px;
     overflow: hidden;
     transition: transform .25s, filter .25s;
-    filter: drop-shadow(0 4px 10px rgba(89, 73, 34, 0.25));
+    filter: drop-shadow(0 3px 8px rgba(89, 73, 34, 0.25));
 }
 
 .nav-image:hover, .nav-image:focus {
-    background-position-y: -65px;
+    background-position-y: -49px;
     transform: rotate(-3deg) scale(1.04);
+}
+
+.navbar.py-3 {
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
 }
 
 a, a.nav-link, a.nav-link:focus, .bd-footer a {
@@ -245,7 +250,7 @@ a.nav-link:hover::before {
 /* ====== HERO ====== */
 .hero-wrap {
     position: relative;
-    margin: 220px auto 5rem;
+    margin: 190px auto 5rem;
     width: calc(100% - 2rem);
     max-width: 1140px;
 }
@@ -574,7 +579,7 @@ a.nav-link:hover::before {
 
 @media screen and (max-width: 768px) {
     .hero-wrap {
-        margin-top: 170px;
+        margin-top: 140px;
         width: calc(100% - 1.5rem);
     }
     .hero-inner {
@@ -831,17 +836,17 @@ a.nav-link:hover::before {
     letter-spacing: -0.01em;
 }
 
-.card-headline .strike {
+.strike {
     position: relative;
     color: var(--ink-soft);
     display: inline-block;
 }
 
-.card-headline .strike::after {
+.strike::after {
     content: '';
     position: absolute;
-    left: -4%;
-    right: -4%;
+    left: -6%;
+    right: -6%;
     top: 55%;
     height: 3px;
     background: var(--accent-2);
