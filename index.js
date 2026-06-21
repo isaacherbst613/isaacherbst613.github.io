@@ -177,13 +177,14 @@
     document.querySelectorAll('.fact-number[data-count]').forEach(el => countObserver.observe(el));
 
     function animateCount(el, target, duration) {
+        const suffix = el.dataset.suffix || '';
         const start = performance.now();
         const step = (now) => {
             const t = Math.min(1, (now - start) / duration);
             const eased = 1 - Math.pow(1 - t, 3);
-            el.textContent = Math.floor(eased * target).toString();
+            el.textContent = Math.floor(eased * target).toString() + (t === 1 ? suffix : '');
             if (t < 1) requestAnimationFrame(step);
-            else el.textContent = target.toString();
+            else el.textContent = target.toString() + suffix;
         };
         requestAnimationFrame(step);
     }
@@ -193,9 +194,9 @@
         'FullStack Software Developer',
         'JavaScript Enthusiast',
         'Class President',
-        'Coffee Connoisseur',
         'Occasional UI Pretender',
-        'Builder of Fun Things'
+        'Builder of Fun Things',
+        'Prompt Wrangler (as of 2026)'
     ];
     const typer = document.getElementById('typewriter');
     if (typer) {
