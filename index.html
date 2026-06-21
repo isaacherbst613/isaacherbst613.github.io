@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-<!--add modal script-->
 
 <head>
     <!-- Google Tag Manager -->
@@ -16,14 +15,15 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Isaac Herbst Dev</title>
+    <meta name="description" content="Isaac Herbst — FullStack Software Developer. Building delightful things on the web.">
+    <title>Isaac Herbst — Dev</title>
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="items/favicon_new/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="items/favicon_new/favicon-16x16.png">
     <link rel="manifest" href="items/favicon_new/site.webmanifest">
     <link rel="mask-icon" href="items/favicon_new/safari-pinned-tab.svg" color="#5bbad5">
     <meta name="msapplication-TileColor" content="#da532c">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#fef7e6">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
@@ -31,23 +31,23 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Delius+Swash+Caps&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Chivo:300,700|Montserrat:900" rel="stylesheet">
 </head>
 
 <body data-spy="scroll" data-target="#navbar-example" class="fixed" id="body">
     <!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T9239NQ"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T9239NQ"
+            height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
 
-    <nav id="navbar" class="navbar navbar-expand-lg px-5 py-4 fixed-top ">
+    <nav id="navbar" class="navbar navbar-expand-lg px-5 py-3 fixed-top ">
         <div class="container-fluid">
             <a class="navbar-brand" href="index.html">
                 <div class="nav-image"></div>
             </a>
             <div class="theme-switch-wrapper me-2">
-                <label class="theme-switch" for="checkbox">
+                <label class="theme-switch" for="checkbox" title="Toggle theme">
                     <input type="checkbox" id="checkbox" />
                     <div class="slider round"></div>
                 </label>
@@ -59,7 +59,6 @@
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto px-3 mb-0">
-
                     <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="items/Resume.pdf"
                             target="_blank">Resume</a>
@@ -76,11 +75,11 @@
                             </li>
                             <li><a class="dropdown-item" href="https://crypto-chain613.herokuapp.com">Blockchain/Crypto
                                     <br>(Udemy Course Edition)</a><a class="dropdown-item"
-                                    href="./items/udemy-cert.pdf">Veiw Course Certificate</a></li>
+                                    href="./items/udemy-cert.pdf">View Course Certificate</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#hub" id="contact">Contact Me</a>
+                        <a class="nav-link active" aria-current="page" href="#hub" id="contact">Say Hi</a>
                     </li>
                 </ul>
             </div>
@@ -88,84 +87,167 @@
     </nav>
 
     <main>
-        <div class="hero container rounded-1 border shadow-lg mb-4">
-            <img src="items/1.png" alt="memoji1" id="mainmemoji">
-            <div class="p-4 pb-2 pe-lg-0 pt-5 align-items-end">
-                <div class="py-md-5 p-lg-5 pt-lg-5">
-                    <h1 class="display-1 fw-bold lh-1 py-5">HEY! I'm Isaac Herbst</h1>
-                    <h2 class="display-6">FullStack Software Developer</h2>
-                    <h4> - not UI/UX designer</h4>
-                    <p class="lead w-75">Though I don't mind stepping out of my comfort zone, hence this site. Oh yeah,
-                        and thanx
-                        bootstrap;)</p>
+        <div class="hero-wrap">
+        <img src="items/1.png" alt="Isaac Herbst memoji" id="mainmemoji" title="psst — try clicking me">
+        <section class="hero">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+            <div class="blob blob-3"></div>
 
+            <div class="hero-inner">
+                <div class="hello-row">
+                    <span>Hey there</span>
+                    <span class="wave" aria-hidden="true">&#x1F44B;</span>
+                </div>
+                <h1 class="name-title">I'm Isaac Herbst</h1>
+                <div class="role-line">
+                    <span class="role-prefix">I'm a</span>
+                    <span id="typewriter">FullStack Software Developer</span>
+                </div>
+                <p class="tagline">
+                    A dev who lives in the <em>backend</em>, vacations in the <em>frontend</em>, and once in a while builds
+                    things like this site — definitely <em>not</em> a UI/UX designer, but having a blast pretending to be one.
+                    Thanks, <em>Bootstrap</em> ;)
+                </p>
+                <div class="cta-row">
+                    <a class="btn-pop primary" href="items/Resume.pdf" target="_blank">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                            <line x1="12" y1="18" x2="12" y2="12"/>
+                            <line x1="9" y1="15" x2="15" y2="15"/>
+                        </svg>
+                        Grab my résumé
+                    </a>
+                    <a class="btn-pop ghost" href="#hub" id="contact2">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        Say hello
+                    </a>
                 </div>
             </div>
-            <div class="logoDiv d-flex justify-content-end mb-4 mb-lg-3">
-                <img id="logo" class="img-fluid" src="items/iHnew.png" alt="logo" width="275">
+
+            <div class="logoDiv">
+                <img id="logo" class="img-fluid" src="items/iHnew.png" alt="logo" width="180">
             </div>
+
+            <div class="scroll-cue" aria-hidden="true">
+                <span>scroll</span>
+                <span class="arrow"></span>
+            </div>
+        </section>
         </div>
 
-        <div class="container pt-4" style="height: 270px;">
+        <div class="carousel-wrap">
             <div id="carouselSlide" class="carousel slide carousel-dark" data-bs-ride="carousel">
                 <div class="carousel-inner">
                     <!--dynamically placed slides-->
                 </div>
-                <!--button class="carousel-control-prev" type="button" data-bs-target="#carouselSlide" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-          </button>
-          <button class="carousel-control-next" type="button" data-bs-target="#carouselSlide" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-          </button-->
             </div>
         </div>
 
+        <p class="section-eyebrow reveal">What I work with</p>
+        <h2 class="section-title reveal">My toolkit
+            <svg class="squiggle" viewBox="0 0 60 16" aria-hidden="true">
+                <path d="M2 8 Q 10 1, 18 8 T 34 8 T 50 8 T 60 8" stroke="var(--accent-2)" stroke-width="3" fill="none" stroke-linecap="round"/>
+            </svg>
+        </h2>
 
-        <div class="row edu-box w-75 m-auto justify-content-between">
-            <div class="edu pt-4 col-md-6 mx-md-0 col-xl-3" id="about">
-                <h3 class="mb-3 text-center">My Stack</h3>
-                <ul class="text-truncate">
-                    <li class="aPlus ">Javascript/Node.js</li>
+        <div class="row edu-box" id="about">
+            <div class="edu reveal reveal-delay-1">
+                <h3>
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="16 18 22 12 16 6"/>
+                            <polyline points="8 6 2 12 8 18"/>
+                        </svg>
+                    </span>
+                    My Stack
+                </h3>
+                <ul>
+                    <li class="aPlus">Javascript / Node.js</li>
                     <li class="aPlus">HTML</li>
                     <li class="aPlus">CSS</li>
                     <li class="aMinus">Java</li>
                     <li class="aMinus">Python</li>
-                    <li class="aMinus">MySql</li>
+                    <li class="aMinus">MySQL</li>
                 </ul>
             </div>
-            <div class="edu pt-4 skills col-md-6 mx-md-0 col-xl-3">
-                <h3 class="mb-3 text-center">My Toolbox</h3>
+            <div class="edu skills reveal reveal-delay-2">
+                <h3>
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                        </svg>
+                    </span>
+                    My Toolbox
+                </h3>
                 <ul>
                     <li class="aPlus">React</li>
                     <li class="aPlus">Bootstrap</li>
                     <li class="aPlus">JQuery</li>
                     <li class="aMinus">Git</li>
-                    <li class="aMInus">Webpack</li>
+                    <li class="aMinus">Webpack</li>
                 </ul>
             </div>
-            <div class="edu pt-4 mx-md-0 col-xl-5">
-                <h3 class="mb-1 text-center">My Education</h3>
-                <img src="items/pcs.png">
-                <h6 class="mb-2 mt-1 text-center fw-light">The School of Evolving Technologies</h6>
-                <p class="pb-1 p-3">The Computer programming course is an 18 month hands-on intensive course geared
-                    toward candidates with high potential to succeed in today’s competitive environment. Candidates are
-                    pre-screened and must meet competitive requirements.</p>
-                <div class="p-3 fw-bolder">Class President</div>
+            <div class="edu reveal reveal-delay-3">
+                <h3>
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                        </svg>
+                    </span>
+                    My Education
+                </h3>
+                <img src="items/pcs.png" alt="PCS Tech Academy">
+                <h6>The School of Evolving Technologies</h6>
+                <p>An 18-month hands-on intensive computer programming course geared toward candidates with high potential
+                    to succeed in today's competitive environment. Candidates are pre-screened and must meet competitive
+                    requirements.</p>
+                <div style="text-align:center;">
+                    <span class="president-badge">
+                        <span class="star" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 .587l3.668 7.431 8.207 1.192-5.938 5.788 1.402 8.174L12 18.896l-7.339 3.856 1.402-8.174L.125 9.21l8.207-1.192z"/></svg>
+                        </span>
+                        Class President
+                    </span>
+                </div>
             </div>
         </div>
+
+        <div class="fun-facts">
+            <div class="fact reveal">
+                <div class="fact-number" data-count="18">0</div>
+                <div class="fact-label">months of intensive code</div>
+            </div>
+            <div class="fact reveal reveal-delay-1">
+                <div class="fact-number" data-count="6">0</div>
+                <div class="fact-label">languages in the toolbox</div>
+            </div>
+            <div class="fact reveal reveal-delay-2">
+                <div class="fact-number" data-count="42">0</div>
+                <div class="fact-label">cups of coffee per week*</div>
+            </div>
+            <div class="fact reveal reveal-delay-3">
+                <div class="fact-number">&#x221E;</div>
+                <div class="fact-label">curiosity reserves</div>
+            </div>
+        </div>
+
         <div id="hubspot"></div>
     </main>
 
-    <footer class="bd-footer py-2 mt-5 bg-match-dark">
+    <footer class="bd-footer">
         <div class="container py-3">
             <div class="row">
-                <div class="col-sm-6 col-lg-4 ms-lg-2 mb-3" id="contact">
+                <div class="col-sm-6 col-lg-4 ms-lg-2 mb-3" id="contact-foot">
+                    <h5>Find me online</h5>
                     <ul class="list-unstyled">
-                        <li class="mb-2"><img id="git" src="items/pics/icons8-github-30.png"><a
+                        <li class="mb-2"><img id="git" src="items/pics/icons8-github-30.png" alt="GitHub"><a
                                 href="https://github.com/isaacherbst613" target="_blank"> #isaacHerbst613</a></li>
-                        <li class="mb-2"><img id="linked" src="items/pics/icons8-linkedin-50.png"><a
+                        <li class="mb-2"><img id="linked" src="items/pics/icons8-linkedin-50.png" alt="LinkedIn"><a
                                 href="https://www.linkedin.com/in/isaac-herbst-712001207/" target="_blank">
                                 #isaacHerbst</a></li>
                     </ul>
@@ -173,16 +255,15 @@
                 <div class="col-md-4 mb-3">
                     <h5>About this Webpage</h5>
                     <ul class="list-unstyled small text-muted">
-                        <li class="mb-2">Designed and built using vanilla Javascript with a little help from <a
-                                href="https://getbootstrap.com">Bootstrap</a>, <a href="https://jquery.com/">JQuery</a>
-                            and some <a href="https://www.google.com/teapot" target="_blank">coffee</a> .</li>
-                        <li class="mb-2">The icons are from <a href="https://icons8.com/">icons8</a>.</li>
-                        <li class="mb-2">The qoutes are from the <a
-                                href="https://github.com/lukePeavey/quotable">Qoutable.io API</a>, and gets updated
-                            every 10 minutes.</li>
+                        <li class="mb-2">Designed &amp; built with vanilla JavaScript, a little help from <a
+                                href="https://getbootstrap.com">Bootstrap</a>, <a href="https://jquery.com/">JQuery</a>,
+                            and some <a href="https://www.google.com/teapot" target="_blank">coffee</a>.</li>
+                        <li class="mb-2">Icons by <a href="https://icons8.com/">icons8</a>.</li>
+                        <li class="mb-2">Quotes via the <a
+                                href="https://github.com/lukePeavey/quotable">Quotable.io API</a>, refreshed every 10 minutes.</li>
+                        <li class="mb-2" style="opacity:0.7;font-size:0.78rem;">* coffee count is approximate &amp; possibly conservative.</li>
                     </ul>
                 </div>
-
             </div>
         </div>
     </footer>
