@@ -794,6 +794,15 @@ a.nav-link:hover::before {
     justify-content: center;
 }
 
+.card-sub {
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    text-align: center;
+    margin: -0.5rem 0 1rem;
+    font-style: italic;
+    line-height: 1.4;
+}
+
 .edu h3 .card-icon {
     width: 36px;
     height: 36px;
@@ -965,6 +974,40 @@ a.nav-link:hover::before {
     color: var(--brand);
     position: relative;
     overflow: hidden;
+}
+
+.footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) minmax(0, 2.2fr);
+    gap: 3rem;
+    align-items: start;
+}
+
+@media (max-width: 768px) {
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    .footer-inner { padding: 0 1rem; }
+}
+
+.footer-col h5 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.footer-col ul {
+    margin: 0;
+}
+
+.footer-col-about ul li {
+    line-height: 1.6;
 }
 
 .bd-footer::before {

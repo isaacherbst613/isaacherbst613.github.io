@@ -1,8 +1,17 @@
 (function () {
     'use strict';
 
-    ///intake form input, update page copy, add links, 
-    //add comments to this js file
+    // theme toggle (shared via localStorage with index.html)
+    const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+    if (toggleSwitch) {
+        const stored = localStorage.getItem('theme');
+        if (stored === 'dark') toggleSwitch.checked = true;
+        toggleSwitch.addEventListener('change', (e) => {
+            const next = e.target.checked ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+        });
+    }
 
     const page = $("#main");//backround-color-changing container
     const mainButtons = $(".bottomMain :button");//container buttons
