@@ -419,6 +419,56 @@
         sayHi();
     });
 
+    /* ---------- toy chest: bubble wrap ---------- */
+
+    var bubbleGrid = document.getElementById("bubbleGrid");
+    var bubbleCount = document.getElementById("bubbleCount");
+    var BUBBLES = 40;
+    var popped = 0;
+
+    function popBubble(b, x, y) {
+        if (b.classList.contains("popped")) return;
+        b.classList.add("popped");
+        popped++;
+        bubbleCount.textContent = popped === BUBBLES ? "all " + BUBBLES + " popped 👏" : popped + " popped";
+        burst(x, y, 6, 0.5);
+        if (popped === BUBBLES) toast("very satisfying. fresh sheet's on the house.");
+    }
+
+    function buildBubbles() {
+        bubbleGrid.innerHTML = "";
+        popped = 0;
+        bubbleCount.textContent = "0 popped";
+        for (var i = 0; i < BUBBLES; i++) {
+            var b = document.createElement("button");
+            b.type = "button";
+            b.className = "bubble";
+            b.setAttribute("aria-label", "bubble " + (i + 1));
+            b.addEventListener("pointerdown", function (e) { popBubble(e.currentTarget, e.clientX, e.clientY); });
+            /* drag across with the button held to pop a whole row */
+            b.addEventListener("pointerenter", function (e) {
+                if (e.buttons) popBubble(e.currentTarget, e.clientX, e.clientY);
+            });
+            bubbleGrid.appendChild(b);
+        }
+    }
+    buildBubbles();
+    document.getElementById("freshSheet").addEventListener("click", buildBubbles);
+
+    /* ---------- toy chest: cannon + disco ---------- */
+
+    document.getElementById("cannonBtn").addEventListener("click", function (e) {
+        burst(e.clientX, e.clientY, 90, 1.6);
+    });
+
+    function toggleDisco() {
+        var on = document.body.classList.toggle("disco");
+        if (on) { rain(220); toast("DISCO MODE 🪩 (hit it again to stop)"); }
+        else { toast("disco's over. back to work."); }
+    }
+
+    document.getElementById("discoBtn").addEventListener("click", toggleDisco);
+
     /* ---------- konami disco ---------- */
 
     var KONAMI = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
@@ -428,9 +478,7 @@
         kIdx = key === KONAMI[kIdx] ? kIdx + 1 : (key === KONAMI[0] ? 1 : 0);
         if (kIdx === KONAMI.length) {
             kIdx = 0;
-            var on = document.body.classList.toggle("disco");
-            if (on) { rain(220); toast("DISCO MODE 🪩 (same code turns it off)"); }
-            else { toast("disco's over. back to work."); }
+            toggleDisco();
         }
     });
 
