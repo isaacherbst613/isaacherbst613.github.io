@@ -423,7 +423,7 @@
 
     var bubbleGrid = document.getElementById("bubbleGrid");
     var bubbleCount = document.getElementById("bubbleCount");
-    var BUBBLES = 40;
+    var BUBBLES = 52;
     var popped = 0;
 
     function popBubble(b, x, y) {
@@ -455,7 +455,210 @@
     buildBubbles();
     document.getElementById("freshSheet").addEventListener("click", buildBubbles);
 
-    /* ---------- toy chest: cannon + disco ---------- */
+    /* ---------- toy chest: carousel ---------- */
+
+    var track = document.getElementById("carTrack");
+    var dotsWrap = document.getElementById("carDots");
+    var slides = track.querySelectorAll(".car-slide");
+    var carIdx = 0;
+
+    function goTo(i) {
+        carIdx = Math.max(0, Math.min(slides.length - 1, i));
+        slides[carIdx].scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", inline: "center", block: "nearest" });
+    }
+
+    slides.forEach(function (s, i) {
+        var d = document.createElement("button");
+        d.type = "button";
+        d.className = "car-dot" + (i === 0 ? " active" : "");
+        d.setAttribute("role", "tab");
+        d.setAttribute("aria-label", s.querySelector(".game-label").textContent);
+        d.addEventListener("click", function () { goTo(i); });
+        dotsWrap.appendChild(d);
+    });
+
+    document.getElementById("carPrev").addEventListener("click", function () { goTo(carIdx - 1); });
+    document.getElementById("carNext").addEventListener("click", function () { goTo(carIdx + 1); });
+
+    track.addEventListener("scroll", function () {
+        var mid = track.scrollLeft + track.clientWidth / 2;
+        var nearest = 0, nearestDist = Infinity;
+        slides.forEach(function (s, i) {
+            var d = Math.abs(s.offsetLeft + s.offsetWidth / 2 - mid);
+            if (d < nearestDist) { nearestDist = d; nearest = i; }
+        });
+        if (nearest !== carIdx) {
+            carIdx = nearest;
+            dotsWrap.querySelectorAll(".car-dot").forEach(function (d, i) {
+                d.classList.toggle("active", i === carIdx);
+            });
+        }
+    }, { passive: true });
+
+    /* high scores survive a refresh; failure just means no bragging rights */
+    function readBest(k) { try { return +localStorage.getItem(k) || 0; } catch (e) { return 0; } }
+    function storeBest(k, v) { try { localStorage.setItem(k, v); } catch (e) { } }
+
+    /* ---------- game: whack-a-memoji ---------- */
+
+    var whackGrid = document.getElementById("whackGrid");
+    var whackStat = document.getElementById("whackStat");
+    var whackStart = document.getElementById("whackStart");
+    var wPlaying = false, wScore = 0, wTime = 20, wSpawn = null, wCount = null, wHide = null;
+
+    for (var h = 0; h < 9; h++) {
+        var hole = document.createElement("button");
+        hole.type = "button";
+        hole.className = "hole";
+        hole.setAttribute("aria-label", "memoji hole " + (h + 1));
+        var im = document.createElement("img");
+        im.src = "items/1.png";
+        im.alt = "";
+        im.draggable = false;
+        hole.appendChild(im);
+        hole.addEventListener("pointerdown", function (e) {
+            if (!wPlaying || !this.classList.contains("up")) return;
+            this.classList.remove("up");
+            wScore++;
+            whackStat.textContent = "score " + wScore + " · " + wTime + "s";
+            burst(e.clientX, e.clientY, 8, 0.7);
+        });
+        whackGrid.appendChild(hole);
+    }
+
+    function whackEnd() {
+        wPlaying = false;
+        clearInterval(wSpawn); clearInterval(wCount); clearTimeout(wHide);
+        whackGrid.querySelectorAll(".hole.up").forEach(function (x) { x.classList.remove("up"); });
+        whackStart.textContent = "▶ start the whacking";
+        var best = readBest("whackBest");
+        if (wScore > best) {
+            storeBest("whackBest", wScore);
+            toast(wScore + " whacks — new personal best 🏆");
+            burst(window.innerWidth / 2, window.innerHeight / 2, 80, 1.4);
+        } else {
+            toast(wScore + " whacks. the memoji will recover.");
+        }
+        whackStat.textContent = "best " + Math.max(best, wScore);
+    }
+
+    whackStart.addEventListener("click", function () {
+        if (wPlaying) return;
+        wPlaying = true; wScore = 0; wTime = 20;
+        whackStat.textContent = "score 0 · 20s";
+        whackStart.textContent = "…whack!";
+        var holes = whackGrid.children;
+        wSpawn = setInterval(function () {
+            var pick = holes[(Math.random() * holes.length) | 0];
+            pick.classList.add("up");
+            clearTimeout(wHide);
+            wHide = setTimeout(function () { pick.classList.remove("up"); }, 650);
+        }, 780);
+        wCount = setInterval(function () {
+            wTime--;
+            whackStat.textContent = "score " + wScore + " · " + wTime + "s";
+            if (wTime <= 0) whackEnd();
+        }, 1000);
+    });
+
+    /* ---------- game: simon ---------- */
+
+    var pads = document.querySelectorAll(".pad");
+    var simonStat = document.getElementById("simonStat");
+    var simonSeq = [], simonPos = 0, simonAwait = false, simonBusy = false;
+
+    function flash(i, ms) {
+        pads[i].classList.add("lit");
+        setTimeout(function () { pads[i].classList.remove("lit"); }, ms || 320);
+    }
+
+    function simonPlayback() {
+        simonBusy = true;
+        simonStat.textContent = "round " + simonSeq.length + " — watch…";
+        simonSeq.forEach(function (p, i) {
+            setTimeout(function () { flash(p); }, 550 * (i + 1));
+        });
+        setTimeout(function () {
+            simonBusy = false;
+            simonAwait = true;
+            simonPos = 0;
+            simonStat.textContent = "round " + simonSeq.length + " — your turn";
+        }, 550 * (simonSeq.length + 1));
+    }
+
+    function simonNext() {
+        simonSeq.push((Math.random() * 4) | 0);
+        simonPlayback();
+    }
+
+    pads.forEach(function (pad) {
+        pad.addEventListener("click", function () {
+            if (simonBusy || !simonAwait) { flash(+pad.dataset.pad, 150); return; }
+            var want = simonSeq[simonPos];
+            if (+pad.dataset.pad === want) {
+                flash(want, 180);
+                simonPos++;
+                if (simonPos === simonSeq.length) {
+                    simonAwait = false;
+                    var best = readBest("simonBest");
+                    if (simonSeq.length > best) storeBest("simonBest", simonSeq.length);
+                    setTimeout(simonNext, 750);
+                }
+            } else {
+                simonAwait = false;
+                var made = simonSeq.length - 1;
+                toast(made > 0 ? "made it through round " + made + " 🧠" : "round 1. we've all been there.");
+                simonStat.textContent = "best round " + Math.max(readBest("simonBest"), made);
+                simonSeq = [];
+            }
+        });
+    });
+
+    document.getElementById("simonStart").addEventListener("click", function () {
+        if (simonBusy) return;
+        simonSeq = [];
+        simonNext();
+    });
+
+    /* ---------- game: reaction test ---------- */
+
+    var zone = document.getElementById("reactZone");
+    var reactStat = document.getElementById("reactStat");
+    var rState = "idle", rTimer = null, rT0 = 0;
+    var rBest = readBest("reactBest");
+    if (rBest) reactStat.textContent = "best " + rBest + "ms";
+
+    zone.addEventListener("click", function () {
+        if (rState === "idle") {
+            rState = "armed";
+            zone.className = "react-zone armed";
+            zone.textContent = "wait for mint…";
+            rTimer = setTimeout(function () {
+                rState = "go";
+                zone.className = "react-zone go";
+                zone.textContent = "CLICK!";
+                rT0 = performance.now();
+            }, 1400 + Math.random() * 2600);
+        } else if (rState === "armed") {
+            clearTimeout(rTimer);
+            rState = "idle";
+            zone.className = "react-zone";
+            zone.textContent = "too soon 😅 — click to retry";
+        } else if (rState === "go") {
+            var ms = Math.round(performance.now() - rT0);
+            rState = "idle";
+            zone.className = "react-zone";
+            zone.textContent = ms + "ms — click to go again";
+            if (!rBest || ms < rBest) {
+                rBest = ms;
+                storeBest("reactBest", ms);
+                reactStat.textContent = "best " + ms + "ms";
+                if (ms < 350) burst(window.innerWidth / 2, window.innerHeight / 2, 40, 1.1);
+            }
+        }
+    });
+
+    /* ---------- confetti cannon + disco (konami only) ---------- */
 
     document.getElementById("cannonBtn").addEventListener("click", function (e) {
         burst(e.clientX, e.clientY, 90, 1.6);
@@ -466,8 +669,6 @@
         if (on) { rain(220); toast("DISCO MODE 🪩 (hit it again to stop)"); }
         else { toast("disco's over. back to work."); }
     }
-
-    document.getElementById("discoBtn").addEventListener("click", toggleDisco);
 
     /* ---------- konami disco ---------- */
 

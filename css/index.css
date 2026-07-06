@@ -339,25 +339,89 @@ a { color: inherit; }
     text-align: center;
 }
 
-.toy-grid {
-    display: grid;
-    grid-template-columns: 1.4fr 1fr;
-    gap: 1.6rem;
-    max-width: 980px;
+/* --- carousel shell --- */
+
+.carousel {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    max-width: 880px;
     margin: 0 auto;
-    align-items: start;
 }
 
-.bubble-panel {
+.car-track {
+    display: flex;
+    flex: 1;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    gap: 1.2rem;
+    padding: 12px 4px 16px;   /* room for the hard shadows */
+    scrollbar-width: none;
+}
+
+.car-track::-webkit-scrollbar { display: none; }
+
+.car-slide {
+    flex: 0 0 100%;
+    scroll-snap-align: center;
+    min-width: 0;
+}
+
+.car-arrow {
+    flex: 0 0 auto;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 3px solid var(--ink);
+    background: var(--mint);
+    color: var(--ink);
+    font-size: 1.3rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 var(--ink);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.car-arrow:hover  { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+.car-arrow:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+
+.car-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+    margin: 1rem 0 2.4rem;
+}
+
+.car-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 3px solid var(--ink);
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.car-dot.active { background: var(--grape); transform: scale(1.2); }
+
+/* --- game cards --- */
+
+.game-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 470px;
     background: #fff;
     border: 3px solid var(--ink);
     border-radius: 22px;
     padding: 1.4rem;
     box-shadow: 7px 7px 0 var(--ink);
-    transform: rotate(-0.5deg);
 }
 
-.bubble-head {
+.game-card .btn-mint { align-self: center; }
+
+.game-head {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
@@ -367,14 +431,16 @@ a { color: inherit; }
     font-size: 0.85rem;
 }
 
-.bubble-label { font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
-.bubble-count { color: rgba(33, 22, 83, 0.55); }
+.game-label { font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
+.game-stat { color: rgba(33, 22, 83, 0.55); text-align: right; }
 
 .bubble-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
     gap: 8px;
     touch-action: manipulation;
+    flex: 1;
+    align-content: start;
 }
 
 .bubble {
@@ -404,22 +470,113 @@ a { color: inherit; }
     padding: 0.6rem 1.4rem;
 }
 
-.toy-side { display: flex; flex-direction: column; gap: 1.6rem; }
+/* --- whack-a-memoji --- */
+
+.whack-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    width: min(360px, 100%);
+    margin: 0 auto 1rem;
+    flex: 1;
+    align-content: center;
+}
+
+.hole {
+    position: relative;
+    aspect-ratio: 1;
+    border: none;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 42%, #ded8ff, #b7abf5 65%, #9c8cf2);
+    box-shadow: inset 0 6px 10px rgba(33, 22, 83, 0.35);
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.hole img {
+    position: absolute;
+    inset: 10% 10% 0;
+    width: 80%;
+    transform: translateY(135%);
+    transition: transform 0.12s ease;
+    pointer-events: none;
+}
+
+.hole.up img { transform: translateY(6%); }
+
+/* --- simon --- */
+
+.simon-pads {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 170px));
+    gap: 14px;
+    justify-content: center;
+    align-content: center;
+    flex: 1;
+    margin-bottom: 1rem;
+}
+
+.pad {
+    aspect-ratio: 1;
+    border: 3px solid var(--ink);
+    border-radius: 20px;
+    cursor: pointer;
+    filter: saturate(0.55) brightness(0.94);
+    transition: filter 0.12s ease, transform 0.12s ease;
+}
+
+.pad-grape { background: var(--grape); border-top-left-radius: 60%; }
+.pad-pink  { background: var(--pink);  border-top-right-radius: 60%; }
+.pad-lemon { background: var(--lemon); border-bottom-left-radius: 60%; }
+.pad-mint  { background: var(--mint);  border-bottom-right-radius: 60%; }
+
+.pad.lit, .pad:active { filter: saturate(1.25) brightness(1.15); transform: scale(1.06); }
+
+/* --- reaction test --- */
+
+.react-zone {
+    flex: 1;
+    border: 3px solid var(--ink);
+    border-radius: 18px;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--display);
+    font-size: clamp(1.3rem, 3vw, 1.9rem);
+    font-weight: 760;
+    cursor: pointer;
+    line-height: 1.5;
+    transition: background 0.1s ease;
+}
+
+.react-zone.armed { background: var(--pink); }
+.react-zone.go    { background: var(--mint); }
+
+.react-sub {
+    display: block;
+    margin-top: 0.5rem;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: rgba(33, 22, 83, 0.6);
+}
+
+/* --- confetti cannon --- */
 
 .toy-big {
+    display: block;
+    margin: 0 auto;
+    min-width: min(420px, 100%);
     background: var(--pink);
     color: var(--ink);
     border: 3px solid var(--ink);
     border-radius: 22px;
-    padding: 1.6rem 1.2rem 1.4rem;
+    padding: 1.6rem 1.8rem 1.4rem;
     cursor: pointer;
     box-shadow: 7px 7px 0 var(--ink);
     font-family: var(--display);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
-    transform: rotate(1deg);
+    transform: rotate(-1deg);
 }
-
-.toy-disco { background: var(--lemon); transform: rotate(-1deg); }
 
 .toy-big:hover  { transform: rotate(0) translate(-3px, -4px); box-shadow: 11px 11px 0 var(--ink); }
 .toy-big:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink); }
@@ -440,18 +597,11 @@ a { color: inherit; }
     line-height: 1.5;
 }
 
-.toy-note {
-    font-family: var(--mono);
-    font-size: 0.8rem;
-    color: rgba(33, 22, 83, 0.55);
-    line-height: 1.6;
-    text-align: left;
-    padding: 0 0.4rem;
-}
-
 @media (max-width: 760px) {
-    .toy-grid { grid-template-columns: 1fr; }
-    .toy-note { text-align: center; }
+    .carousel { gap: 0.5rem; }
+    .car-arrow { width: 40px; height: 40px; font-size: 1.05rem; }
+    .game-card { min-height: 430px; padding: 1.1rem; }
+    .bubble-grid { grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); }
 }
 
 /* ---------- stickers / contact ---------- */
