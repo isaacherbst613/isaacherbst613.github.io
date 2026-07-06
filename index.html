@@ -13,269 +13,112 @@
         })(window, document, 'script', 'dataLayer', 'GTM-T9239NQ');</script>
     <!-- End Google Tag Manager -->
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Isaac Herbst — Lead Software Engineer. Cloud, AI, and distributed systems for healthcare.">
-    <title>Isaac Herbst — Lead Software Engineer</title>
+    <meta name="description" content="Isaac Herbst. Tear the curtain, throw the memoji, say hi.">
+    <title>Isaac Herbst — go on, tear it</title>
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="items/favicon_new/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="items/favicon_new/favicon-16x16.png">
     <link rel="manifest" href="items/favicon_new/site.webmanifest">
-    <link rel="mask-icon" href="items/favicon_new/safari-pinned-tab.svg" color="#5bbad5">
-    <meta name="msapplication-TileColor" content="#da532c">
-    <meta name="theme-color" content="#fef7e6">
+    <link rel="mask-icon" href="items/favicon_new/safari-pinned-tab.svg" color="#6c57e8">
+    <meta name="theme-color" content="#6c57e8">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/index.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Delius+Swash+Caps&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Chivo:300,700|Montserrat:900" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/index.css">
 </head>
 
-<body data-spy="scroll" data-target="#navbar-example" class="fixed" id="body">
+<body>
     <!-- Google Tag Manager (noscript) -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T9239NQ"
             height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
 
-    <nav id="navbar" class="navbar navbar-expand-lg px-5 py-3 fixed-top ">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="index.html">
-                <div class="nav-image"></div>
-            </a>
-            <button class="navbar-toggler menu-btn" type="button" data-bs-toggle="collapse"
-                data-bs-target="#navbarSupportedContent">
-                <div class="navbar-toggler-icon"><span></span><span></span><span></span></div>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto px-3 mb-0">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="items/Resume.pdf"
-                            target="_blank">Resume</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                            Side Projects
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <li><a class="dropdown-item" href="/interval.html">RGB vs. RYB</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="https://crypto-chain613.herokuapp.com">Blockchain/Crypto
-                                    <br>(Udemy Course Edition)</a><a class="dropdown-item"
-                                    href="./items/udemy-cert.pdf">View Course Certificate</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#hub" id="contact">Say Hi</a>
-                    </li>
-                </ul>
-            </div>
-            <div class="theme-switch-wrapper ms-auto">
-                <label class="theme-switch" for="checkbox" title="Toggle theme">
-                    <input type="checkbox" id="checkbox" />
-                    <div class="slider round"></div>
-                </label>
-            </div>
-        </div>
-    </nav>
+    <canvas id="confetti" aria-hidden="true"></canvas>
+    <div id="toast" role="status" aria-live="polite"></div>
 
     <main>
-        <div class="hero-wrap">
-        <img src="items/1.png" alt="Isaac Herbst memoji" id="mainmemoji" title="psst — try clicking me">
-        <section class="hero">
-            <div class="blob blob-1"></div>
-            <div class="blob blob-2"></div>
-            <div class="blob blob-3"></div>
-
+        <section class="hero" id="hero">
             <div class="hero-inner">
-                <div class="hello-row">
-                    <span>Hey there</span>
-                    <span class="wave" aria-hidden="true">&#x1F44B;</span>
-                </div>
-                <h1 class="name-title">I'm Isaac Herbst</h1>
-                <div class="role-line">
-                    <span class="role-prefix">I'm a</span>
-                    <span id="typewriter">Lead Software Engineer</span>
-                </div>
-                <p class="tagline">
-                    Leading engineering at a <em>healthcare AI</em> startup — wiring up <em>RAG pipelines</em>,
-                    distributed <em>AWS</em> infra, and the occasional Chrome extension. Started in the backend, vacationed
-                    in the frontend, now mostly live in the cloud. This site is the one thing I haven't shipped to
-                    production. Thanks to <em>Bootstrap</em>, and to <em>Claude Code</em> for the 2026 glow-up
-                    (it promised it wouldn't tell anyone I just typed "spice it up" and walked away) ;)
-                </p>
+                <p class="eyebrow">oh hey, you found me</p>
+                <h1 class="big-name" id="bigName" aria-label="Isaac Herbst">
+                    <span class="name-line" data-word="ISAAC"></span>
+                    <span class="name-line" data-word="HERBST"></span>
+                </h1>
+                <p class="hero-sub">I build software for a living.<br>I built this page for fun.</p>
                 <div class="cta-row">
-                    <a class="btn-pop primary" href="items/Resume.pdf" target="_blank">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                            <polyline points="14 2 14 8 20 8"/>
-                            <line x1="12" y1="18" x2="12" y2="12"/>
-                            <line x1="9" y1="15" x2="15" y2="15"/>
-                        </svg>
-                        Grab my résumé
-                    </a>
-                    <a class="btn-pop ghost" href="#hub" id="contact2">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                        </svg>
-                        Say hello
-                    </a>
+                    <a class="btn btn-solid" href="items/Resume.pdf" target="_blank" rel="noopener">grab my résumé</a>
+                    <button class="btn btn-outline" id="sayHiBtn" type="button">say hi</button>
                 </div>
             </div>
 
-            <div class="logoDiv">
-                <img id="logo" class="img-fluid" src="items/iHnew.png" alt="logo" width="180">
-            </div>
+            <canvas id="cloth" aria-hidden="true"></canvas>
 
-            <div class="scroll-cue" aria-hidden="true">
-                <span>scroll</span>
-                <span class="arrow"></span>
-            </div>
+            <p class="tear-hint" id="tearHint" aria-hidden="true">
+                <span class="hint-arrow">↖</span> this curtain actually tears — swipe through it, hold to shred
+            </p>
+            <button id="restitch" type="button" title="Sew the curtain back together">↺&nbsp;re-stitch the curtain</button>
+
+            <img src="items/1.png" alt="Isaac's memoji — grab it and throw it" id="memoji" draggable="false">
+
+            <div class="scroll-cue" aria-hidden="true"><span>more toys below</span><span class="cue-arrow">↓</span></div>
         </section>
-        </div>
 
-        <div class="carousel-wrap">
-            <div id="carouselSlide" class="carousel slide carousel-dark" data-bs-ride="carousel">
-                <div class="carousel-inner">
-                    <!--dynamically placed slides-->
-                </div>
+        <div class="marquee" aria-hidden="true">
+            <div class="marquee-track" id="marqueeTrack">
+                <span>tear the curtain&nbsp;&nbsp;★&nbsp;&nbsp;throw the memoji&nbsp;&nbsp;★&nbsp;&nbsp;say hi&nbsp;&nbsp;★&nbsp;&nbsp;↑↑↓↓←→←→BA&nbsp;&nbsp;★&nbsp;&nbsp;613&nbsp;&nbsp;★&nbsp;&nbsp;no résumé bullet points were harmed&nbsp;&nbsp;★&nbsp;&nbsp;</span>
             </div>
         </div>
 
-        <p class="section-eyebrow reveal">What I work with</p>
-        <h2 class="section-title reveal">My toolkit
-            <svg class="squiggle" viewBox="0 0 60 16" aria-hidden="true">
-                <path d="M2 8 Q 10 1, 18 8 T 34 8 T 50 8 T 60 8" stroke="var(--accent-2)" stroke-width="3" fill="none" stroke-linecap="round"/>
-            </svg>
-        </h2>
+        <section class="stickers" id="contact">
+            <p class="eyebrow eyebrow-ink">the important bits</p>
+            <h2 class="section-head">Find me. Poke me.<br>Whatever this is, it worked.</h2>
 
-        <div class="row edu-box" id="about">
-            <div class="edu reveal reveal-delay-1">
-                <h3>
-                    <span class="card-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="16 18 22 12 16 6"/>
-                            <polyline points="8 6 2 12 8 18"/>
-                        </svg>
+            <div class="card-grid">
+                <a class="sticker" href="https://github.com/isaacherbst613" target="_blank" rel="noopener">
+                    <span class="sticker-emoji" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="44" height="44" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55 0-.27-.01-1.17-.02-2.12-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.69 1.25 3.34.96.1-.75.4-1.25.72-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.38-5.25 5.67.41.35.77 1.05.77 2.12 0 1.53-.01 2.76-.01 3.14 0 .3.2.67.8.55A11.52 11.52 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
                     </span>
-                    <span class="strike">My Stack</span>
-                </h3>
-                <p class="card-sub">what&rsquo;s left of it, anyway:</p>
-                <ul>
-                    <li class="aPlus">TS</li>
-                    <li class="aPlus">AWS</li>
-                </ul>
-                <p class="edu-aside">TS, because the LLMs are <em>really</em> good at it. AWS, because somebody still has to own the cloud.</p>
+                    <span class="sticker-title">GitHub</span>
+                    <span class="sticker-sub">@isaacherbst613 — where the code lives</span>
+                    <span class="sticker-go" aria-hidden="true">→</span>
+                </a>
+                <a class="sticker" href="https://www.linkedin.com/in/isaac-herbst-712001207/" target="_blank" rel="noopener">
+                    <span class="sticker-emoji" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="44" height="44" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.36V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.55C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.72C24 .77 23.2 0 22.22 0z"/></svg>
+                    </span>
+                    <span class="sticker-title">LinkedIn</span>
+                    <span class="sticker-sub">the professional-ish version of me</span>
+                    <span class="sticker-go" aria-hidden="true">→</span>
+                </a>
+                <a class="sticker" href="items/Resume.pdf" target="_blank" rel="noopener">
+                    <span class="sticker-emoji" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+                    </span>
+                    <span class="sticker-title">Résumé</span>
+                    <span class="sticker-sub">one PDF, zero buzzword bingo</span>
+                    <span class="sticker-go" aria-hidden="true">→</span>
+                </a>
             </div>
-            <div class="edu skills reveal reveal-delay-2">
-                <h3>
-                    <span class="card-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-                        </svg>
-                    </span>
-                    My Toolbox
-                </h3>
-                <ul class="hero-tool">
-                    <li class="aPlus claude-pill">Claude Code</li>
-                </ul>
-                <p class="card-sub">…and whatever it&rsquo;s pulling in under the hood. I still read the diffs &mdash; just not <em>all</em> of them.</p>
-            </div>
-            <div class="edu reveal reveal-delay-3">
-                <h3>
-                    <span class="card-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
-                        </svg>
-                    </span>
-                    <span class="strike">My Education</span>
-                </h3>
-                <p class="card-sub">…except for the foundation it gave me — that <em>still</em> pays rent, even when half the job is now wrangling models.</p>
-                <img src="items/pcs.png" alt="PCS">
-                <h6>PCS — Software Development</h6>
-                <div style="text-align:center;">
-                    <span class="president-badge">
-                        <span class="star" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 .587l3.668 7.431 8.207 1.192-5.938 5.788 1.402 8.174L12 18.896l-7.339 3.856 1.402-8.174L.125 9.21l8.207-1.192z"/></svg>
-                        </span>
-                        Class President
-                    </span>
-                </div>
-                <p class="edu-aside">plus a Master&rsquo;s in Talmudic Law — surprisingly transferable to debugging.</p>
-            </div>
-        </div>
 
-        <div class="fun-facts">
-            <div class="fact reveal">
-                <div class="fact-number" data-count="5" data-suffix="+">0</div>
-                <div class="fact-label">years shipping code (and counting)</div>
-            </div>
-            <div class="fact reveal reveal-delay-1">
-                <div class="fact-number" data-prefix="2→" data-count="8">0</div>
-                <div class="fact-label">engineers on the team I helped grow</div>
-            </div>
-            <div class="fact reveal reveal-delay-2">
-                <div class="fact-number" data-count="7">0</div>
-                <div class="fact-label">cups of coffee per week*</div>
-            </div>
-            <div class="fact reveal reveal-delay-3">
-                <div class="fact-number">&#x221E;</div>
-                <div class="fact-label">curiosity reserves</div>
-            </div>
-        </div>
-
-        <div id="hubspot"></div>
+            <button class="say-hi-banner" id="sayHiBig" type="button">
+                <span class="banner-big">SAY HI</span>
+                <span class="banner-small">no forms, no funnels — the chat bubble is right there</span>
+            </button>
+        </section>
     </main>
 
-    <footer class="bd-footer">
-        <div class="footer-inner">
-            <div class="footer-grid">
-                <div class="footer-col footer-col-find" id="contact-foot">
-                    <h5>Find me online</h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2"><img id="git" src="items/pics/icons8-github-30.png" alt="GitHub"><a
-                                href="https://github.com/isaacherbst613" target="_blank"> #isaacHerbst613</a></li>
-                        <li class="mb-2"><img id="linked" src="items/pics/icons8-linkedin-50.png" alt="LinkedIn"><a
-                                href="https://www.linkedin.com/in/isaac-herbst-712001207/" target="_blank">
-                                #isaacHerbst</a></li>
-                    </ul>
-                </div>
-                <div class="footer-col footer-col-about">
-                    <h5>About this Webpage</h5>
-                    <ul class="list-unstyled small text-muted">
-                        <li class="mb-2">Originally hand-rolled with vanilla JavaScript, <a
-                                href="https://getbootstrap.com">Bootstrap</a>, <a href="https://jquery.com/">JQuery</a>,
-                            and some <a href="https://www.google.com/teapot" target="_blank">coffee</a>.</li>
-                        <li class="mb-2">The 2026 face-lift was vibe-coded with <a href="https://claude.com/claude-code"
-                                target="_blank">Claude Code</a> — full disclosure: my prompt was literally
-                            <em>"spice it up, add some whimsy and oomph and fun."</em> It obliged. We probably need to
-                            talk about boundaries.</li>
-                        <li class="mb-2">Icons by <a href="https://icons8.com/">icons8</a>. Quotes via the <a
-                                href="https://github.com/lukePeavey/quotable">Quotable.io API</a>, refreshed every 10 minutes.</li>
-                        <li class="mb-2" style="opacity:0.7;font-size:0.78rem;">* coffee count is honest. Mostly. Don't audit me.</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+    <footer>
+        <p>© 2026 Isaac Herbst &nbsp;·&nbsp; hand-tuned chaos &nbsp;·&nbsp;
+            vibe-coded with <a href="https://claude.com/claude-code" target="_blank" rel="noopener">Claude Code</a>
+            — the prompt was literally <em>“go crazy”</em></p>
+        <p class="footer-tiny">leftover experiment: <a href="interval.html">RGB vs. RYB</a> &nbsp;·&nbsp; psst: ↑ ↑ ↓ ↓ ← → ← → B A</p>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-        crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
-        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="index.js"></script>
     <!-- Start of HubSpot Embed Code -->
-    <script id="hub" type="text/javascript" id="hs-script-loader" async defer
-        src="//js-na1.hs-scripts.com/21072484.js"></script>
+    <script id="hub" type="text/javascript" async defer src="//js-na1.hs-scripts.com/21072484.js"></script>
     <!-- End of HubSpot Embed Code -->
 </body>
 
