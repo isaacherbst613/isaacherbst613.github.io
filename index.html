@@ -20,8 +20,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="items/favicon_new/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="items/favicon_new/favicon-16x16.png">
     <link rel="manifest" href="items/favicon_new/site.webmanifest">
-    <link rel="mask-icon" href="items/favicon_new/safari-pinned-tab.svg" color="#6c57e8">
-    <meta name="theme-color" content="#6c57e8">
+    <link rel="mask-icon" href="items/favicon_new/safari-pinned-tab.svg" color="#3e56e4">
+    <meta name="theme-color" content="#3e56e4">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -37,6 +37,20 @@
 
     <canvas id="confetti" aria-hidden="true"></canvas>
     <div id="toast" role="status" aria-live="polite"></div>
+
+    <div id="modeLayer" aria-hidden="true">
+        <div class="spot spot-1"></div>
+        <div class="spot spot-2"></div>
+        <div class="spot spot-3"></div>
+        <span id="discoBall">🪩</span>
+        <canvas id="fireCanvas"></canvas>
+    </div>
+
+    <div class="mode-dock">
+        <button id="modeDisco" type="button" title="Disco mode — lights out, music on" aria-pressed="false">🪩</button>
+        <button id="modeFire" type="button" title="Fireplace mode — lights out, fire crackling" aria-pressed="false">🔥</button>
+        <button id="soundToggle" type="button" title="Sound on/off" aria-pressed="true">🔊</button>
+    </div>
 
     <main>
         <section class="hero" id="hero">
@@ -100,13 +114,13 @@
                     <div class="car-slide">
                         <div class="game-card">
                             <div class="game-head">
-                                <span class="game-label">simon (candy edition)</span>
+                                <span class="game-label">simon says</span>
                                 <span class="game-stat" id="simonStat">watch, then repeat</span>
                             </div>
                             <div class="simon-pads" id="simonPads">
-                                <button class="pad pad-grape" type="button" data-pad="0" aria-label="grape pad"></button>
-                                <button class="pad pad-pink" type="button" data-pad="1" aria-label="pink pad"></button>
-                                <button class="pad pad-lemon" type="button" data-pad="2" aria-label="lemon pad"></button>
+                                <button class="pad pad-blue" type="button" data-pad="0" aria-label="blue pad"></button>
+                                <button class="pad pad-ember" type="button" data-pad="1" aria-label="ember pad"></button>
+                                <button class="pad pad-amber" type="button" data-pad="2" aria-label="amber pad"></button>
                                 <button class="pad pad-mint" type="button" data-pad="3" aria-label="mint pad"></button>
                             </div>
                             <button class="btn btn-mint" id="simonStart" type="button">▶ new round</button>

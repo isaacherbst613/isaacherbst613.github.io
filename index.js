@@ -1,8 +1,9 @@
 /* ============================================================
    ISAACHERBST.US — the playground edition
-   1. kinetic name letters      4. draggable/throwable memoji
-   2. tearable curtain (verlet) 5. konami disco mode
-   3. confetti engine           6. say-hi wiring + toasts
+   1. kinetic name letters      5. games (all with synth SFX)
+   2. tearable curtain (verlet) 6. disco mode (lights out + music)
+   3. confetti engine           7. fireplace mode (bonfire + crackle)
+   4. throwable memoji          8. konami, toasts, say-hi wiring
    ============================================================ */
 
 (function () {
@@ -10,7 +11,7 @@
 
     var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    var CANDY = ["#fff6e9", "#ff7ac3", "#ffd23f", "#3de8b0"];
+    var CANDY = ["#faf3e3", "#ff7a3d", "#ffc53d", "#2fe6a8"];
 
     /* ---------- toast ---------- */
 
@@ -22,6 +23,74 @@
         clearTimeout(toastTimer);
         toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 2600);
     }
+
+    /* ---------- sound engine (all synthesized, no audio files) ---------- */
+
+    var AC = null;
+    var soundOn = true;
+    try { soundOn = localStorage.getItem("soundOn") !== "off"; } catch (e) { }
+
+    function audioCtx() {
+        if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+        if (AC.state === "suspended") AC.resume();
+        return AC;
+    }
+
+    function blip(freq, dur, type, vol, slideTo, when) {
+        if (!soundOn) return;
+        var c = audioCtx();
+        var t = when || c.currentTime;
+        var o = c.createOscillator();
+        var g = c.createGain();
+        o.type = type || "sine";
+        o.frequency.setValueAtTime(freq, t);
+        if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+        g.gain.setValueAtTime(vol || 0.2, t);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        o.connect(g); g.connect(c.destination);
+        o.start(t);
+        o.stop(t + dur + 0.02);
+    }
+
+    var noiseBuf = null;
+    function hiss(dur, freq, vol, type, when, q) {
+        if (!soundOn) return;
+        var c = audioCtx();
+        if (!noiseBuf) {
+            noiseBuf = c.createBuffer(1, c.sampleRate, c.sampleRate);
+            var d = noiseBuf.getChannelData(0);
+            for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+        }
+        var t = when || c.currentTime;
+        var src = c.createBufferSource();
+        src.buffer = noiseBuf;
+        src.loop = true;
+        src.playbackRate.value = 0.7 + Math.random() * 0.6;
+        var f = c.createBiquadFilter();
+        f.type = type || "bandpass";
+        f.frequency.value = freq;
+        f.Q.value = q || 1;
+        var g = c.createGain();
+        g.gain.setValueAtTime(vol, t);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        src.connect(f); f.connect(g); g.connect(c.destination);
+        src.start(t);
+        src.stop(t + dur + 0.05);
+    }
+
+    var SFX = {
+        pop:    function () { blip(500 + Math.random() * 500, 0.08, "sine", 0.25, 150); },
+        whack:  function () { hiss(0.09, 900, 0.3); blip(160, 0.1, "square", 0.25, 70); },
+        pad:    function (i) { blip([330, 262, 220, 165][i] || 220, 0.3, "triangle", 0.28); },
+        buzz:   function () { blip(110, 0.45, "sawtooth", 0.22, 55); },
+        go:     function () { blip(880, 0.15, "square", 0.22); },
+        win:    function () {
+            if (!soundOn) return;
+            var t0 = audioCtx().currentTime;
+            [523, 659, 784, 1047].forEach(function (f, i) { blip(f, 0.16, "triangle", 0.22, null, t0 + i * 0.09); });
+        },
+        cannon: function () { hiss(0.35, 500, 0.4, "lowpass"); blip(300, 0.3, "sine", 0.3, 60); }
+    };
 
     /* ---------- confetti engine ---------- */
 
@@ -168,12 +237,12 @@
         }
 
         /* mostly cream threads with the occasional candy stripe — curtain, not plaid */
-        var STRIPES = ["rgba(255,246,233,0.55)", "rgba(255,246,233,0.55)", "#ff7ac3",
-                       "rgba(255,246,233,0.55)", "#ffd23f", "rgba(255,246,233,0.55)",
-                       "rgba(255,246,233,0.55)", "#3de8b0"];
+        var STRIPES = ["rgba(250,243,227,0.55)", "rgba(250,243,227,0.55)", "#ff7a3d",
+                       "rgba(250,243,227,0.55)", "#ffc53d", "rgba(250,243,227,0.55)",
+                       "rgba(250,243,227,0.55)", "#2fe6a8"];
         function threadColor(c) {
             if (c.vert) return STRIPES[c.col % STRIPES.length];
-            return "rgba(255, 246, 233, 0.12)";
+            return "rgba(250, 243, 227, 0.12)";
         }
 
         function physics() {
@@ -432,7 +501,8 @@
         popped++;
         bubbleCount.textContent = popped === BUBBLES ? "all " + BUBBLES + " popped 👏" : popped + " popped";
         burst(x, y, 6, 0.5);
-        if (popped === BUBBLES) toast("very satisfying. fresh sheet's on the house.");
+        SFX.pop();
+        if (popped === BUBBLES) { toast("very satisfying. fresh sheet's on the house."); SFX.win(); }
     }
 
     function buildBubbles() {
@@ -522,6 +592,7 @@
             wScore++;
             whackStat.textContent = "score " + wScore + " · " + wTime + "s";
             burst(e.clientX, e.clientY, 8, 0.7);
+            SFX.whack();
         });
         whackGrid.appendChild(hole);
     }
@@ -536,6 +607,7 @@
             storeBest("whackBest", wScore);
             toast(wScore + " whacks — new personal best 🏆");
             burst(window.innerWidth / 2, window.innerHeight / 2, 80, 1.4);
+            SFX.win();
         } else {
             toast(wScore + " whacks. the memoji will recover.");
         }
@@ -569,6 +641,7 @@
 
     function flash(i, ms) {
         pads[i].classList.add("lit");
+        SFX.pad(i);
         setTimeout(function () { pads[i].classList.remove("lit"); }, ms || 320);
     }
 
@@ -606,6 +679,7 @@
                 }
             } else {
                 simonAwait = false;
+                SFX.buzz();
                 var made = simonSeq.length - 1;
                 toast(made > 0 ? "made it through round " + made + " 🧠" : "round 1. we've all been there.");
                 simonStat.textContent = "best round " + Math.max(readBest("simonBest"), made);
@@ -638,17 +712,20 @@
                 zone.className = "react-zone go";
                 zone.textContent = "CLICK!";
                 rT0 = performance.now();
+                SFX.go();
             }, 1400 + Math.random() * 2600);
         } else if (rState === "armed") {
             clearTimeout(rTimer);
             rState = "idle";
             zone.className = "react-zone";
             zone.textContent = "too soon 😅 — click to retry";
+            SFX.buzz();
         } else if (rState === "go") {
             var ms = Math.round(performance.now() - rT0);
             rState = "idle";
             zone.className = "react-zone";
             zone.textContent = ms + "ms — click to go again";
+            SFX.pop();
             if (!rBest || ms < rBest) {
                 rBest = ms;
                 storeBest("reactBest", ms);
@@ -658,17 +735,212 @@
         }
     });
 
-    /* ---------- confetti cannon + disco (konami only) ---------- */
+    /* ---------- confetti cannon ---------- */
 
     document.getElementById("cannonBtn").addEventListener("click", function (e) {
         burst(e.clientX, e.clientY, 90, 1.6);
+        SFX.cannon();
     });
 
-    function toggleDisco() {
-        var on = document.body.classList.toggle("disco");
-        if (on) { rain(220); toast("DISCO MODE 🪩 (hit it again to stop)"); }
-        else { toast("disco's over. back to work."); }
+    /* ---------- disco music: synthesized four-on-the-floor, 120bpm ---------- */
+
+    var disco = { on: false, timer: null, next: 0, step: 0 };
+
+    /* two bars of 16ths — octave bass in Am, then F and G */
+    var BASS = [];
+    (function () {
+        var oct = function (root) { return [root, root * 2, root, root * 2, root, root * 2, root, root * 2]; };
+        BASS = oct(55).concat(oct(55), oct(43.65), oct(49));
+    })();
+    var STABS = { 4: [220, 261.6, 329.6], 12: [220, 261.6, 329.6], 20: [174.6, 220, 261.6], 28: [196, 246.9, 293.7] };
+
+    function discoStep(s, t) {
+        if (s % 4 === 0) { /* kick */
+            blip(150, 0.16, "sine", 0.55, 45, t);
+        }
+        if (s % 4 === 2) { /* open-ish hat on the offbeat */
+            hiss(0.09, 7000, 0.12, "highpass", t);
+        }
+        if (s % 8 === 4) { /* clap on 2 and 4 */
+            hiss(0.12, 1800, 0.22, "bandpass", t, 0.8);
+        }
+        var b = BASS[s];
+        if (b) blip(b, 0.12, "sawtooth", 0.16, null, t);
+        var stab = STABS[s];
+        if (stab) stab.forEach(function (f) { blip(f, 0.2, "triangle", 0.07, null, t); });
     }
+
+    function startDiscoMusic() {
+        if (disco.on) return;
+        disco.on = true;
+        disco.step = 0;
+        disco.next = audioCtx().currentTime + 0.06;
+        disco.timer = setInterval(function () {
+            if (!soundOn) { disco.next = audioCtx().currentTime + 0.06; return; }
+            var now = audioCtx().currentTime;
+            while (disco.next < now + 0.18) {
+                discoStep(disco.step, disco.next);
+                disco.step = (disco.step + 1) % 32;
+                disco.next += 0.125;
+            }
+        }, 60);
+    }
+
+    function stopDiscoMusic() {
+        disco.on = false;
+        clearInterval(disco.timer);
+    }
+
+    /* ---------- fireplace: canvas bonfire + crackle ambience ---------- */
+
+    var fireCanvas = document.getElementById("fireCanvas");
+    var fireCtx = fireCanvas.getContext("2d");
+    var fire = { on: false, parts: [], crackle: null, nodes: [] };
+
+    function fireSpawn(W, H) {
+        var base = Math.min(W * 0.045, 55);
+        for (var i = 0; i < 8; i++) {
+            fire.parts.push({
+                x: W / 2 + (Math.random() + Math.random() - 1) * base,
+                y: H + 4,
+                vx: (Math.random() - 0.5) * 0.6,
+                vy: -(1.8 + Math.random() * 3.2),
+                size: 3 + Math.random() * 7,
+                life: 1,
+                decay: 0.009 + Math.random() * 0.014,
+                ember: Math.random() < 0.15
+            });
+        }
+    }
+
+    function fireLoop() {
+        if (!fire.on) return;
+        var W = fireCanvas.width, H = fireCanvas.height;
+        fireCtx.clearRect(0, 0, W, H);
+        fireSpawn(W, H);
+        fireCtx.globalCompositeOperation = "lighter";
+        for (var i = fire.parts.length - 1; i >= 0; i--) {
+            var p = fire.parts[i];
+            p.x += p.vx + Math.sin(p.y / 22) * 0.5;
+            p.y += p.vy;
+            p.life -= p.decay * (p.ember ? 0.4 : 1);
+            if (p.life <= 0) { fire.parts.splice(i, 1); continue; }
+            var r = p.ember ? 1.6 : p.size * p.life;
+            /* deep red → orange → yellow as it burns */
+            var hue = 8 + (1 - p.life) * 40;
+            fireCtx.fillStyle = "hsla(" + hue + ", 100%, " + (48 + p.life * 12) + "%, " + (p.ember ? 0.9 : p.life * 0.55) + ")";
+            fireCtx.beginPath();
+            fireCtx.arc(p.x, p.y, Math.max(0.5, r), 0, Math.PI * 2);
+            fireCtx.fill();
+        }
+        fireCtx.globalCompositeOperation = "source-over";
+        requestAnimationFrame(fireLoop);
+    }
+
+    function startFireAudio() {
+        if (!soundOn) return;
+        var c = audioCtx();
+        /* wind: looped noise through a low filter, slowly breathing */
+        if (!noiseBuf) hiss(0.01, 500, 0.001); /* builds the buffer */
+        var wind = c.createBufferSource();
+        wind.buffer = noiseBuf; wind.loop = true; wind.playbackRate.value = 0.3;
+        var wf = c.createBiquadFilter(); wf.type = "lowpass"; wf.frequency.value = 220;
+        var wg = c.createGain(); wg.gain.value = 0.05;
+        wind.connect(wf); wf.connect(wg); wg.connect(c.destination);
+        wind.start();
+        /* eerie drone: two slightly detuned low sines that beat against each other */
+        var d1 = c.createOscillator(), d2 = c.createOscillator(), dg = c.createGain();
+        d1.frequency.value = 55; d2.frequency.value = 55.7;
+        d1.type = d2.type = "sine"; dg.gain.value = 0.035;
+        d1.connect(dg); d2.connect(dg); dg.connect(c.destination);
+        d1.start(); d2.start();
+        fire.nodes = [wind, d1, d2, wg, dg];
+        /* crackle: random little pops */
+        fire.crackle = setInterval(function () {
+            if (!soundOn) return;
+            if (Math.random() < 0.75) hiss(0.02 + Math.random() * 0.05, 1200 + Math.random() * 2200, 0.04 + Math.random() * 0.15, "bandpass", null, 2.5);
+        }, 90);
+    }
+
+    function stopFireAudio() {
+        clearInterval(fire.crackle);
+        fire.nodes.forEach(function (n) { try { n.stop ? n.stop() : n.disconnect(); } catch (e) { } });
+        fire.nodes = [];
+    }
+
+    function startFire() {
+        fireCanvas.width = window.innerWidth;
+        fireCanvas.height = Math.round(window.innerHeight * 0.6);
+        fire.parts = [];
+        fire.on = true;
+        if (!reduceMotion) requestAnimationFrame(fireLoop);
+        startFireAudio();
+    }
+
+    function stopFire() {
+        fire.on = false;
+        stopFireAudio();
+        fireCtx.clearRect(0, 0, fireCanvas.width, fireCanvas.height);
+    }
+
+    /* ---------- mode dock: disco / fireplace / sound ---------- */
+
+    var modeBtns = { disco: document.getElementById("modeDisco"), fire: document.getElementById("modeFire") };
+
+    function setMode(mode) {
+        var had = document.body.classList.contains(mode);
+        document.body.classList.remove("disco", "fire");
+        stopDiscoMusic();
+        stopFire();
+        Object.keys(modeBtns).forEach(function (k) {
+            modeBtns[k].classList.remove("active");
+            modeBtns[k].setAttribute("aria-pressed", "false");
+        });
+        if (had) {
+            toast(mode === "disco" ? "lights back on. party's over." : "fire's out. lights on.");
+            return;
+        }
+        document.body.classList.add(mode);
+        modeBtns[mode].classList.add("active");
+        modeBtns[mode].setAttribute("aria-pressed", "true");
+        if (mode === "disco") {
+            startDiscoMusic();
+            rain(180);
+            toast("DISCO 🪩 lights out, volume up");
+        } else {
+            startFire();
+            toast("🔥 gather round… it got dark in here");
+        }
+    }
+
+    modeBtns.disco.addEventListener("click", function () { setMode("disco"); });
+    modeBtns.fire.addEventListener("click", function () { setMode("fire"); });
+
+    var soundBtn = document.getElementById("soundToggle");
+    function paintSoundBtn() {
+        soundBtn.textContent = soundOn ? "🔊" : "🔇";
+        soundBtn.setAttribute("aria-pressed", String(soundOn));
+    }
+    paintSoundBtn();
+    soundBtn.addEventListener("click", function () {
+        soundOn = !soundOn;
+        try { localStorage.setItem("soundOn", soundOn ? "on" : "off"); } catch (e) { }
+        paintSoundBtn();
+        /* fire ambience uses live nodes — rebuild to match the new setting */
+        if (document.body.classList.contains("fire")) {
+            stopFireAudio();
+            if (soundOn) startFireAudio();
+        }
+        if (soundOn) SFX.pop();
+        toast(soundOn ? "sound on" : "sound off");
+    });
+
+    window.addEventListener("resize", function () {
+        if (fire.on) {
+            fireCanvas.width = window.innerWidth;
+            fireCanvas.height = Math.round(window.innerHeight * 0.6);
+        }
+    });
 
     /* ---------- konami disco ---------- */
 
@@ -679,7 +951,7 @@
         kIdx = key === KONAMI[kIdx] ? kIdx + 1 : (key === KONAMI[0] ? 1 : 0);
         if (kIdx === KONAMI.length) {
             kIdx = 0;
-            toggleDisco();
+            setMode("disco");
         }
     });
 

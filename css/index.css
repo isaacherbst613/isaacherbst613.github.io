@@ -1,16 +1,16 @@
 /* ============================================================
    ISAACHERBST.US — the playground edition
-   grape base · candy accents · one big tearable curtain
+   cobalt base · ember accents · one big tearable curtain
    ============================================================ */
 
 :root {
-    --grape: #6c57e8;
-    --grape-deep: #5643c9;
-    --ink: #211653;
-    --paper: #fff6e9;
-    --pink: #ff7ac3;
-    --lemon: #ffd23f;
-    --mint: #3de8b0;
+    --cobalt: #3e56e4;
+    --cobalt-deep: #2b3fbb;
+    --ink: #141a38;
+    --paper: #faf3e3;
+    --ember: #ff7a3d;
+    --amber: #ffc53d;
+    --mint: #2fe6a8;
 
     --display: "Bricolage Grotesque", system-ui, sans-serif;
     --mono: "IBM Plex Mono", ui-monospace, monospace;
@@ -22,18 +22,18 @@ html { scroll-behavior: smooth; }
 
 body {
     font-family: var(--display);
-    background: var(--grape);
+    background: var(--cobalt);
     color: var(--paper);
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
 }
 
-::selection { background: var(--lemon); color: var(--ink); }
+::selection { background: var(--amber); color: var(--ink); }
 
 a { color: inherit; }
 
 :focus-visible {
-    outline: 3px dashed var(--lemon);
+    outline: 3px dashed var(--amber);
     outline-offset: 4px;
     border-radius: 4px;
 }
@@ -55,13 +55,13 @@ a { color: inherit; }
     bottom: 2.2rem;
     transform: translate(-50%, 140%) rotate(-2deg);
     background: var(--ink);
-    color: var(--lemon);
+    color: var(--amber);
     font-family: var(--mono);
     font-size: 0.95rem;
     padding: 0.8rem 1.4rem;
-    border: 3px solid var(--lemon);
+    border: 3px solid var(--amber);
     border-radius: 14px;
-    box-shadow: 6px 6px 0 rgba(33, 22, 83, 0.45);
+    box-shadow: 6px 6px 0 rgba(20, 26, 56, 0.45);
     transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease, visibility 0s 0.35s;
     opacity: 0;
     visibility: hidden;
@@ -86,9 +86,9 @@ a { color: inherit; }
     place-items: center;
     overflow: hidden;
     background:
-        radial-gradient(ellipse 90% 60% at 70% 110%, rgba(255, 122, 195, 0.28), transparent 60%),
-        radial-gradient(ellipse 70% 50% at 15% -10%, rgba(61, 232, 176, 0.18), transparent 60%),
-        var(--grape);
+        radial-gradient(ellipse 90% 60% at 70% 110%, rgba(255, 122, 61, 0.25), transparent 60%),
+        radial-gradient(ellipse 70% 50% at 15% -10%, rgba(47, 230, 168, 0.16), transparent 60%),
+        var(--cobalt);
 }
 
 .hero-inner {
@@ -106,7 +106,7 @@ a { color: inherit; }
     font-size: clamp(0.75rem, 1.6vw, 0.95rem);
     letter-spacing: 0.28em;
     text-transform: uppercase;
-    color: var(--lemon);
+    color: var(--amber);
     margin-bottom: 1.4rem;
 }
 
@@ -124,7 +124,7 @@ a { color: inherit; }
     font-weight: 750;
     font-stretch: 92%;
     color: var(--paper);
-    text-shadow: 0.045em 0.05em 0 var(--pink), 0.09em 0.1em 0 rgba(33, 22, 83, 0.55);
+    text-shadow: 0.045em 0.05em 0 var(--ember), 0.09em 0.1em 0 rgba(20, 26, 56, 0.55);
     transition: font-weight 0.25s ease, font-stretch 0.25s ease, color 0.25s ease;
     animation: drop-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
     cursor: default;
@@ -133,7 +133,7 @@ a { color: inherit; }
 .big-name .ltr:hover {
     font-weight: 300;
     font-stretch: 78%;
-    color: var(--lemon);
+    color: var(--amber);
 }
 
 .big-name .ltr.boing { animation: boing 0.55s cubic-bezier(0.34, 1.56, 0.64, 1); }
@@ -155,7 +155,7 @@ a { color: inherit; }
     font-size: clamp(1.05rem, 2.4vw, 1.5rem);
     font-weight: 450;
     line-height: 1.45;
-    color: rgba(255, 246, 233, 0.92);
+    color: rgba(250, 243, 227, 0.92);
 }
 
 .cta-row {
@@ -184,8 +184,8 @@ a { color: inherit; }
 .btn:hover  { transform: translate(-2px, -2px) rotate(-1deg); box-shadow: 8px 8px 0 var(--ink); }
 .btn:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--ink); }
 
-.btn-solid   { background: var(--lemon); color: var(--ink); }
-.btn-outline { background: var(--pink);  color: var(--ink); }
+.btn-solid   { background: var(--amber); color: var(--ink); }
+.btn-outline { background: var(--ember);  color: var(--ink); }
 
 /* ---------- curtain canvas ---------- */
 
@@ -206,7 +206,7 @@ a { color: inherit; }
     z-index: 5;
     font-family: var(--mono);
     font-size: 0.85rem;
-    color: var(--lemon);
+    color: var(--amber);
     max-width: 240px;
     line-height: 1.5;
     transform: rotate(-2deg);
@@ -250,7 +250,7 @@ a { color: inherit; }
     position: absolute;
     z-index: 7;
     width: clamp(90px, 14vw, 150px);
-    left: 4vw;
+    left: clamp(84px, 7vw, 130px);   /* clear of the mode dock */
     bottom: 8vh;
     cursor: grab;
     user-select: none;
@@ -261,7 +261,7 @@ a { color: inherit; }
     border-radius: 24px;
     padding: 6px;
     rotate: -4deg;
-    box-shadow: 6px 8px 0 rgba(33, 22, 83, 0.4);
+    box-shadow: 6px 8px 0 rgba(20, 26, 56, 0.4);
 }
 
 #memoji.grabbed { cursor: grabbing; }
@@ -284,7 +284,7 @@ a { color: inherit; }
     font-size: 0.78rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: rgba(255, 246, 233, 0.75);
+    color: rgba(250, 243, 227, 0.75);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -302,7 +302,7 @@ a { color: inherit; }
 /* ---------- marquee ---------- */
 
 .marquee {
-    background: var(--lemon);
+    background: var(--amber);
     color: var(--ink);
     transform: rotate(-1.6deg) scale(1.03);
     border-top: 4px solid var(--ink);
@@ -404,7 +404,7 @@ a { color: inherit; }
     transition: background 0.15s ease, transform 0.15s ease;
 }
 
-.car-dot.active { background: var(--grape); transform: scale(1.2); }
+.car-dot.active { background: var(--cobalt); transform: scale(1.2); }
 
 /* --- game cards --- */
 
@@ -432,7 +432,7 @@ a { color: inherit; }
 }
 
 .game-label { font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; }
-.game-stat { color: rgba(33, 22, 83, 0.55); text-align: right; }
+.game-stat { color: rgba(20, 26, 56, 0.55); text-align: right; }
 
 .bubble-grid {
     display: grid;
@@ -448,16 +448,16 @@ a { color: inherit; }
     border: none;
     border-radius: 50%;
     cursor: pointer;
-    background: radial-gradient(circle at 35% 30%, #cdc4ff, #9c8cf2 60%, #7a68e0);
-    box-shadow: inset -3px -4px 6px rgba(33, 22, 83, 0.25), inset 3px 4px 6px rgba(255, 255, 255, 0.55);
+    background: radial-gradient(circle at 35% 30%, #c9d2ff, #8b9bf5 60%, #5f74e8);
+    box-shadow: inset -3px -4px 6px rgba(20, 26, 56, 0.25), inset 3px 4px 6px rgba(255, 255, 255, 0.55);
     transition: transform 0.08s ease;
 }
 
 .bubble:hover { transform: scale(1.08); }
 
 .bubble.popped {
-    background: radial-gradient(circle at 50% 50%, rgba(33, 22, 83, 0.12), rgba(33, 22, 83, 0.05));
-    box-shadow: inset 2px 3px 5px rgba(33, 22, 83, 0.18);
+    background: radial-gradient(circle at 50% 50%, rgba(20, 26, 56, 0.12), rgba(20, 26, 56, 0.05));
+    box-shadow: inset 2px 3px 5px rgba(20, 26, 56, 0.18);
     transform: scale(0.92);
     cursor: default;
 }
@@ -487,8 +487,8 @@ a { color: inherit; }
     aspect-ratio: 1;
     border: none;
     border-radius: 50%;
-    background: radial-gradient(circle at 50% 42%, #ded8ff, #b7abf5 65%, #9c8cf2);
-    box-shadow: inset 0 6px 10px rgba(33, 22, 83, 0.35);
+    background: radial-gradient(circle at 50% 42%, #dfe5ff, #a5b3f7 65%, #8b9bf5);
+    box-shadow: inset 0 6px 10px rgba(20, 26, 56, 0.35);
     overflow: hidden;
     cursor: pointer;
 }
@@ -525,9 +525,9 @@ a { color: inherit; }
     transition: filter 0.12s ease, transform 0.12s ease;
 }
 
-.pad-grape { background: var(--grape); border-top-left-radius: 60%; }
-.pad-pink  { background: var(--pink);  border-top-right-radius: 60%; }
-.pad-lemon { background: var(--lemon); border-bottom-left-radius: 60%; }
+.pad-blue { background: var(--cobalt); border-top-left-radius: 60%; }
+.pad-ember  { background: var(--ember);  border-top-right-radius: 60%; }
+.pad-amber { background: var(--amber); border-bottom-left-radius: 60%; }
 .pad-mint  { background: var(--mint);  border-bottom-right-radius: 60%; }
 
 .pad.lit, .pad:active { filter: saturate(1.25) brightness(1.15); transform: scale(1.06); }
@@ -548,7 +548,7 @@ a { color: inherit; }
     transition: background 0.1s ease;
 }
 
-.react-zone.armed { background: var(--pink); }
+.react-zone.armed { background: var(--ember); }
 .react-zone.go    { background: var(--mint); }
 
 .react-sub {
@@ -557,7 +557,7 @@ a { color: inherit; }
     font-family: var(--mono);
     font-size: 0.8rem;
     font-weight: 400;
-    color: rgba(33, 22, 83, 0.6);
+    color: rgba(20, 26, 56, 0.6);
 }
 
 /* --- confetti cannon --- */
@@ -566,7 +566,7 @@ a { color: inherit; }
     display: block;
     margin: 0 auto;
     min-width: min(420px, 100%);
-    background: var(--pink);
+    background: var(--ember);
     color: var(--ink);
     border: 3px solid var(--ink);
     border-radius: 22px;
@@ -593,7 +593,7 @@ a { color: inherit; }
     margin-top: 0.4rem;
     font-family: var(--mono);
     font-size: 0.78rem;
-    color: rgba(33, 22, 83, 0.65);
+    color: rgba(20, 26, 56, 0.65);
     line-height: 1.5;
 }
 
@@ -613,7 +613,7 @@ a { color: inherit; }
     text-align: center;
 }
 
-.eyebrow-ink { color: var(--grape); }
+.eyebrow-ink { color: var(--cobalt); }
 
 .section-head {
     font-size: clamp(1.9rem, 5vw, 3.4rem);
@@ -656,13 +656,13 @@ a { color: inherit; }
     box-shadow: 12px 13px 0 var(--ink);
 }
 
-.sticker:nth-child(1):hover { background: #f4f1ff; }
-.sticker:nth-child(2):hover { background: #fff0f8; }
-.sticker:nth-child(3):hover { background: #fffbe8; }
+.sticker:nth-child(1):hover { background: #eef1ff; }
+.sticker:nth-child(2):hover { background: #fff2e8; }
+.sticker:nth-child(3):hover { background: #fff8e0; }
 
-.sticker-emoji { color: var(--grape); }
-.sticker:nth-child(2) .sticker-emoji { color: var(--pink); }
-.sticker:nth-child(3) .sticker-emoji { color: var(--grape-deep); }
+.sticker-emoji { color: var(--cobalt); }
+.sticker:nth-child(2) .sticker-emoji { color: var(--ember); }
+.sticker:nth-child(3) .sticker-emoji { color: var(--cobalt-deep); }
 
 .sticker-title {
     font-size: 1.5rem;
@@ -673,7 +673,7 @@ a { color: inherit; }
 .sticker-sub {
     font-family: var(--mono);
     font-size: 0.85rem;
-    color: rgba(33, 22, 83, 0.65);
+    color: rgba(20, 26, 56, 0.65);
     line-height: 1.5;
 }
 
@@ -692,7 +692,7 @@ a { color: inherit; }
     display: block;
     width: min(980px, 100%);
     margin: 2.6rem auto 0;
-    background: var(--grape);
+    background: var(--cobalt);
     color: var(--paper);
     border: 3px solid var(--ink);
     border-radius: 26px;
@@ -706,7 +706,7 @@ a { color: inherit; }
 .say-hi-banner:hover {
     transform: translate(-3px, -5px) rotate(-0.5deg);
     box-shadow: 12px 13px 0 var(--ink);
-    background: var(--grape-deep);
+    background: var(--cobalt-deep);
 }
 
 .banner-big {
@@ -714,7 +714,7 @@ a { color: inherit; }
     font-size: clamp(2.4rem, 7vw, 4.5rem);
     font-weight: 800;
     letter-spacing: 0.02em;
-    text-shadow: 0.05em 0.06em 0 var(--pink);
+    text-shadow: 0.05em 0.06em 0 var(--ember);
 }
 
 .banner-small {
@@ -722,36 +722,160 @@ a { color: inherit; }
     margin-top: 0.5rem;
     font-family: var(--mono);
     font-size: 0.88rem;
-    color: rgba(255, 246, 233, 0.85);
+    color: rgba(250, 243, 227, 0.85);
 }
 
 /* ---------- footer ---------- */
 
 footer {
     background: var(--ink);
-    color: rgba(255, 246, 233, 0.85);
+    color: rgba(250, 243, 227, 0.85);
     text-align: center;
     padding: 2.6rem 1.5rem;
     font-size: 0.95rem;
     line-height: 1.7;
 }
 
-footer a { color: var(--lemon); text-decoration-thickness: 2px; }
+footer a { color: var(--amber); text-decoration-thickness: 2px; }
 
 .footer-tiny { margin-top: 0.6rem; font-family: var(--mono); font-size: 0.75rem; opacity: 0.6; }
 
-/* ---------- disco mode (konami) ---------- */
+/* ---------- lights-out modes (disco + fireplace) ---------- */
 
-body.disco .hero,
-body.disco .marquee,
-body.disco .say-hi-banner,
-body.disco .toy-big {
-    animation: hue-spin 4s linear infinite;
+#modeLayer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 80;
+    display: none;
+    overflow: hidden;
 }
 
-@keyframes hue-spin {
-    from { filter: hue-rotate(0deg); }
-    to   { filter: hue-rotate(360deg); }
+body.disco #modeLayer,
+body.fire #modeLayer { display: block; }
+
+/* --- disco: dark room, sweeping spotlights, spinning ball --- */
+
+body.disco #modeLayer { background: rgba(7, 6, 20, 0.92); }
+
+.spot {
+    position: absolute;
+    top: -20vmax;
+    left: 50%;
+    width: 55vmax;
+    height: 55vmax;
+    margin-left: -27.5vmax;
+    border-radius: 50%;
+    mix-blend-mode: screen;
+    filter: blur(28px);
+    display: none;
+}
+
+body.disco .spot { display: block; }
+
+.spot-1 { background: radial-gradient(circle, rgba(90, 120, 255, 0.85), transparent 62%); animation: sweep-1 7.5s ease-in-out infinite alternate; }
+.spot-2 { background: radial-gradient(circle, rgba(255, 130, 60, 0.75), transparent 62%);  animation: sweep-2 9.5s ease-in-out infinite alternate; }
+.spot-3 { background: radial-gradient(circle, rgba(60, 235, 180, 0.65), transparent 62%);  animation: sweep-3 6.5s ease-in-out infinite alternate; }
+
+@keyframes sweep-1 {
+    from { transform: translate(-42vw, 8vh) scale(0.9); }
+    to   { transform: translate(34vw, 52vh) scale(1.15); }
+}
+
+@keyframes sweep-2 {
+    from { transform: translate(38vw, 45vh) scale(1.1); }
+    to   { transform: translate(-30vw, 5vh) scale(0.85); }
+}
+
+@keyframes sweep-3 {
+    from { transform: translate(0, 60vh) scale(0.8); }
+    to   { transform: translate(8vw, 0) scale(1.2); }
+}
+
+#discoBall {
+    position: absolute;
+    top: 3vh;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: clamp(3.5rem, 8vw, 6rem);
+    display: none;
+    animation: ball-spin 2.4s linear infinite;
+    filter: drop-shadow(0 0 26px rgba(180, 200, 255, 0.8));
+}
+
+body.disco #discoBall { display: block; }
+
+@keyframes ball-spin {
+    0%, 100% { transform: translateX(-50%) rotate(-14deg); }
+    50%      { transform: translateX(-50%) rotate(14deg); }
+}
+
+/* --- fireplace: near-black, ember glow, eerie vignette --- */
+
+body.fire #modeLayer {
+    background: rgba(8, 4, 2, 0.94);
+    box-shadow: inset 0 0 24vmax rgba(0, 0, 0, 0.95);
+}
+
+body.fire #modeLayer::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: -12vh;
+    width: 110vmin;
+    height: 70vmin;
+    transform: translateX(-50%);
+    background: radial-gradient(ellipse at 50% 100%, rgba(255, 120, 30, 0.5), rgba(200, 60, 10, 0.22) 45%, transparent 70%);
+    animation: fire-glow 2.8s ease-in-out infinite;
+}
+
+@keyframes fire-glow {
+    0%, 100% { opacity: 0.85; transform: translateX(-50%) scale(1); }
+    35%      { opacity: 1;    transform: translateX(-50%) scale(1.06); }
+    65%      { opacity: 0.75; transform: translateX(-50%) scale(0.97); }
+}
+
+#fireCanvas {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 60%;
+    display: none;
+}
+
+body.fire #fireCanvas { display: block; }
+
+/* --- mode dock (bottom-left, above the dark layer) --- */
+
+.mode-dock {
+    position: fixed;
+    left: 1rem;
+    bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    z-index: 96;
+}
+
+.mode-dock button {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 3px solid var(--ink);
+    background: var(--paper);
+    font-size: 1.35rem;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 rgba(20, 26, 56, 0.55);
+    transition: transform 0.15s ease;
+}
+
+.mode-dock button:hover { transform: scale(1.1) rotate(-6deg); }
+
+.mode-dock button.active {
+    background: var(--amber);
+    box-shadow: 0 0 0 4px rgba(255, 197, 61, 0.45), 3px 3px 0 rgba(20, 26, 56, 0.55);
 }
 
 /* ---------- small screens ---------- */
@@ -773,5 +897,5 @@ body.disco .toy-big {
     .cue-arrow, .hint-arrow { animation: none; }
     #cloth, .tear-hint, #restitch { display: none; }
     .hero-inner { z-index: 5; }
-    body.disco .hero, body.disco .marquee, body.disco .say-hi-banner, body.disco .toy-big { animation: none; }
+    .spot, #discoBall, body.fire #modeLayer::before { animation: none; }
 }
