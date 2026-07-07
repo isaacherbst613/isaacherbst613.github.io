@@ -530,12 +530,10 @@
     var track = document.getElementById("carTrack");
     var dotsWrap = document.getElementById("carDots");
     var slides = track.querySelectorAll(".car-slide");
+    var carPrev = document.getElementById("carPrev");
+    var carNext = document.getElementById("carNext");
     var carIdx = 0;
-
-    function goTo(i) {
-        carIdx = Math.max(0, Math.min(slides.length - 1, i));
-        slides[carIdx].scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", inline: "center", block: "nearest" });
-    }
+    var carDots = [];
 
     slides.forEach(function (s, i) {
         var d = document.createElement("button");
@@ -545,24 +543,44 @@
         d.setAttribute("aria-label", s.querySelector(".game-label").textContent);
         d.addEventListener("click", function () { goTo(i); });
         dotsWrap.appendChild(d);
+        carDots.push(d);
     });
 
-    document.getElementById("carPrev").addEventListener("click", function () { goTo(carIdx - 1); });
-    document.getElementById("carNext").addEventListener("click", function () { goTo(carIdx + 1); });
+    function paintCarousel() {
+        carDots.forEach(function (d, i) { d.classList.toggle("active", i === carIdx); });
+        carPrev.disabled = carIdx === 0;
+        carNext.disabled = carIdx === slides.length - 1;
+    }
+    paintCarousel();
 
+    function slideLeft(i) {
+        /* exact scroll offset — immune to snap/animation races */
+        return slides[i].offsetLeft - slides[0].offsetLeft;
+    }
+
+    function goTo(i) {
+        carIdx = Math.max(0, Math.min(slides.length - 1, i));
+        track.scrollTo({ left: slideLeft(carIdx), behavior: reduceMotion ? "auto" : "smooth" });
+        paintCarousel();
+    }
+
+    carPrev.addEventListener("click", function () { goTo(carIdx - 1); });
+    carNext.addEventListener("click", function () { goTo(carIdx + 1); });
+
+    /* keep index + dots honest when the user swipes instead of clicking */
+    var scrollSettle = null;
     track.addEventListener("scroll", function () {
-        var mid = track.scrollLeft + track.clientWidth / 2;
-        var nearest = 0, nearestDist = Infinity;
-        slides.forEach(function (s, i) {
-            var d = Math.abs(s.offsetLeft + s.offsetWidth / 2 - mid);
-            if (d < nearestDist) { nearestDist = d; nearest = i; }
-        });
-        if (nearest !== carIdx) {
-            carIdx = nearest;
-            dotsWrap.querySelectorAll(".car-dot").forEach(function (d, i) {
-                d.classList.toggle("active", i === carIdx);
+        clearTimeout(scrollSettle);
+        scrollSettle = setTimeout(function () {
+            var mid = track.scrollLeft + track.clientWidth / 2;
+            var nearest = 0, nearestDist = Infinity;
+            slides.forEach(function (s, i) {
+                var d = Math.abs(s.offsetLeft + s.offsetWidth / 2 - mid);
+                if (d < nearestDist) { nearestDist = d; nearest = i; }
             });
-        }
+            carIdx = nearest;
+            paintCarousel();
+        }, 90);
     }, { passive: true });
 
     /* high scores survive a refresh; failure just means no bragging rights */
@@ -735,6 +753,281 @@
         }
     });
 
+    /* ---------- game: snake ---------- */
+
+    var snakeCv = document.getElementById("snakeCanvas");
+    var sCtx = snakeCv.getContext("2d");
+    var snakeStat = document.getElementById("snakeStat");
+    var SN = { cell: 20, cols: 23, rows: 14, on: false, timer: null, body: [], dir: [1, 0], nextDir: [1, 0], apple: null, score: 0 };
+
+    function snakeDraw() {
+        sCtx.fillStyle = "#2b3fbb";
+        sCtx.fillRect(0, 0, snakeCv.width, snakeCv.height);
+        if (SN.apple) {
+            sCtx.fillStyle = "#ff7a3d";
+            sCtx.beginPath();
+            sCtx.arc(SN.apple[0] * SN.cell + 10, SN.apple[1] * SN.cell + 10, 8, 0, Math.PI * 2);
+            sCtx.fill();
+        }
+        SN.body.forEach(function (seg, i) {
+            sCtx.fillStyle = i === 0 ? "#2fe6a8" : "rgba(47, 230, 168, 0.75)";
+            sCtx.fillRect(seg[0] * SN.cell + 1, seg[1] * SN.cell + 1, SN.cell - 2, SN.cell - 2);
+        });
+        if (!SN.on) {
+            sCtx.fillStyle = "rgba(250, 243, 227, 0.9)";
+            sCtx.font = "600 16px 'IBM Plex Mono', monospace";
+            sCtx.textAlign = "center";
+            sCtx.fillText(SN.score > 0 ? "score " + SN.score + " — go again?" : "arrows · WASD · swipe", snakeCv.width / 2, snakeCv.height / 2);
+        }
+    }
+
+    function snakeApple() {
+        do {
+            SN.apple = [(Math.random() * SN.cols) | 0, (Math.random() * SN.rows) | 0];
+        } while (SN.body.some(function (s) { return s[0] === SN.apple[0] && s[1] === SN.apple[1]; }));
+    }
+
+    function snakeOver() {
+        SN.on = false;
+        clearInterval(SN.timer);
+        SFX.buzz();
+        var best = readBest("snakeBest");
+        if (SN.score > best) {
+            storeBest("snakeBest", SN.score);
+            toast("snake: " + SN.score + " — new best 🐍");
+            SFX.win();
+        } else {
+            toast("snake down. " + SN.score + " apples.");
+        }
+        snakeStat.textContent = "best " + Math.max(best, SN.score);
+        snakeDraw();
+    }
+
+    function snakeTick() {
+        SN.dir = SN.nextDir;
+        var head = [SN.body[0][0] + SN.dir[0], SN.body[0][1] + SN.dir[1]];
+        var hitWall = head[0] < 0 || head[1] < 0 || head[0] >= SN.cols || head[1] >= SN.rows;
+        var hitSelf = SN.body.some(function (s) { return s[0] === head[0] && s[1] === head[1]; });
+        if (hitWall || hitSelf) { snakeOver(); return; }
+        SN.body.unshift(head);
+        if (head[0] === SN.apple[0] && head[1] === SN.apple[1]) {
+            SN.score++;
+            snakeStat.textContent = "score " + SN.score;
+            SFX.pop();
+            snakeApple();
+            clearInterval(SN.timer);
+            SN.timer = setInterval(snakeTick, Math.max(60, 130 - SN.score * 3));
+        } else {
+            SN.body.pop();
+        }
+        snakeDraw();
+    }
+
+    function snakeSteer(dx, dy) {
+        if (dx === -SN.dir[0] && dy === -SN.dir[1]) return; /* no 180s */
+        SN.nextDir = [dx, dy];
+    }
+
+    document.getElementById("snakeStart").addEventListener("click", function () {
+        clearInterval(SN.timer);
+        SN.body = [[5, 7], [4, 7], [3, 7]];
+        SN.dir = SN.nextDir = [1, 0];
+        SN.score = 0;
+        SN.on = true;
+        snakeStat.textContent = "score 0";
+        snakeApple();
+        SN.timer = setInterval(snakeTick, 130);
+        snakeCv.focus && snakeCv.focus();
+    });
+
+    document.addEventListener("keydown", function (e) {
+        if (!SN.on) return;
+        var map = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0], w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0] };
+        var m = map[e.key.length === 1 ? e.key.toLowerCase() : e.key];
+        if (m) { e.preventDefault(); snakeSteer(m[0], m[1]); }
+    });
+
+    var snakeSwipe = null;
+    snakeCv.addEventListener("pointerdown", function (e) { snakeSwipe = [e.clientX, e.clientY]; });
+    snakeCv.addEventListener("pointerup", function (e) {
+        if (!snakeSwipe) return;
+        var dx = e.clientX - snakeSwipe[0], dy = e.clientY - snakeSwipe[1];
+        snakeSwipe = null;
+        if (Math.abs(dx) < 14 && Math.abs(dy) < 14) return;
+        if (Math.abs(dx) > Math.abs(dy)) snakeSteer(dx > 0 ? 1 : -1, 0);
+        else snakeSteer(0, dy > 0 ? 1 : -1);
+    });
+    snakeDraw();
+
+    /* ---------- game: memory match ---------- */
+
+    var memGrid = document.getElementById("memGrid");
+    var memStat = document.getElementById("memStat");
+    var MEM_EMOJI = ["🚀", "🔥", "⚡", "🎯", "🕹️", "🍕", "⚙️", "🏀"];
+    var mem = { open: [], lock: false, moves: 0, found: 0 };
+
+    function memBuild() {
+        memGrid.innerHTML = "";
+        mem.open = []; mem.lock = false; mem.moves = 0; mem.found = 0;
+        memStat.textContent = "find the pairs";
+        var deck = MEM_EMOJI.concat(MEM_EMOJI);
+        for (var i = deck.length - 1; i > 0; i--) {
+            var j = (Math.random() * (i + 1)) | 0;
+            var tmp = deck[i]; deck[i] = deck[j]; deck[j] = tmp;
+        }
+        deck.forEach(function (em) {
+            var c = document.createElement("button");
+            c.type = "button";
+            c.className = "mem-card";
+            c.textContent = "?";
+            c.dataset.emoji = em;
+            c.addEventListener("click", function () { memFlip(c); });
+            memGrid.appendChild(c);
+        });
+    }
+
+    function memFlip(c) {
+        if (mem.lock || c.classList.contains("open") || c.classList.contains("done")) return;
+        c.classList.add("open");
+        c.textContent = c.dataset.emoji;
+        SFX.pop();
+        mem.open.push(c);
+        if (mem.open.length < 2) return;
+        mem.moves++;
+        memStat.textContent = mem.moves + " moves";
+        var a = mem.open[0], b = mem.open[1];
+        mem.open = [];
+        if (a.dataset.emoji === b.dataset.emoji) {
+            a.classList.add("done"); b.classList.add("done");
+            a.classList.remove("open"); b.classList.remove("open");
+            mem.found++;
+            if (mem.found === MEM_EMOJI.length) {
+                var best = readBest("memBest");
+                if (!best || mem.moves < best) { storeBest("memBest", mem.moves); }
+                memStat.textContent = mem.moves + " moves · best " + Math.min(best || mem.moves, mem.moves);
+                toast("all pairs in " + mem.moves + " moves 🧠");
+                SFX.win();
+                burst(window.innerWidth / 2, window.innerHeight / 2, 60, 1.2);
+            }
+        } else {
+            mem.lock = true;
+            setTimeout(function () {
+                [a, b].forEach(function (x) { x.classList.remove("open"); x.textContent = "?"; });
+                mem.lock = false;
+            }, 650);
+        }
+    }
+
+    memBuild();
+    document.getElementById("memShuffle").addEventListener("click", memBuild);
+
+    /* ---------- game: flappy memoji ---------- */
+
+    var flapCv = document.getElementById("flapCanvas");
+    var fCtx = flapCv.getContext("2d");
+    var flapStat = document.getElementById("flapStat");
+    var memojiImg = document.getElementById("memoji");
+    var FL = { on: false, y: 150, vy: 0, pipes: [], score: 0, frame: 0, raf: null };
+
+    function flapDraw() {
+        fCtx.fillStyle = "#2b3fbb";
+        fCtx.fillRect(0, 0, flapCv.width, flapCv.height);
+        fCtx.fillStyle = "#141a38";
+        FL.pipes.forEach(function (p) {
+            fCtx.fillRect(p.x, 0, 52, p.top);
+            fCtx.fillRect(p.x, p.top + 130, 52, flapCv.height);
+        });
+        /* the pilot */
+        fCtx.save();
+        fCtx.beginPath();
+        fCtx.arc(90, FL.y, 20, 0, Math.PI * 2);
+        fCtx.closePath();
+        fCtx.fillStyle = "#fff";
+        fCtx.fill();
+        fCtx.clip();
+        try { fCtx.drawImage(memojiImg, 68, FL.y - 22, 44, 44); } catch (e) { }
+        fCtx.restore();
+        fCtx.strokeStyle = "#141a38";
+        fCtx.lineWidth = 3;
+        fCtx.beginPath();
+        fCtx.arc(90, FL.y, 20, 0, Math.PI * 2);
+        fCtx.stroke();
+        if (!FL.on) {
+            fCtx.fillStyle = "rgba(250, 243, 227, 0.9)";
+            fCtx.font = "600 16px 'IBM Plex Mono', monospace";
+            fCtx.textAlign = "center";
+            fCtx.fillText(FL.score > 0 ? "score " + FL.score + " — again?" : "tap / space to flap", flapCv.width / 2, 60);
+        }
+    }
+
+    function flapOver() {
+        FL.on = false;
+        cancelAnimationFrame(FL.raf);
+        SFX.buzz();
+        var best = readBest("flapBest");
+        if (FL.score > best) {
+            storeBest("flapBest", FL.score);
+            toast("flappy: " + FL.score + " — new best 🐦");
+            SFX.win();
+        } else {
+            toast("grounded at " + FL.score + ".");
+        }
+        flapStat.textContent = "best " + Math.max(best, FL.score);
+        flapDraw();
+    }
+
+    function flapTick() {
+        if (!FL.on) return;
+        FL.frame++;
+        FL.vy += 0.45;
+        FL.y += FL.vy;
+        if (FL.frame % 95 === 0) {
+            FL.pipes.push({ x: flapCv.width, top: 35 + Math.random() * (flapCv.height - 230), passed: false });
+        }
+        FL.pipes.forEach(function (p) { p.x -= 2.3; });
+        FL.pipes = FL.pipes.filter(function (p) { return p.x > -60; });
+        for (var i = 0; i < FL.pipes.length; i++) {
+            var p = FL.pipes[i];
+            if (!p.passed && p.x + 52 < 70) {
+                p.passed = true;
+                FL.score++;
+                flapStat.textContent = "score " + FL.score;
+                SFX.go();
+            }
+            var inX = 90 + 20 > p.x && 90 - 20 < p.x + 52;
+            if (inX && (FL.y - 20 < p.top || FL.y + 20 > p.top + 130)) { flapOver(); return; }
+        }
+        if (FL.y + 20 > flapCv.height || FL.y - 20 < 0) { flapOver(); return; }
+        flapDraw();
+        FL.raf = requestAnimationFrame(flapTick);
+    }
+
+    function flap() {
+        if (!FL.on) return;
+        FL.vy = -7;
+        SFX.pop();
+    }
+
+    function flapStart() {
+        cancelAnimationFrame(FL.raf);
+        FL.y = flapCv.height / 2;
+        FL.vy = -4;
+        FL.pipes = [];
+        FL.score = 0;
+        FL.frame = 0;
+        FL.on = true;
+        flapStat.textContent = "score 0";
+        FL.raf = requestAnimationFrame(flapTick);
+    }
+
+    document.getElementById("flapStart").addEventListener("click", flapStart);
+    flapCv.addEventListener("pointerdown", function () { FL.on ? flap() : flapStart(); });
+    document.addEventListener("keydown", function (e) {
+        if (e.code === "Space" && FL.on) { e.preventDefault(); flap(); }
+    });
+    if (memojiImg.complete) flapDraw();
+    else memojiImg.addEventListener("load", flapDraw);
+
     /* ---------- confetti cannon ---------- */
 
     document.getElementById("cannonBtn").addEventListener("click", function (e) {
@@ -837,33 +1130,63 @@
         requestAnimationFrame(fireLoop);
     }
 
+    var brownBuf = null;
+    function getBrown(c) {
+        /* brown noise = integrated white noise; sounds like a fire's low roar */
+        if (!brownBuf) {
+            brownBuf = c.createBuffer(1, c.sampleRate * 2, c.sampleRate);
+            var d = brownBuf.getChannelData(0);
+            var last = 0;
+            for (var i = 0; i < d.length; i++) {
+                var white = Math.random() * 2 - 1;
+                last = (last + 0.02 * white) / 1.02;
+                d[i] = last * 3.5;
+            }
+        }
+        return brownBuf;
+    }
+
     function startFireAudio() {
         if (!soundOn) return;
         var c = audioCtx();
-        /* wind: looped noise through a low filter, slowly breathing */
-        if (!noiseBuf) hiss(0.01, 500, 0.001); /* builds the buffer */
-        var wind = c.createBufferSource();
-        wind.buffer = noiseBuf; wind.loop = true; wind.playbackRate.value = 0.3;
-        var wf = c.createBiquadFilter(); wf.type = "lowpass"; wf.frequency.value = 220;
-        var wg = c.createGain(); wg.gain.value = 0.05;
-        wind.connect(wf); wf.connect(wg); wg.connect(c.destination);
-        wind.start();
-        /* eerie drone: two slightly detuned low sines that beat against each other */
+        /* the fire's body: low brown-noise roar that slowly breathes */
+        var roar = c.createBufferSource();
+        roar.buffer = getBrown(c); roar.loop = true;
+        var rf = c.createBiquadFilter(); rf.type = "lowpass"; rf.frequency.value = 380;
+        var rg = c.createGain(); rg.gain.value = 0.055;
+        var lfo = c.createOscillator(); lfo.frequency.value = 0.17;
+        var lfoAmt = c.createGain(); lfoAmt.gain.value = 0.02;
+        lfo.connect(lfoAmt); lfoAmt.connect(rg.gain);
+        roar.connect(rf); rf.connect(rg); rg.connect(c.destination);
+        roar.start(); lfo.start();
+        /* eerie drone: two slightly detuned low sines beating against each other */
         var d1 = c.createOscillator(), d2 = c.createOscillator(), dg = c.createGain();
-        d1.frequency.value = 55; d2.frequency.value = 55.7;
-        d1.type = d2.type = "sine"; dg.gain.value = 0.035;
+        d1.frequency.value = 55; d2.frequency.value = 55.6;
+        d1.type = d2.type = "sine"; dg.gain.value = 0.03;
         d1.connect(dg); d2.connect(dg); dg.connect(c.destination);
         d1.start(); d2.start();
-        fire.nodes = [wind, d1, d2, wg, dg];
-        /* crackle: random little pops */
-        fire.crackle = setInterval(function () {
-            if (!soundOn) return;
-            if (Math.random() < 0.75) hiss(0.02 + Math.random() * 0.05, 1200 + Math.random() * 2200, 0.04 + Math.random() * 0.15, "bandpass", null, 2.5);
-        }, 90);
+        fire.nodes = [roar, lfo, d1, d2, rg, dg];
+        crackleLoop();
+    }
+
+    function crackleLoop() {
+        if (!fire.on) return;
+        if (soundOn) {
+            var big = Math.random() < 0.16;
+            if (big) {
+                /* a log settling: sharp snap plus a low thump */
+                hiss(0.035 + Math.random() * 0.03, 2200 + Math.random() * 2500, 0.22 + Math.random() * 0.18, "bandpass", null, 4);
+                blip(85 + Math.random() * 55, 0.1, "sine", 0.16, 45);
+            } else {
+                /* tiny tick — very short, very sharp */
+                hiss(0.008 + Math.random() * 0.016, 1800 + Math.random() * 3800, 0.05 + Math.random() * 0.1, "bandpass", null, 5);
+            }
+        }
+        fire.crackle = setTimeout(crackleLoop, 50 + Math.random() * 380);
     }
 
     function stopFireAudio() {
-        clearInterval(fire.crackle);
+        clearTimeout(fire.crackle);
         fire.nodes.forEach(function (n) { try { n.stop ? n.stop() : n.disconnect(); } catch (e) { } });
         fire.nodes = [];
     }

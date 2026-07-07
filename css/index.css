@@ -383,8 +383,14 @@ a { color: inherit; }
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.car-arrow:hover  { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
-.car-arrow:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+.car-arrow:hover:not(:disabled)  { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+.car-arrow:active:not(:disabled) { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+
+.car-arrow:disabled {
+    opacity: 0.3;
+    cursor: default;
+    box-shadow: 2px 2px 0 var(--ink);
+}
 
 .car-dots {
     display: flex;
@@ -558,6 +564,60 @@ a { color: inherit; }
     font-size: 0.8rem;
     font-weight: 400;
     color: rgba(20, 26, 56, 0.6);
+}
+
+/* --- snake + flappy canvases --- */
+
+.game-canvas {
+    display: block;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto 1rem;
+    flex: 1;
+    min-height: 0;
+    border: 3px solid var(--ink);
+    border-radius: 14px;
+    background: var(--cobalt-deep);
+    touch-action: none;      /* swipes steer the game, not the page */
+    cursor: pointer;
+}
+
+/* --- memory match --- */
+
+.mem-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 88px));
+    gap: 10px;
+    justify-content: center;
+    align-content: center;
+    flex: 1;
+    margin-bottom: 1rem;
+}
+
+.mem-card {
+    aspect-ratio: 1;
+    border: 3px solid var(--ink);
+    border-radius: 14px;
+    background: var(--cobalt);
+    color: var(--paper);
+    font-size: clamp(1.3rem, 4vw, 2rem);
+    font-family: var(--mono);
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+}
+
+.mem-card:hover { transform: scale(1.05); }
+
+.mem-card.open {
+    background: var(--paper);
+    transform: rotateY(180deg) scale(1.03);
+}
+
+.mem-card.done {
+    background: var(--paper);
+    opacity: 0.55;
+    cursor: default;
+    transform: none;
 }
 
 /* --- confetti cannon --- */
