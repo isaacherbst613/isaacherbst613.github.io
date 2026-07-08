@@ -553,14 +553,15 @@
     }
     paintCarousel();
 
-    function slideLeft(i) {
-        /* exact scroll offset — immune to snap/animation races */
-        return slides[i].offsetLeft - slides[0].offsetLeft;
-    }
-
     function goTo(i) {
         carIdx = Math.max(0, Math.min(slides.length - 1, i));
-        track.scrollTo({ left: slideLeft(carIdx), behavior: reduceMotion ? "auto" : "smooth" });
+        /* scrollIntoView lands exactly on the snap point — scrollTo with a
+           computed offset fought the snap logic and ate every other click */
+        slides[carIdx].scrollIntoView({
+            behavior: reduceMotion ? "auto" : "smooth",
+            block: "nearest",
+            inline: "center",
+        });
         paintCarousel();
     }
 
@@ -1216,6 +1217,7 @@
         stopDiscoMusic();
         stopFire();
         Object.keys(modeBtns).forEach(function (k) {
+            if (!modeBtns[k]) return;   /* disco is konami-only, no button */
             modeBtns[k].classList.remove("active");
             modeBtns[k].setAttribute("aria-pressed", "false");
         });
@@ -1224,8 +1226,10 @@
             return;
         }
         document.body.classList.add(mode);
-        modeBtns[mode].classList.add("active");
-        modeBtns[mode].setAttribute("aria-pressed", "true");
+        if (modeBtns[mode]) {
+            modeBtns[mode].classList.add("active");
+            modeBtns[mode].setAttribute("aria-pressed", "true");
+        }
         if (mode === "disco") {
             startDiscoMusic();
             rain(180);
@@ -1236,7 +1240,7 @@
         }
     }
 
-    modeBtns.disco.addEventListener("click", function () { setMode("disco"); });
+    if (modeBtns.disco) modeBtns.disco.addEventListener("click", function () { setMode("disco"); });
     modeBtns.fire.addEventListener("click", function () { setMode("fire"); });
 
     var soundBtn = document.getElementById("soundToggle");

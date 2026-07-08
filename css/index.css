@@ -316,7 +316,9 @@ a { color: inherit; }
     letter-spacing: 0.08em;
     position: relative;
     z-index: 8;
-    margin: -1.5rem 0;
+    /* the tilt drops ~1.4vw at the edges on wide screens — overlap must
+       scale with viewport width or a wedge of background peeks through */
+    margin: calc(-1rem - 1.6vw) 0;
 }
 
 .marquee-track {
@@ -354,7 +356,8 @@ a { color: inherit; }
     flex: 1;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
-    scroll-behavior: smooth;
+    /* no scroll-behavior:smooth here — combined with mandatory snap it makes
+       Chrome cancel programmatic scrolls, so arrows needed two clicks */
     gap: 1.2rem;
     padding: 12px 4px 16px;   /* room for the hard shadows */
     scrollbar-width: none;
@@ -958,4 +961,71 @@ body.fire #fireCanvas { display: block; }
     #cloth, .tear-hint, #restitch { display: none; }
     .hero-inner { z-index: 5; }
     .spot, #discoBall, body.fire #modeLayer::before { animation: none; }
+}
+
+/* ---------- SUNDER banner ---------- */
+
+.sunder-banner {
+    display: block;
+    width: min(980px, 100%);
+    margin: 2.6rem auto 0;
+    text-align: center;
+    text-decoration: none;
+    background: linear-gradient(180deg, #1b0f3d 0%, #8a3a72 38%, #ff8a55 50%, #8a3a72 62%, #1b0f3d 100%);
+    color: #ffedd8;
+    border: 3px solid var(--ink);
+    border-radius: 26px;
+    padding: 2.1rem 1.5rem 1.8rem;
+    cursor: pointer;
+    box-shadow: 7px 7px 0 var(--ink);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    font-family: var(--display);
+    transform: rotate(0.6deg);
+}
+
+.sunder-banner:hover {
+    transform: translate(-3px, -5px) rotate(0deg);
+    box-shadow: 12px 13px 0 var(--ink);
+}
+
+.sunder-kicker {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 0.4rem;
+}
+
+.sunder-title {
+    display: block;
+    font-size: clamp(2.6rem, 8vw, 5rem);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    font-stretch: 80%;
+    filter: drop-shadow(0 3px 16px rgba(255, 122, 61, 0.55));
+}
+
+/* gradient clip must sit on each span — it breaks on transformed children */
+.sunder-title span {
+    display: inline-block;
+    background: linear-gradient(180deg, #ffedd8 0%, #ffc53d 45%, #ff7a3d 75%, #ffedd8 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.sunder-flip {
+    transform: scaleY(-1);
+}
+
+.sunder-sub {
+    display: block;
+    margin-top: 0.55rem;
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: rgba(255, 237, 216, 0.85);
+    line-height: 1.6;
 }

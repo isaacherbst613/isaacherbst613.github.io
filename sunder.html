@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Google Tag Manager -->
+    <script>(function (w, d, s, l, i) {
+            w[l] = w[l] || []; w[l].push({
+                'gtm.start':
+                    new Date().getTime(), event: 'gtm.js'
+            }); var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-T9239NQ');</script>
+    <!-- End Google Tag Manager -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="SUNDER — the sky broke at sundown. Flip gravity between two folded mountain worlds. A fully procedural three.js game by Isaac Herbst.">
+    <meta name="theme-color" content="#1b0f3d">
+    <title>SUNDER — fly the seam</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="items/favicon_new/favicon-32x32.png">
+
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="modulepreload" href="https://cdn.jsdelivr.net/npm/three@0.166.1/build/three.module.min.js">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body { height: 100%; overflow: hidden; }
+
+        body {
+            font-family: "Bricolage Grotesque", system-ui, sans-serif;
+            color: #ffedd8;
+            /* instant sunset while three.js loads */
+            background: linear-gradient(180deg, #1b0f3d 0%, #8a3a72 38%, #ff8a55 50%, #8a3a72 62%, #1b0f3d 100%);
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        #scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+
+        /* skim glow — both edges, because both worlds are the ground */
+        #vignette {
+            position: fixed; inset: 0; pointer-events: none; opacity: 0;
+            transition: opacity 0.25s;
+            background:
+                linear-gradient(0deg, rgba(255, 150, 60, 0.35), transparent 22%),
+                linear-gradient(180deg, rgba(255, 150, 60, 0.35), transparent 22%);
+        }
+        #vignette.on { opacity: 1; }
+
+        .hud {
+            position: fixed; top: 0; left: 0; right: 0;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            padding: 18px 22px; pointer-events: none;
+            font-family: "IBM Plex Mono", ui-monospace, monospace;
+        }
+        .hud a, .hud button { pointer-events: auto; }
+
+        #score {
+            font-size: clamp(26px, 4vw, 40px); font-weight: 600; line-height: 1;
+            text-shadow: 0 2px 18px rgba(27, 15, 61, 0.8);
+        }
+        #best { font-size: 12px; opacity: 0.75; margin-top: 6px; letter-spacing: 0.08em; }
+
+        .hud-right { display: flex; gap: 10px; align-items: center; }
+        .hud-right a, .hud-right button {
+            font-family: inherit; font-size: 14px; color: #ffedd8; text-decoration: none;
+            background: rgba(27, 15, 61, 0.45); border: 1px solid rgba(255, 237, 216, 0.28);
+            border-radius: 999px; padding: 8px 14px; cursor: pointer;
+            backdrop-filter: blur(6px); transition: background 0.15s, transform 0.15s;
+        }
+        .hud-right a:hover, .hud-right button:hover { background: rgba(27, 15, 61, 0.75); transform: translateY(-1px); }
+        .hud-right a:focus-visible, .hud-right button:focus-visible { outline: 2px solid #ffc53d; outline-offset: 2px; }
+
+        #mult {
+            position: fixed; left: 50%; bottom: 9vh; transform: translateX(-50%) scale(0.8);
+            font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 600;
+            font-size: clamp(30px, 5vw, 52px); color: #ffc53d; opacity: 0;
+            text-shadow: 0 0 26px rgba(255, 160, 60, 0.75); pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        #mult.on { opacity: 1; }
+        #mult.pop { animation: pop 0.35s ease-out; }
+        @keyframes pop {
+            0% { transform: translateX(-50%) scale(1.7); }
+            100% { transform: translateX(-50%) scale(1); }
+        }
+
+        .overlay {
+            position: fixed; inset: 0; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center;
+            gap: 14px; padding: 24px;
+            background: radial-gradient(ellipse at 50% 60%, rgba(27, 15, 61, 0.15), rgba(27, 15, 61, 0.62));
+            transition: opacity 0.45s;
+        }
+        .overlay.hidden { opacity: 0; pointer-events: none; }
+
+        .game-title {
+            font-size: clamp(56px, 13vw, 150px); font-weight: 800; line-height: 0.9;
+            letter-spacing: 0.02em; font-stretch: 80%;
+            filter: drop-shadow(0 4px 30px rgba(255, 122, 61, 0.4));
+        }
+        /* gradient clip must live on each span — it breaks on transformed children */
+        .game-title span {
+            display: inline-block;
+            background: linear-gradient(180deg, #ffedd8 0%, #ffc53d 45%, #ff7a3d 75%, #b8407a 100%);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        /* the title itself is sundered */
+        .game-title .flipped { transform: scaleY(-1); }
+
+        .game-sub { font-size: clamp(15px, 2.2vw, 21px); opacity: 0.92; font-weight: 500; }
+
+        .controls {
+            font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px;
+            opacity: 0.8; line-height: 1.9; letter-spacing: 0.02em;
+        }
+        .controls b { color: #ffc53d; font-weight: 600; }
+
+        .cta {
+            margin-top: 10px; font-family: "IBM Plex Mono", ui-monospace, monospace;
+            font-size: 15px; color: #ffc53d; letter-spacing: 0.1em;
+            animation: pulse 1.6s ease-in-out infinite;
+        }
+        @keyframes pulse { 50% { opacity: 0.45; } }
+
+        #titleBest, .death-score-label {
+            font-family: "IBM Plex Mono", ui-monospace, monospace;
+            font-size: 12px; opacity: 0.65; letter-spacing: 0.12em;
+        }
+
+        #deathLine { font-size: clamp(22px, 4vw, 36px); font-weight: 700; }
+        #finalScore {
+            font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 600;
+            font-size: clamp(44px, 9vw, 90px); color: #ffc53d; line-height: 1;
+            text-shadow: 0 0 40px rgba(255, 160, 60, 0.5);
+        }
+
+        .overlay .home {
+            margin-top: 16px; font-family: "IBM Plex Mono", ui-monospace, monospace;
+            font-size: 13px; color: #ffedd8; opacity: 0.7; text-decoration: none;
+            border-bottom: 1px solid rgba(255, 237, 216, 0.35); padding-bottom: 2px;
+        }
+        .overlay .home:hover { opacity: 1; }
+
+        #nogl {
+            display: none; position: fixed; inset: 0; place-items: center; text-align: center;
+            padding: 30px; background: #1b0f3d; font-size: 18px; line-height: 1.6;
+        }
+        #nogl.show { display: grid; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .cta { animation: none; }
+            #mult.pop { animation: none; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T9239NQ"
+            height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <canvas id="scene" aria-hidden="true"></canvas>
+    <div id="vignette" aria-hidden="true"></div>
+
+    <header class="hud">
+        <div>
+            <div id="score" aria-live="off">0</div>
+            <div id="best">best 0</div>
+        </div>
+        <div class="hud-right">
+            <button id="muteBtn" type="button" title="Sound on/off (M)">🔊</button>
+            <a href="index.html" title="Back to the rest of Isaac">← home</a>
+        </div>
+    </header>
+
+    <div id="mult" aria-hidden="true">×1</div>
+
+    <div class="overlay" id="titleO">
+        <h1 class="game-title"><span>SUN</span><span class="flipped">DER</span></h1>
+        <p class="game-sub">the sky broke at sundown. fly the seam.</p>
+        <p class="controls">
+            steer — <b>move your mouse</b> / drag<br>
+            flip gravity — <b>click</b> / tap / space<br>
+            skim either world · chain the embers · dodge the shards
+        </p>
+        <p class="cta">click anywhere to take flight</p>
+        <p id="titleBest"></p>
+        <a class="home" href="index.html">← back to the rest of me</a>
+    </div>
+
+    <div class="overlay hidden" id="deathO">
+        <p id="deathLine">folded into the mountain.</p>
+        <p class="death-score-label">final score</p>
+        <div id="finalScore">0</div>
+        <p class="cta">click — fly again</p>
+        <a class="home" href="index.html">← back to the rest of me</a>
+    </div>
+
+    <div id="nogl">
+        <p>this one needs WebGL and your browser said no.<br>
+            <a href="index.html" style="color:#ffc53d">← back to the toys that work anywhere</a></p>
+    </div>
+
+    <script type="module" src="sunder.js"></script>
+</body>
+
+</html>
