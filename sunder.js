@@ -592,16 +592,21 @@ function respawn() {
 
 /* ---------------------------------------------------------------- input */
 
-/* mouse: move to steer, click to flip (instant).
-   touch: drag to steer (relative), quick tap to flip. */
-let touchStart = null;
+/* every pointer works the same: hovering a mouse steers, holding and
+   dragging steers (no flip), and only a quick tap that didn't drag flips.
+   arrows / A-D steer from the keyboard; space flips. */
+let gesture = null;
+const keys = { left: false, right: false };
+let keyboardSteer = false;
 
 addEventListener('pointermove', e => {
-    if (e.pointerType === 'mouse') {
+    if (gesture) {
+        steerX = clamp(gesture.steer + (e.clientX - gesture.x) / (innerWidth * 0.28), -1, 1);
+        if (Math.abs(e.clientX - gesture.x) > 12) gesture.moved = true;
+        keyboardSteer = false;
+    } else if (e.pointerType === 'mouse') {
         steerX = clamp((e.clientX / innerWidth) * 2 - 1, -1, 1);
-    } else if (touchStart) {
-        steerX = clamp(touchStart.steer + (e.clientX - touchStart.x) / (innerWidth * 0.28), -1, 1);
-        if (Math.abs(e.clientX - touchStart.x) > 14) touchStart.moved = true;
+        keyboardSteer = false;
     }
 }, { passive: true });
 
@@ -609,23 +614,18 @@ addEventListener('pointerdown', e => {
     if (e.target.closest('a, button')) return;
     if (state === 'title') { startRun(); return; }
     if (state === 'dead') { if (deathT > 0.8) respawn(); return; }
-    if (e.pointerType === 'mouse') {
-        steerX = clamp((e.clientX / innerWidth) * 2 - 1, -1, 1);
-        flip();
-    } else {
-        touchStart = { x: e.clientX, t: performance.now(), steer: steerX, moved: false };
-    }
+    gesture = { x: e.clientX, t: performance.now(), steer: steerX, moved: false };
 });
 
-addEventListener('pointerup', e => {
-    if (e.pointerType !== 'mouse' && touchStart) {
-        if (!touchStart.moved && performance.now() - touchStart.t < 260) flip();
-        touchStart = null;
-    }
+addEventListener('pointerup', () => {
+    if (gesture && !gesture.moved && performance.now() - gesture.t < 300) flip();
+    gesture = null;
 });
-addEventListener('pointercancel', () => { touchStart = null; });
+addEventListener('pointercancel', () => { gesture = null; });
 
 addEventListener('keydown', e => {
+    if (e.code === 'ArrowLeft' || e.code === 'KeyA') { e.preventDefault(); keys.left = true; return; }
+    if (e.code === 'ArrowRight' || e.code === 'KeyD') { e.preventDefault(); keys.right = true; return; }
     if (e.repeat) return;
     if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') {
         e.preventDefault();
@@ -635,7 +635,10 @@ addEventListener('keydown', e => {
     }
     if (e.code === 'KeyM') muteBtn.click();
 });
-addEventListener('keyup', () => {});
+addEventListener('keyup', e => {
+    if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
+    if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
+});
 
 muteBtn.addEventListener('click', () => {
     audio.init();
@@ -688,6 +691,9 @@ function frame(now) {
             const ty = lerp(lo, hi, 0.5) + Math.sin(elapsed * 0.7) * 6;
             player.vy = damp(player.vy, (ty - p.y) * 1.5, 2, sdt);
         } else {
+            const ks = (keys.right ? 1 : 0) - (keys.left ? 1 : 0);
+            if (ks) { steerX = clamp(damp(steerX, ks, 6, sdt), -1, 1); keyboardSteer = true; }
+            else if (keyboardSteer) { steerX = damp(steerX, 0, 3, sdt); }
             const steer = steerX * (52 + player.speed * 0.38);
             player.vx = damp(player.vx, steer, 4.5, sdt);
             player.vy = clamp(player.vy - player.grav * 33 * sdt, -42, 42);
