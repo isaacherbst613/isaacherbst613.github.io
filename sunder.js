@@ -56,11 +56,11 @@ function softDot(size, stops) {
 
 /* ---------------------------------------------------------------- world shape */
 
-const CORRIDOR_HALF = 58;
-const CEIL_TOP = 108;                       // where the upper world hinges
+const CORRIDOR_HALF = 72;
+const CEIL_TOP = 114;                       // where the upper world hinges
 
 function corridorX(z) {
-    return noise2(z * 0.0012, 93.7) * 115 + noise2(z * 0.0042, 41.2) * 26;
+    return noise2(z * 0.0009, 93.7) * 90 + noise2(z * 0.0032, 41.2) * 20;
 }
 
 function ridgeField(x, z) {
@@ -241,7 +241,7 @@ function spawnShard(z) {
     const s = shards.find(s => !s.active);
     if (!s) return;
     s.z = z;
-    s.x = corridorX(z) + (Math.random() - 0.5) * 60;
+    s.x = corridorX(z) + (Math.random() - 0.5) * 50;
     const lo = floorH(s.x, z) + 14, hi = ceilY(s.x, z) - 14;
     s.y = lerp(lo, hi, Math.random());
     s.active = true;
@@ -538,7 +538,7 @@ function setMult(m) {
 function flip() {
     if (state !== 'run') return;
     player.grav *= -1;
-    player.vy = player.vy * 0.35 - player.grav * 9;
+    player.vy = player.vy * 0.3 - player.grav * 11;
     rollTarget = player.grav === 1 ? 0 : Math.PI;
     audio.whoosh();
     burst(player.pos.x, player.pos.y, player.pos.z, 10, 12, 10);
@@ -676,7 +676,7 @@ function frame(now) {
     const p = player.pos;
     if (state === 'run' || state === 'title') {
         const dist = player.startZ - p.z;
-        player.speed = state === 'title' ? 16 : 34 + Math.min(46, dist * 0.0048);
+        player.speed = state === 'title' ? 16 : 29 + Math.min(36, dist * 0.0026);
         p.z -= player.speed * sdt;
 
         const lo = floorH(p.x, p.z), hi = ceilY(p.x, p.z);
@@ -690,7 +690,7 @@ function frame(now) {
         } else {
             const steer = steerX * (52 + player.speed * 0.38);
             player.vx = damp(player.vx, steer, 4.5, sdt);
-            player.vy = clamp(player.vy - player.grav * 55 * sdt, -52, 52);
+            player.vy = clamp(player.vy - player.grav * 33 * sdt, -42, 42);
         }
         p.x += player.vx * sdt;
         p.y += player.vy * sdt;
@@ -699,25 +699,26 @@ function frame(now) {
             /* collision with either world (plus a half-step lookahead) */
             const loA = floorH(p.x + player.vx * 0.06, p.z - player.speed * 0.06);
             const hiA = ceilY(p.x + player.vx * 0.06, p.z - player.speed * 0.06);
-            if (p.y < lo + 0.9 || p.y > hi - 0.9 || p.y < loA - 2.5 || p.y > hiA + 2.5) die();
+            const yA = p.y + player.vy * 0.06;
+            if (p.y < lo + 0.9 || p.y > hi - 0.9 || yA < loA + 0.9 || yA > hiA - 0.9) die();
 
             /* shards */
             for (const s of shards) {
                 if (!s.active) continue;
                 if (s.z > p.z + 30) { s.active = false; s.y = 1e5; continue; }
                 const dx = s.x - p.x, dy = (s.y - p.y) / 1.6, dz = s.z - p.z;
-                if (dx * dx + dy * dy + dz * dz < 19) { die(); break; }
+                if (dx * dx + dy * dy + dz * dz < 14) { die(); break; }
             }
             while (nextShardZ > p.z - 620) {
-                if (dist > 350) spawnShard(nextShardZ);
-                nextShardZ -= Math.max(90, 240 - dist * 0.01);
+                if (dist > 700) spawnShard(nextShardZ);
+                nextShardZ -= Math.max(130, 300 - dist * 0.008);
             }
         }
 
         /* skim + score */
         if (state === 'run') {
             const alt = Math.min(p.y - lo, hi - p.y);
-            skimming = alt < 6.5;
+            skimming = alt < 8.5;
             vignette.classList.toggle('on', skimming);
             if (skimming) {
                 chainTimer = Math.max(chainTimer, 1.2);
@@ -747,10 +748,10 @@ function frame(now) {
                 const dz = e.z - p.z;
                 if (dz > -6 && dz < 6) {
                     const dx = e.x - p.x, dyE = e.y - p.y;
-                    if (dx * dx + dyE * dyE + dz * dz < 34) {
+                    if (dx * dx + dyE * dyE + dz * dz < 46) {
                         e.active = false; e.y = 1e5; syncEmber(i);
                         chain++;
-                        chainTimer = 4;
+                        chainTimer = 5;
                         setMult(1 + Math.min(4, Math.floor(chain / 5)));
                         score += 100 * mult;
                         burst(p.x, p.y, p.z, 14, 16, 14);
@@ -834,7 +835,7 @@ function frame(now) {
         camera.position.lerp(camPos, 1 - Math.exp(-7 * dt));
         lookAt.set(p.x + player.vx * 0.06, p.y + 2.6 * upY, p.z - 40);
         const fovKick = RM ? 4 : 15;
-        camera.fov = damp(camera.fov, 60 + (player.speed - 34) / 46 * fovKick, 4, dt);
+        camera.fov = damp(camera.fov, 60 + (player.speed - 29) / 36 * fovKick, 4, dt);
     }
     if (shake > 0.01) {
         camera.position.x += (Math.random() - 0.5) * shake * 2.4;
