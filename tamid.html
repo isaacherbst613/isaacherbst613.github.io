@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tamid Dissection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700&family=Assistant:wght@400;600;700&display=swap">
+<style>
+/* Layout: full-height 3D stage + a parchment-dark study panel (side on desktop, below on phones). */
+:root{
+  --bg:#15120f; --panel:#1d1915; --line:#3a322a; --ink:#efe6d6; --muted:#a8998a;
+  --brass:#c9a35b; --blood:#9b2a24;
+  --serif:"Frank Ruhl Libre", "Times New Roman", serif;
+  --sans:"Assistant", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);margin:0;overflow:hidden}
+#app{display:grid;grid-template-columns:1fr 390px;height:100%}
+#stage{position:relative;min-width:0;overflow:hidden;background:#000}
+#stage canvas{display:block}
+#labels{position:absolute;inset:0;pointer-events:none}
+#hint{position:absolute;left:12px;bottom:10px;font-size:12px;color:#e8dcc8;background:rgba(20,16,12,.6);padding:4px 8px;border-radius:4px;pointer-events:none}
+#tip{position:absolute;pointer-events:none;background:rgba(20,16,12,.9);border:1px solid var(--brass);color:var(--ink);padding:4px 8px;border-radius:4px;font-size:13px;white-space:nowrap;transform:translate(12px,12px)}
+#tip b{font-family:var(--serif);font-size:15px}
+#loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:14px}
+aside{background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0;min-width:0}
+.head{padding:16px 18px 10px;border-bottom:1px solid var(--line)}
+.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--brass)}
+h1{font-family:var(--serif);font-size:22px;margin:2px 0 0;font-weight:700;text-wrap:balance}
+.card{padding:14px 18px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid var(--line)}
+.count{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.he{font-family:var(--serif);direction:rtl;text-align:right}
+#sHe{font-size:28px;line-height:1.1;margin:0}
+#sEn{font-size:15px;font-weight:600;margin:0}
+blockquote{margin:0;padding:8px 12px;border-right:3px solid var(--brass);background:rgba(201,163,91,.07);font-size:18px;line-height:1.55}
+#sEx{margin:0;font-size:14px;line-height:1.55;color:#d9cebd}
+#sSrc{margin:0;font-size:12px;line-height:1.5;color:var(--muted)}
+#sSrc b{color:var(--brass);font-weight:600}
+#sTo{align-self:flex-start;font-size:12px;font-weight:600;color:var(--bg);background:var(--brass);padding:2px 8px;border-radius:3px}
+.ctrls{display:flex;gap:6px;flex-wrap:wrap;padding:10px 18px;border-bottom:1px solid var(--line);align-items:center}
+button{font:600 13px var(--sans);color:var(--ink);background:#2a241e;border:1px solid var(--line);border-radius:4px;padding:6px 10px;cursor:pointer}
+button:hover{border-color:var(--brass)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+button.primary{background:var(--brass);color:#1a150f;border-color:var(--brass)}
+button[aria-pressed="true"]{border-color:var(--brass);color:var(--brass)}
+.sep{flex:1}
+label.tg{font-size:13px;display:flex;gap:5px;align-items:center;color:var(--muted);cursor:pointer}
+aside{overflow:auto}
+ol{list-style:none;margin:0;padding:6px 8px 16px;flex:none}
+ol li button{width:100%;display:grid;grid-template-columns:26px 1fr auto;gap:8px;align-items:baseline;text-align:left;background:none;border:0;border-radius:4px;padding:6px 10px;font-weight:400}
+ol li button:hover{background:#26201a}
+ol li .n{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+ol li .h{font-family:var(--serif);font-size:16px;direction:rtl}
+ol li .e{font-size:12px;color:var(--muted)}
+ol li.done .h{color:var(--muted)}
+ol li.cur button{background:#2d261e;box-shadow:inset 2px 0 0 var(--brass)}
+.foot{font-size:11px;color:var(--muted);padding:8px 18px 12px;border-top:1px solid var(--line);line-height:1.5}
+.klabel{font:600 11px var(--sans);color:var(--ink);background:rgba(20,16,12,.78);padding:2px 6px;border-radius:3px;white-space:nowrap;text-align:center;line-height:1.3}
+.rlabel{font-size:10px;padding:0 4px;background:rgba(58,40,20,.8)}
+.klabel span{font-family:var(--serif);font-size:13px;display:block}
+.plabel{font:600 12px var(--sans);color:#1a150f;background:var(--brass);padding:3px 8px;border-radius:3px;white-space:nowrap}
+.plabel span{font-family:var(--serif);font-size:14px;margin-left:6px}
+.hideLabels .klabel{display:none}
+@media (max-width:820px){
+  body{overflow:auto}
+  #app{grid-template-columns:1fr;grid-template-rows:56vh auto;height:auto}
+  #stage{height:56vh}
+  aside{border-left:0;border-top:1px solid var(--line)}
+  ol{max-height:none}
+}
+@media (prefers-reduced-motion:reduce){ *{transition:none!important} }
+</style>
+
+<div id="app">
+  <div id="stage">
+    <div id="loading">Loading the courtyard…</div>
+    <div id="labels"></div>
+    <div id="tip" hidden></div>
+    <div id="hint">Drag to orbit · scroll or pinch to zoom toward the cursor · right-drag or Shift-drag to pan · hover a part to name it</div>
+  </div>
+  <aside>
+    <div class="head">
+      <div class="eyebrow">Mishna Tamid 4:2–3</div>
+      <h1>Dissecting the Tamid</h1>
+    </div>
+    <div class="card" aria-live="polite">
+      <div class="count" id="sCount"></div>
+      <p class="he" id="sHe"></p>
+      <p id="sEn"></p>
+      <blockquote class="he" id="sQ"></blockquote>
+      <p id="sEx"></p>
+      <span id="sTo"></span>
+      <p id="sSrc"></p>
+    </div>
+    <div class="ctrls">
+      <button id="prev" aria-label="Previous step">◀ Prev</button>
+      <button id="next" class="primary">Next ▶</button>
+      <button id="replay">Replay</button>
+      <button id="play" aria-pressed="false">Auto-play</button>
+    </div>
+    <div class="ctrls">
+      <label class="tg"><input type="checkbox" id="xray"> X-ray</label>
+      <label class="tg"><input type="checkbox" id="lbl" checked> Labels</label>
+      <span class="sep"></span>
+      <button id="camC">Carcass</button>
+      <button id="camK">Kohanim</button>
+      <button id="camL">Plan</button>
+      <button id="camA">Altar</button>
+    </div>
+    <ol id="list"></ol>
+    <div class="foot">Mishna text: Tamid 4:2–3, Torat Emet edition (via Sefaria); “…” marks an abridgment. Explanations follow Bartenura, Tosafot Yom Tov, Tiferet Yisrael (Yachin) and Rambam. Where they differ, the step says which view is shown. Anatomy is a simplified model of a yearling ram.</div>
+  </aside>
+</div>
+
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const PI = Math.PI, V = (x,y,z)=>new THREE.Vector3(x,y,z);
+const PELVIS_Y = 1.55, CHEST_Y = PELVIS_Y - 0.40, XS = 0.9;
+
+/* ---------------- noise & random ---------------- */
+function mulberry32(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+let rng = mulberry32(1);
+const rr = (a,b)=>a+rng()*(b-a), rnd=(a,b)=>a+Math.random()*(b-a);
+function hash3(x,y,z){const s=Math.sin(x*127.1+y*311.7+z*74.7)*43758.5453;return s-Math.floor(s)}
+function vnoise(x,y,z){
+  const xi=Math.floor(x),yi=Math.floor(y),zi=Math.floor(z),xf=x-xi,yf=y-yi,zf=z-zi;
+  const u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf),w=zf*zf*(3-2*zf),L=(a,b,t)=>a+(b-a)*t,c=(a,b,d)=>hash3(xi+a,yi+b,zi+d);
+  return L(L(L(c(0,0,0),c(1,0,0),u),L(c(0,1,0),c(1,1,0),u),v),L(L(c(0,0,1),c(1,0,1),u),L(c(0,1,1),c(1,1,1),u),v),w);
+}
+const fbm=(x,y,z)=>vnoise(x,y,z)*.5+vnoise(x*2.1,y*2.1,z*2.1)*.3+vnoise(x*4.3,y*4.3,z*4.3)*.2;
+function displace(geo,amp,freq,seed=0){
+  const p=geo.attributes.position,n=geo.attributes.normal;
+  for(let i=0;i<p.count;i++){
+    const x=p.getX(i),y=p.getY(i),z=p.getZ(i),d=(fbm(x*freq+seed,y*freq+seed*.3,z*freq)-.5)*2*amp;
+    p.setXYZ(i,x+n.getX(i)*d,y+n.getY(i)*d,z+n.getZ(i)*d);
+  }
+  geo.computeVertexNormals();return geo;
+}
+
+/* ---------------- procedural textures ---------------- */
+function tex(w,h,draw,{repeat=[1,1],srgb=true}={}){
+  const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(...repeat);
+  if(srgb)t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t;
+}
+const blob=(g,x,y,r,col)=>{const gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,col);gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(x-r,y-r,r*2,r*2)};
+const streaks=(g,w,h,n,hue,alpha=[.15,.4])=>{for(let i=0;i<n;i++){const x=rnd(0,w),y=rnd(0,h);g.strokeStyle=`hsla(${hue+rnd(-6,6)},${rnd(50,75)}%,${rnd(16,42)}%,${rnd(...alpha)})`;g.lineWidth=rnd(.5,2.2);g.beginPath();g.moveTo(x,y);g.lineTo(x+rnd(-5,5),y+rnd(20,90));g.stroke()}};
+
+const T={
+  meat:tex(512,512,(g,w,h)=>{g.fillStyle='#7a1b19';g.fillRect(0,0,w,h);streaks(g,w,h,2600,358);
+    for(let i=0;i<50;i++){g.strokeStyle=`rgba(238,224,204,${rnd(.25,.55)})`;g.lineWidth=rnd(1,3);g.beginPath();let x=rnd(0,w),y=rnd(0,h);g.moveTo(x,y);for(let k=0;k<6;k++){x+=rnd(-14,14);y+=rnd(4,22);g.lineTo(x,y)}g.stroke()}}),
+  surf:tex(512,512,(g,w,h)=>{g.fillStyle='#dcae9b';g.fillRect(0,0,w,h);
+    for(let i=0;i<160;i++)blob(g,rnd(0,w),rnd(0,h),rnd(40,120),['rgba(240,226,206,.45)','rgba(190,100,85,.22)','rgba(246,236,222,.4)'][i%3]);
+    for(let i=0;i<140;i++){g.strokeStyle=`rgba(120,40,60,${rnd(.12,.3)})`;g.lineWidth=rnd(.4,1.2);g.beginPath();let x=rnd(0,w),y=rnd(0,h);g.moveTo(x,y);for(let k=0;k<8;k++){x+=rnd(-12,12);y+=rnd(-12,12);g.lineTo(x,y)}g.stroke()}}),
+  rib:tex(256,512,(g,w,h)=>{g.fillStyle='#86302a';g.fillRect(0,0,w,h);streaks(g,w,h,700,356);
+    const n=13;for(let i=0;i<n;i++){const y=(i+.5)/n*h,bw=h/n*.42,gr=g.createLinearGradient(0,y-bw,0,y+bw);gr.addColorStop(0,'rgba(200,120,105,0)');gr.addColorStop(.5,'rgba(236,214,192,.95)');gr.addColorStop(1,'rgba(200,120,105,0)');g.fillStyle=gr;g.fillRect(0,y-bw,w,bw*2)}
+    for(let i=0;i<120;i++)blob(g,rnd(0,w),rnd(0,h),rnd(6,30),'rgba(255,255,255,.07)')}),
+  wool:tex(512,512,(g,w,h)=>{g.fillStyle='#cfc4ad';g.fillRect(0,0,w,h);for(let i=0;i<9000;i++){g.strokeStyle=`hsl(40,${rnd(12,28)}%,${rnd(58,93)}%)`;g.lineWidth=rnd(1,2.4);g.beginPath();const a=rnd(0,6.3);g.arc(rnd(0,w),rnd(0,h),rnd(2,7),a,a+rnd(2,4.5));g.stroke()}}),
+  hair:tex(512,512,(g,w,h)=>{g.fillStyle='#ddd1bb';g.fillRect(0,0,w,h);for(let i=0;i<14000;i++){g.strokeStyle=`hsla(38,${rnd(10,25)}%,${rnd(60,90)}%,.7)`;g.lineWidth=1;const x=rnd(0,w),y=rnd(0,h);g.beginPath();g.moveTo(x,y);g.lineTo(x+rnd(-1.5,1.5),y+rnd(3,7));g.stroke()}}),
+  stone:tex(1024,1024,(g,w,h)=>{g.fillStyle='#8f826b';g.fillRect(0,0,w,h);const rows=4,rh=h/rows;
+    for(let r=0;r<rows;r++){let x=-rnd(0,200);while(x<w){const bw=rnd(180,330);g.fillStyle=`hsl(${rnd(36,44)},${rnd(22,34)}%,${rnd(70,80)}%)`;g.fillRect(x+3,r*rh+3,bw-6,rh-6);for(let k=0;k<8;k++)blob(g,x+rnd(0,bw),r*rh+rnd(0,rh),rnd(20,70),'rgba(120,100,70,.08)');x+=bw}}
+    for(let i=0;i<26000;i++){g.fillStyle=`rgba(${rnd(80,140)|0},${rnd(70,120)|0},${rnd(50,90)|0},${rnd(.05,.25)})`;g.fillRect(rnd(0,w),rnd(0,h),1.5,1.5)}},{repeat:[40,40]}),
+  marble:tex(512,512,(g,w,h)=>{g.fillStyle='#e6e1d8';g.fillRect(0,0,w,h);for(let i=0;i<30;i++){g.strokeStyle=`rgba(120,115,110,${rnd(.1,.35)})`;g.lineWidth=rnd(.5,2);g.beginPath();let x=rnd(0,w),y=rnd(0,h);g.moveTo(x,y);for(let k=0;k<30;k++){x+=rnd(-10,14);y+=rnd(-8,8);g.lineTo(x,y)}g.stroke()}}),
+  cedar:tex(512,128,(g,w,h)=>{g.fillStyle='#6a3c20';g.fillRect(0,0,w,h);for(let i=0;i<160;i++){g.strokeStyle=`rgba(${rnd(40,120)|0},${rnd(20,60)|0},10,.35)`;g.lineWidth=rnd(.5,2);const y=rnd(0,h);g.beginPath();g.moveTo(0,y);g.bezierCurveTo(w/3,y+rnd(-6,6),w*2/3,y+rnd(-6,6),w,y);g.stroke()}}),
+  liver:tex(256,256,(g,w,h)=>{g.fillStyle='#4a1411';g.fillRect(0,0,w,h);for(let i=0;i<500;i++)blob(g,rnd(0,w),rnd(0,h),rnd(3,14),'rgba(120,40,34,.35)')}),
+  lung:tex(256,256,(g,w,h)=>{g.fillStyle='#d68983';g.fillRect(0,0,w,h);for(let i=0;i<500;i++)blob(g,rnd(0,w),rnd(0,h),rnd(4,20),i%2?'rgba(170,80,80,.35)':'rgba(240,180,175,.4)');for(let i=0;i<300;i++){g.fillStyle='rgba(90,30,40,.3)';g.fillRect(rnd(0,w),rnd(0,h),2,2)}}),
+  gut:tex(256,256,(g,w,h)=>{g.fillStyle='#c6a093';g.fillRect(0,0,w,h);for(let i=0;i<200;i++)blob(g,rnd(0,w),rnd(0,h),rnd(6,24),'rgba(235,220,205,.35)');for(let i=0;i<70;i++){g.strokeStyle='rgba(150,30,40,.45)';g.lineWidth=rnd(.6,1.6);g.beginPath();let x=rnd(0,w),y=rnd(0,h);g.moveTo(x,y);for(let k=0;k<6;k++){x+=rnd(-15,15);y+=rnd(-15,15);g.lineTo(x,y)}g.stroke()}}),
+  rumen:tex(256,256,(g,w,h)=>{g.fillStyle='#a1977f';g.fillRect(0,0,w,h);for(let i=0;i<300;i++)blob(g,rnd(0,w),rnd(0,h),rnd(6,30),i%3?'rgba(230,222,200,.3)':'rgba(110,100,80,.3)')}),
+  fat:tex(256,256,(g,w,h)=>{g.fillStyle='#ece0c9';g.fillRect(0,0,w,h);for(let i=0;i<300;i++)blob(g,rnd(0,w),rnd(0,h),rnd(6,26),i%2?'rgba(255,250,238,.5)':'rgba(214,190,150,.35)')}),
+  lace:tex(256,256,(g,w,h)=>{g.fillStyle='#fff';g.fillRect(0,0,w,h);g.fillStyle='#000';for(let i=0;i<420;i++){g.beginPath();g.ellipse(rnd(0,w),rnd(0,h),rnd(3,10),rnd(2,7),rnd(0,3),0,7);g.fill()}},{srgb:false}),
+  horn:tex(64,256,(g,w,h)=>{g.fillStyle='#cdb892';g.fillRect(0,0,w,h);for(let y=0;y<h;y+=rnd(4,9)){g.fillStyle=`rgba(90,70,40,${rnd(.15,.4)})`;g.fillRect(0,y,w,rnd(1,2.5))}}),
+  trachea:tex(64,256,(g,w,h)=>{g.fillStyle='#d7b9a8';g.fillRect(0,0,w,h);for(let y=0;y<h;y+=10){g.fillStyle='rgba(245,236,224,.9)';g.fillRect(0,y,w,6)}}),
+  linen:tex(256,256,(g,w,h)=>{g.fillStyle='#efeae0';g.fillRect(0,0,w,h);for(let i=0;i<h;i+=2){g.fillStyle=`rgba(150,140,120,${rnd(.03,.09)})`;g.fillRect(0,i,w,1);g.fillRect(i,0,1,h)}for(let i=0;i<60;i++)blob(g,rnd(0,w),rnd(0,h),rnd(10,40),'rgba(120,110,90,.05)')}),
+  sash:tex(256,64,(g,w,h)=>{const c=['#ece6da','#2c4b8c','#6a2b5d','#a4262a'];for(let i=0;i<16;i++){g.fillStyle=c[i%4];g.fillRect(0,i*h/16,w,h/16+1)}}),
+  cut:tex(256,256,(g,w,h)=>{g.fillStyle='#e9dcc8';g.fillRect(0,0,w,h);g.fillStyle='#8a2420';g.beginPath();g.arc(128,128,112,0,7);g.fill();streaks(g,w,h,500,358);g.fillStyle='#efe6d6';g.beginPath();g.arc(128,128,34,0,7);g.fill();g.fillStyle='#b14a40';g.beginPath();g.arc(128,128,16,0,7);g.fill()}),
+  puddle:tex(256,256,(g,w,h)=>{g.fillStyle='#000';g.fillRect(0,0,w,h);g.fillStyle='#fff';for(let i=0;i<40;i++){const a=rnd(0,6.3),d=rnd(0,70);g.beginPath();g.arc(128+Math.cos(a)*d,128+Math.sin(a)*d,rnd(14,40),0,7);g.fill()}},{srgb:false}),
+};
+T.surf.repeat.set(2,2);
+
+/* ---------------- materials ---------------- */
+const phys=(o)=>new THREE.MeshPhysicalMaterial(o);
+const M={
+  surf:phys({map:T.surf,bumpMap:T.surf,bumpScale:.6,roughness:.42,clearcoat:.55,clearcoatRoughness:.35}),
+  rib:phys({map:T.rib,bumpMap:T.rib,bumpScale:3,roughness:.38,clearcoat:.7,clearcoatRoughness:.3}),
+  meat:phys({map:T.meat,bumpMap:T.meat,bumpScale:2,roughness:.4,clearcoat:.6,clearcoatRoughness:.3}),
+  edge:phys({map:T.meat,roughness:.45,clearcoat:.5,side:THREE.DoubleSide}),
+  cut:phys({map:T.cut,roughness:.4,clearcoat:.6,side:THREE.DoubleSide}),
+  bone:phys({color:'#e8dcc6',roughness:.5,clearcoat:.3}),
+  fat:phys({map:T.fat,roughness:.45,clearcoat:.5,sheen:.4,sheenColor:new THREE.Color('#fff8e8')}),
+  lace:phys({map:T.fat,alphaMap:T.lace,alphaTest:.5,side:THREE.DoubleSide,roughness:.45,clearcoat:.5}),
+  wool:new THREE.MeshStandardMaterial({map:T.wool,bumpMap:T.wool,bumpScale:4,roughness:1}),
+  hideIn:new THREE.MeshStandardMaterial({color:'#e2c3b2',roughness:.6,side:THREE.BackSide}),
+  hair:new THREE.MeshStandardMaterial({map:T.hair,bumpMap:T.hair,bumpScale:2,roughness:.95}),
+  hoof:phys({color:'#2b2420',roughness:.45,clearcoat:.4}),
+  horn:phys({map:T.horn,bumpMap:T.horn,bumpScale:3,roughness:.55}),
+  eye:phys({color:'#120c08',roughness:.05,clearcoat:1}),
+  nose:phys({color:'#5a4842',roughness:.6}),
+  liver:phys({map:T.liver,roughness:.22,clearcoat:1,clearcoatRoughness:.15}),
+  lung:phys({map:T.lung,roughness:.5,clearcoat:.4,sheen:.5,sheenColor:new THREE.Color('#ffd0cc')}),
+  heart:phys({color:'#6a1514',roughness:.3,clearcoat:.9,emissive:'#ff1a10',emissiveIntensity:0}),
+  spleen:phys({color:'#5a2840',roughness:.3,clearcoat:.9}),
+  kidney:phys({color:'#5e1d1a',roughness:.25,clearcoat:1}),
+  gut:phys({map:T.gut,roughness:.3,clearcoat:.9,clearcoatRoughness:.2}),
+  gut2:phys({map:T.gut,color:'#b9c0a0',roughness:.3,clearcoat:.9}),
+  rumen:phys({map:T.rumen,roughness:.4,clearcoat:.7}),
+  trachea:phys({map:T.trachea,roughness:.4,clearcoat:.6}),
+  gall:phys({color:'#3d5a2a',roughness:.2,clearcoat:1,transmission:.2}),
+  blood:phys({color:'#4a0404',roughness:.1,clearcoat:1,clearcoatRoughness:.05}),
+  puddle:phys({color:'#3d0303',roughness:.08,clearcoat:1,alphaMap:T.puddle,alphaTest:.5}),
+  iron:new THREE.MeshStandardMaterial({color:'#3a3531',metalness:.85,roughness:.5}),
+  steel:new THREE.MeshStandardMaterial({color:'#c9ccd0',metalness:1,roughness:.22}),
+  silver:new THREE.MeshStandardMaterial({color:'#d9d9dc',metalness:1,roughness:.25}),
+  gold:new THREE.MeshStandardMaterial({color:'#d4a94e',metalness:1,roughness:.3}),
+  cedar:new THREE.MeshStandardMaterial({map:T.cedar,roughness:.7}),
+  marble:phys({map:T.marble,roughness:.25,clearcoat:.4}),
+  floor:new THREE.MeshStandardMaterial({map:T.stone,color:'#c9b99a',bumpMap:T.stone,bumpScale:2,roughness:.85}),
+  altar:new THREE.MeshStandardMaterial({map:T.stone.clone(),color:'#fffaf2',roughness:.9,emissive:'#2a2620'}),
+  linen:new THREE.MeshPhysicalMaterial({map:T.linen,roughness:.85,sheen:.6,sheenColor:new THREE.Color('#ffffff')}),
+  sash:new THREE.MeshStandardMaterial({map:T.sash,roughness:.8}),
+  skin:new THREE.MeshStandardMaterial({color:'#a8775a',roughness:.6}),
+  beard:new THREE.MeshStandardMaterial({color:'#2e2119',roughness:1}),
+  flour:new THREE.MeshStandardMaterial({color:'#f4efe4',roughness:1}),
+  cake:new THREE.MeshStandardMaterial({color:'#c08a4a',roughness:.7}),
+  ash:new THREE.MeshStandardMaterial({map:T.rumen,color:'#8a847c',roughness:1}),
+  log:new THREE.MeshStandardMaterial({map:T.cedar,color:'#b08a6a',roughness:.85}),
+  flame:new THREE.MeshBasicMaterial({color:'#ffae3a',transparent:true,opacity:.75,blending:THREE.AdditiveBlending,depthWrite:false}),
+  wine:phys({color:'#3a0610',roughness:.05,clearcoat:1}),
+};
+M.altar.map.repeat.set(1.5,1.5);
+const clip = new THREE.Plane(V(0,-1,0), 3);           // keeps fleece where y <= constant
+M.wool.clippingPlanes=[clip]; M.hideIn.clippingPlanes=[clip]; M.wool.clipShadows=true;
+const FLAMES=[];
+const XRAY=[M.surf,M.rib,M.meat,M.edge,M.cut,M.wool,M.hideIn,M.hair,M.fat,M.lace,M.bone];
+
+/* ---------------- geometry helpers ---------------- */
+function mesh(geo,mat){const m=new THREE.Mesh(geo,mat);m.castShadow=true;m.receiveShadow=true;return m}
+function ell(mat,[sx,sy,sz],[x,y,z],disp=0,freq=4,seg=40){
+  const g=new THREE.SphereGeometry(1,seg,Math.round(seg*.75));if(disp)displace(g,disp,freq,x*7+z*3+y);g.scale(sx,sy,sz);
+  const m=mesh(g,mat);m.position.set(x,y,z);return m;
+}
+function tube(pts,rFn,mat,{tub=48,rad=18,uvLen=3}={}){
+  const curve=new THREE.CatmullRomCurve3(pts.map(p=>p.isVector3?p:V(...p)));
+  const fr=curve.computeFrenetFrames(tub,false),pos=[],uv=[],idx=[],len=curve.getLength();
+  for(let i=0;i<=tub;i++){const t=i/tub,P=curve.getPointAt(t),N=fr.normals[i],B=fr.binormals[i],r=rFn(t);
+    for(let j=0;j<=rad;j++){const a=j/rad*PI*2,c=-Math.cos(a),s=Math.sin(a);
+      pos.push(P.x+r*(c*N.x+s*B.x),P.y+r*(c*N.y+s*B.y),P.z+r*(c*N.z+s*B.z));uv.push(j/rad,t*len*uvLen)}}
+  for(let i=0;i<tub;i++)for(let j=0;j<rad;j++){const a=i*(rad+1)+j,b=(i+1)*(rad+1)+j;idx.push(a,b,a+1,b,b+1,a+1)}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);g.computeVertexNormals();
+  const m=mesh(g,mat);m.userData.curve=curve;return m;
+}
+function cap(p,dir,r,mat=M.cut){const m=mesh(new THREE.CircleGeometry(r,24),mat);m.position.copy(p);m.quaternion.setFromUnitVectors(V(0,0,1),dir.clone().normalize());return m}
+
+// torso radius profile (y in carcass space, pelvis = 0, head is down)
+const PROF=[[.12,.05],[.10,.075],[.06,.12],[0,.155],[-.08,.19],[-.2,.21],[-.35,.215],[-.5,.205],[-.62,.175],[-.7,.13],[-.76,.085],[-.8,.08]];
+function R(y){for(let i=0;i<PROF.length-1;i++){const[a,ra]=PROF[i],[b,rb]=PROF[i+1];if(y<=a&&y>=b)return ra+(rb-ra)*(a-y)/(a-b)}return y>PROF[0][0]?PROF[0][1]:PROF.at(-1)[1]}
+
+// a thick curved slab of the body wall: outer surface / inner (ribs) / cut edges
+function shell(y0,y1,p0,p1,{th=.03,inner=M.rib,outer=M.surf}={}){
+  const pos=[],uv=[],idx=[],nu=Math.max(4,Math.round((p1-p0)*40)),nv=28;
+  const pt=(u,v,s)=>{const phi=PI*(p0+(p1-p0)*u),y=y1+(y0-y1)*v,r=R(y)-s*th;return[r*Math.sin(phi)*XS,y,r*Math.cos(phi)]};
+  const uvOf=(u,v)=>[(p0+(p1-p0)*u)*.6,(y1+(y0-y1)*v)/.52];
+  const grid=(f,fu,nu,nv,flip)=>{const base=pos.length/3,start=idx.length;
+    for(let j=0;j<=nv;j++)for(let i=0;i<=nu;i++){pos.push(...f(i/nu,j/nv));uv.push(...fu(i/nu,j/nv))}
+    for(let j=0;j<nv;j++)for(let i=0;i<nu;i++){const a=base+j*(nu+1)+i,b=a+1,c=a+nu+1,d=c+1;flip?idx.push(a,c,b,b,c,d):idx.push(a,b,c,b,d,c)}
+    return[start,idx.length-start]};
+  const g0=grid((u,v)=>pt(u,v,0),uvOf,nu,nv,false),g1=grid((u,v)=>pt(u,v,1),uvOf,nu,nv,true);
+  const es=idx.length;
+  grid((s,v)=>pt(0,v,s),(s,v)=>[s*.2,v],1,nv,false);grid((s,v)=>pt(1,v,s),(s,v)=>[s*.2,v],1,nv,false);
+  grid((u,s)=>pt(u,0,s),(u,s)=>[u,s*.2],nu,1,false);grid((u,s)=>pt(u,1,s),(u,s)=>[u,s*.2],nu,1,false);
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(idx);
+  g.addGroup(...g0,0);g.addGroup(...g1,1);g.addGroup(es,idx.length-es,2);g.computeVertexNormals();
+  return mesh(g,[outer,inner,M.edge]);
+}
+function fleece(obj){obj.traverse(o=>{if(o.isMesh)o.userData.fleece=true});return obj}
+function fleeceLathe(y0,y1,off){
+  const pts=[];for(let i=0;i<=40;i++){const y=y1+(y0-y1)*i/40;pts.push(new THREE.Vector2(R(y)+off,y))}
+  const g=new THREE.LatheGeometry(pts,72);displace(g,.014,22,3);g.scale(XS,1,1);
+  const grp=new THREE.Group();grp.add(mesh(g,M.wool),mesh(g,M.hideIn));return fleece(grp);
+}
+function fleeceTube(pts,rFn){const grp=new THREE.Group();const a=tube(pts,rFn,M.wool,{uvLen:2});displace(a.geometry,.008,30,1);
+  const b=new THREE.Mesh(a.geometry,M.hideIn);grp.add(a,b);return fleece(grp)}
+
+/* ---------------- the lamb ---------------- */
+function buildSheep(){
+  rng=mulberry32(7);
+  const root=new THREE.Group();root.position.set(0,PELVIS_Y,0);
+  const P={},grp=(key,he,en)=>{const g=new THREE.Group();g.userData.label={he,en};root.add(g);P[key]=g;return g};
+
+  // hide & fleece over torso, neck, tail (clipped away as flaying proceeds)
+  const hide=new THREE.Group();root.add(hide);
+  hide.add(fleeceLathe(.13,-.8,.04));
+  hide.add(fleeceTube([[0,-.76,0],[0,-.86,.03],[0,-.965,.06]],t=>.112-.015*t));
+  const tf=ell(M.wool,[.105,.165,.075],[0,-.03,-.2],.12,5);hide.add(fleece(tf));
+
+  // OKETZ: rump + fat tail + kidneys + liver lobe
+  const ok=grp('oketz','העוקץ','Rump with fat tail, kidneys & liver lobe');
+  ok.add(shell(.12,-.06,.16,1.84));
+  ok.add(ell(M.meat,[.06,.03,.055],[0,.115,-.01]));
+  ok.add(ell(M.fat,[.075,.13,.05],[.05,-.03,-.19],.12,5),ell(M.fat,[.075,.13,.05],[-.05,-.03,-.19],.12,5));
+  ok.add(tube([[0,.11,-.12],[0,.13,-.17],[0,.1,-.24]],t=>.03-.015*t,M.fat));
+  for(const s of[1,-1]){ok.add(ell(M.kidney,[.022,.038,.018],[s*.055,-.15,-.12],.05,6));ok.add(ell(M.fat,[.03,.028,.022],[s*.06,-.115,-.125],.1,6))}
+  const yot=ell(M.liver,[.016,.042,.016],[.075,-.37,-.05],.08,6);yot.userData.label={he:'אצבע הכבד',en:'Lobe of the liver (yoteret)'};ok.add(yot);
+  P.yoteret=yot;
+
+  // LEFT FLANK + spine + spleen ; RIGHT FLANK + liver ; belly halves hinged to each
+  const lf=grp('leftFlank','הדופן השמאלית','Left flank with spine & spleen');
+  lf.add(shell(-.06,-.62,1.16,1.84));
+  lf.add(shell(-.06,-.62,.84,1.16));
+  const spine=[];for(let y=-.06;y>=-.62;y-=.02)spine.push([0,y,-(R(y)-.055)]);
+  lf.add(tube(spine,()=>.024,M.bone,{tub:60}));
+  for(let y=-.08;y>-.62;y-=.045)lf.add(ell(M.bone,[.03,.012,.02],[0,y,-(R(y)-.07)]));
+  const spl=ell(M.spleen,[.018,.085,.05],[-.12,-.42,-.04],.06,5);spl.rotation.z=-.15;lf.add(spl);
+  const rf=grp('rightFlank','הדופן הימנית','Right flank with the liver');
+  rf.add(shell(-.06,-.62,.16,.84));
+  const liver=new THREE.Group();rf.add(liver);P.liverSub=liver;
+  liver.add(ell(M.liver,[.09,.045,.085],[.045,-.435,.02],.1,5),ell(M.liver,[.065,.04,.07],[-.03,-.445,.05],.1,5),ell(M.gall,[.014,.022,.014],[.07,-.4,.085]));
+  liver.userData.label={he:'הכבד',en:'Liver'};
+  P.belly=[];
+  for(const [s,flank] of[[-1,lf],[1,rf]]){
+    const p0=s<0?-.16:0,p1=s<0?0:.16,hp=s*.16*PI,yr=-.15,hx=R(yr)*Math.sin(hp)*XS,hz=R(yr)*Math.cos(hp);
+    const piv=new THREE.Group();piv.position.set(hx,0,hz);const sh=shell(.12,-.40,p0,p1,{inner:M.meat});sh.position.set(-hx,0,-hz);piv.add(sh);flank.add(piv);P.belly.push([piv,s]);
+  }
+
+  // CHEST
+  const ch=grp('chest','החזה','Chest (brisket)');ch.add(shell(-.40,-.78,-.16,.16,{th:.035}));
+  ch.add(ell(M.bone,[.02,.17,.012],[0,-.6,R(-.6)-.04]));
+
+  // NECK with ring of two ribs each side, windpipe, heart, lungs
+  const nk=grp('neck','הגרה','Neck with windpipe, heart & lungs');
+  nk.add(shell(-.62,-.78,.16,1.84));
+  nk.add(tube([[0,-.75,0],[0,-.86,.03],[0,-.965,.06]],t=>.08-.014*t,M.meat));
+  nk.add(cap(V(0,-.965,.06),V(0,-1,-.25),.066));
+  nk.add(tube([[0,-.5,.04],[0,-.62,.06],[0,-.78,.07],[0,-.96,.1]],()=>.012,M.trachea,{tub:40,rad:12,uvLen:6}));
+  for(const s of[1,-1])nk.add(ell(M.lung,[.058,.11,.1],[s*.062,-.575,-.005],.12,5));
+  const heart=new THREE.Group();heart.add(ell(M.heart,[.042,.065,.042],[0,-.61,.075],.06,6),ell(M.fat,[.04,.022,.04],[0,-.56,.072],.1,6));
+  heart.userData.label={he:'הלב',en:'Heart'};nk.add(heart);P.heart=heart;
+
+  // HEAD (still in its skin)
+  const hd=grp('head','הראש','Head');
+  hd.add(ell(M.hair,[.072,.12,.088],[0,-1.07,.02],.06,5));
+  hd.add(ell(M.hair,[.046,.07,.056],[0,-1.17,.05],.05,6));
+  hd.add(ell(M.nose,[.026,.014,.022],[0,-1.235,.065]));
+  hd.add(cap(V(0,-.965,.06),V(0,1,.25),.066));
+  hd.add(ell(M.blood,[.05,.006,.016],[0,-.975,.12]));
+  for(const s of[1,-1]){
+    hd.add(ell(M.eye,[.012,.014,.012],[s*.06,-1.05,.045]));
+    const ear=ell(M.hair,[.062,.016,.03],[s*.09,-.995,0]);ear.rotation.z=s*.7;hd.add(ear);
+    const h=[];for(let i=0;i<=16;i++){const t=i/16,a=t*1.35*PI,r=.055*(1-.35*t);h.push([s*(.03+.07*t),-.985+.035-r*Math.cos(a)+.02,-.07-r*Math.sin(a)*1.0+.02*t])}
+    hd.add(tube(h,t=>.017*(1-t)+.004,M.horn,{tub:40,rad:12,uvLen:8}));
+  }
+
+  // FORELEGS & their shins
+  const fore={1:grp('foreR','היד הימנית','Right foreleg'),[-1]:grp('foreL','היד השמאלית','Left foreleg')};
+  for(const s of[1,-1]){
+    const f=fore[s],sh=V(s*.13,-.56,.04),el=V(s*.14,-.79,.1),kn=V(s*.11,-1.0,.085);
+    f.add(ell(M.meat,[.06,.13,.095],[s*.15,-.58,.02],.06,5));
+    f.add(tube([sh,el,kn],t=>.07-.04*t,M.meat));f.add(cap(kn,V(0,-1,0),.029));
+    hide.add(fleeceTube([sh,el,kn.clone().add(V(0,.01,0))],t=>.1-.05*t));
+    const sk=grp(s>0?'shinFR':'shinFL','כרע','Shin & hoof');const tip=V(s*.105,-1.2,.1);
+    sk.add(tube([kn,V(s*.108,-1.1,.092),tip],t=>.02-.004*t,M.surf,{tub:16,rad:12}));sk.add(cap(kn,V(0,1,0),.022));
+    sk.add(ell(M.hoof,[.012,.032,.02],[s*.098,-1.225,.105]),ell(M.hoof,[.012,.032,.02],[s*.114,-1.225,.105]));
+  }
+
+  // HIND LEGS (left hangs on the hook; right falls outward) & shins
+  for(const s of[1,-1]){
+    const mk=(key,he,en)=>{const g=grp(key,he,en);g.position.set(s*.08,.06,-.03);return g};
+    const leg=mk(s>0?'hindR':'hindL',s>0?'הרגל הימנית':'הרגל השמאלית',s>0?'Right hind leg':'Left hind leg');
+    const hip=V(0,0,0),st=V(s*.04,.21,.06),hk=V(s*.05,.41,-.01);
+    leg.add(ell(M.meat,[.085,.17,.105],[s*.012,.09,.005],.06,5));
+    leg.add(tube([hip,st,hk],t=>.09-.062*t,M.meat));leg.add(cap(hk,V(0,1,0),.026));
+    leg.add(tube([hk.clone().add(V(0,0,-.03)),V(s*.048,.3,-.05),V(s*.045,.22,-.03)],()=>.007,M.bone,{tub:12,rad:8}));
+    leg.add(fleeceTube([V(0,-.03,0),st,hk.clone().add(V(0,-.01,0))],t=>.125-.08*t));
+    leg.add(fleece(ell(M.wool,[.115,.2,.135],[s*.012,.09,.005],.1,5)));
+    if(s>0)for(const d of[-1,1])leg.add(ell(M.hair,[.03,.045,.032],[-.07+d*.022,.0,.17],.05,6));
+    const sk=mk(s>0?'shinHR':'shinHL','כרע','Shin & hoof'),tip=V(s*.05,.62,.06);
+    sk.add(tube([hk,V(s*.05,.52,.025),tip],t=>.02-.004*t,M.surf,{tub:16,rad:12}));sk.add(cap(hk,V(0,-1,0),.022));
+    sk.add(ell(M.hoof,[.012,.032,.02],[s*.043,.645,.07]),ell(M.hoof,[.012,.032,.02],[s*.059,.645,.07]));
+  }
+
+  // INNARDS (stomach + intestines) and the FAT sheet over them
+  const inn=grp('innards','הקרביים','Innards: stomach & intestines');
+  inn.add(ell(M.rumen,[.095,.15,.105],[-.035,-.22,-.02],.12,4));
+  inn.add(ell(M.rumen,[.06,.055,.065],[.045,-.34,.03],.1,5));
+  for(const [mat,start,n] of[[M.gut,[.06,-.08,.06],70],[M.gut2,[.05,-.25,.0],40]]){
+    const pts=[V(...start)];let d=V(rr(-1,1),rr(-1,1),rr(-1,1)).normalize();
+    for(let i=0;i<n;i++){const p=pts.at(-1);d.add(V(rr(-.9,.9),rr(-.9,.9),rr(-.9,.9))).normalize();
+      const c=V(.055,-.17,.05);if(p.x<-.01||p.x>.11||p.y>-.03||p.y<-.33||p.z<-.06||p.z>.13)d.lerp(c.clone().sub(p).normalize(),.7).normalize();
+      pts.push(p.clone().addScaledVector(d,.028))}
+    inn.add(tube(pts,()=>mat===M.gut?.012:.017,mat,{tub:n*6,rad:10}));
+  }
+  const fatG=grp('fats','הפדר','Fats (the peder)');
+  {const pts=[];for(let i=0;i<=24;i++){const y=-.36+.4*i/24;pts.push(new THREE.Vector2(R(y)-.042,y))}
+   const g=new THREE.LatheGeometry(pts,40,-.33*PI,.66*PI);g.scale(XS,1,1);fatG.add(mesh(g,M.lace));
+   fatG.add(ell(M.fat,[.04,.03,.03],[.02,-.05,.1],.15,6),ell(M.fat,[.035,.03,.03],[-.04,-.3,.1],.15,6))}
+
+  // recenter every part on its own middle so it can be handled
+  root.updateMatrixWorld(true);
+  for(const k of Object.keys(P)){
+    if(['yoteret','liverSub','heart','belly'].includes(k))continue;
+    const g=P[k],c=new THREE.Box3().setFromObject(g).getCenter(V(0,0,0));root.worldToLocal(c);
+    const piv=new THREE.Group();piv.position.copy(c);piv.userData.label=g.userData.label;root.add(piv);piv.attach(g);P[k]=piv;
+  }
+  return {root,P};
+}
+
+/* ---------------- scene ---------------- */
+const stage=document.getElementById('stage');
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.0;renderer.localClippingEnabled=true;
+stage.prepend(renderer.domElement);
+const css=new CSS2DRenderer({element:document.getElementById('labels')});
+const scene=new THREE.Scene();
+scene.background=tex(4,256,(g,w,h)=>{const gr=g.createLinearGradient(0,0,0,h);gr.addColorStop(0,'#8fa8bd');gr.addColorStop(.55,'#d9cdb5');gr.addColorStop(1,'#e9dcc2');g.fillStyle=gr;g.fillRect(0,0,w,h)});
+scene.fog=new THREE.Fog('#ddd0b6',35,140);
+const pmrem=new THREE.PMREMGenerator(renderer);scene.environment=pmrem.fromScene(new RoomEnvironment(),.04).texture;
+const camera=new THREE.PerspectiveCamera(42,1,.02,400);camera.position.set(-1.7,2.5,7.6);
+const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(-1.9,1.15,0.6);controls.enableDamping=true;controls.maxPolarAngle=PI*.495;controls.zoomToCursor=true;controls.minDistance=.25;controls.maxDistance=120;
+controls.addEventListener('start',()=>{anims=anims.filter(a=>!a.cam)});  // user input wins over camera tweens
+
+scene.add(new THREE.HemisphereLight('#f4e8d2','#6b5a45',.9));
+const sun=new THREE.DirectionalLight('#ffe7c4',2.4);sun.position.set(-3,14,12);sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-9,right:9,top:8,bottom:-8,near:1,far:45});sun.shadow.bias=-.0004;sun.shadow.normalBias=.02;
+scene.add(sun,sun.target);
+const fill=new THREE.DirectionalLight('#cfe0ff',.5);fill.position.set(6,4,-6);scene.add(fill);
+
+const floor=mesh(new THREE.PlaneGeometry(240,240),M.floor);floor.rotation.x=-PI/2;floor.castShadow=false;M.floor.map.repeat.set(120,120);scene.add(floor);
+
+// BEIT HAMITBACHAYIM (north = +X, east = +Z; 1 amah = 0.5 m). Middot 5:2, north to south:
+// courtyard wall -8- pillars -4- tables -4- rings (24) -8- altar
+const AMAH=.5,PILLAR_X=0,TABLE_X=-4*AMAH,RING_X1=-8*AMAH,RING_X0=RING_X1-24*AMAH,ALTAR_N=RING_X0-8*AMAH,WALL_X=PILLAR_X+8*AMAH;
+const HIT=new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false});   // invisible hover targets
+const PILLAR_Z=[...Array(8)].map((_,k)=>-.35+2*(k-3));            // the lamb hangs on pillar k=3
+const L=(o,he,en)=>{o.userData.label={he,en};return o};                 // names shown on hover
+const hook=(x,y,z,empty)=>{const h=L(tube([[x,y,z],[x,y-.12,z+.06],[x,y-.23,z+.12],[x,y-.29,z+.165],[x,y-.29,z+.205],[x,y-.24,z+.22]],t=>.008-.003*t,M.iron,{tub:30,rad:8}),'אונקלי של ברזל','Iron hook');if(empty)h.position.y=.06;scene.add(h)};
+PILLAR_Z.forEach((z,k)=>{
+  const p=mesh(new THREE.CylinderGeometry(.15,.17,1.1,24),M.marble);p.position.set(PILLAR_X,.55,z);scene.add(L(p,'עמוד ננס','Low pillar: one of 8'));
+  const post=mesh(new THREE.BoxGeometry(.3,1.32,.3),M.cedar);post.position.set(PILLAR_X,1.76,z);scene.add(L(post,'רביעית של ארז','Square cedar post with three tiers of hooks'));
+  for(const[ti,y]of[[0,2.29],[1,1.94],[2,1.59]])for(const x of[-.13,.13])hook(x,y,z+.15,!(k===3&&ti===0));
+});
+// 8 marble tables for washing the innards (Shekalim 6:4)
+PILLAR_Z.forEach(z=>{const t=new THREE.Group();t.position.set(TABLE_X,0,z+1);scene.add(L(t,'שולחן של שיש','Marble table: one of 8, for washing the innards'));
+  const top=mesh(new THREE.BoxGeometry(.62,.08,1.0),M.marble);top.position.y=.86;t.add(top);
+  for(const[x,zz]of[[-.24,-.42],[.24,-.42],[-.24,.42],[.24,.42]]){const l=mesh(new THREE.BoxGeometry(.07,.82,.07),M.marble);l.position.set(x,.41,zz);t.add(l)}});
+// 24 rings, 6 rows of 4 (Middot 3:5), hinged iron arcs set in the floor (Bartenura there)
+for(let r=0;r<6;r++)for(let c=0;c<4;c++){
+  const x=RING_X0+1+r*2.2,z=-6+c*4,g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
+  const arc=mesh(new THREE.TorusGeometry(.16,.014,8,24,PI),M.iron);g.add(arc);
+  for(const sx of[-.16,.16]){const pl=mesh(new THREE.CylinderGeometry(.035,.035,.01,12),M.iron);pl.position.set(sx,.005,0);g.add(pl)}
+  const n=r*4+c+1,tam=n===5?['טבעת של שחר','Ring of the morning tamid (NW, second ring)']:n===8?['טבעת של בין הערבים','Ring of the afternoon tamid (NE, second ring)']:null;
+  if(tam)arc.material=M.gold;
+  if(tam){const hit=new THREE.Mesh(new THREE.CylinderGeometry(.32,.32,.45,12),HIT);hit.position.y=.2;g.add(L(hit,...tam))}
+}
+// north wall of the courtyard
+{const w=mesh(new THREE.BoxGeometry(1,9,70),M.altar);w.position.set(WALL_X+.5,4.5,0);scene.add(L(w,'כותל העזרה','Courtyard wall (north)'))}
+// dimension line along the west side, in amot
+{const Z=-8.5,pts=[[ALTAR_N,'altar'],[RING_X0,'rings'],[RING_X1,'end of rings'],[TABLE_X,'tables'],[PILLAR_X,'pillars'],[WALL_X,'wall']];
+ const mat=new THREE.LineBasicMaterial({color:'#8a5a1a'});
+ scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([V(ALTAR_N,.03,Z),V(WALL_X,.03,Z)]),mat));
+ for(const[x]of pts)scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([V(x,.03,Z-.4),V(x,.03,Z+.4)]),mat));
+ for(let i=0;i<pts.length-1;i++){const a=pts[i][0],b=pts[i+1][0];const n=Math.round((b-a)/AMAH),h=new THREE.Mesh(new THREE.BoxGeometry(b-a,.3,.8),HIT);h.position.set((a+b)/2,.15,Z);scene.add(L(h,`${n} אמות`,`${n} amot: ${pts[i][1]} to ${pts[i+1][1]} (Middot 5:2)`))}}
+// knife
+const knife=new THREE.Group();scene.add(knife);
+{const sh=new THREE.Shape();sh.moveTo(0,0);sh.lineTo(0,.022);sh.quadraticCurveTo(.15,.03,.21,.0);sh.lineTo(0,0);
+ const bl=mesh(new THREE.ExtrudeGeometry(sh,{depth:.002,bevelEnabled:false}),M.steel);bl.rotation.y=PI/2;bl.position.set(-.001,-.01,0);knife.add(bl);
+ const hd=mesh(new THREE.CylinderGeometry(.012,.014,.11,12),M.cedar);hd.rotation.x=PI/2;hd.position.set(0,0,.055);knife.add(hd)}
+const KNIFE_REST=V(TABLE_X,.915,1.0);
+// blood
+const puddle=mesh(new THREE.CircleGeometry(.22,32),M.puddle);puddle.rotation.x=-PI/2;puddle.position.set(0,.004,.05);puddle.castShadow=false;scene.add(puddle);
+const drops=[];for(let i=0;i<14;i++){const d=mesh(new THREE.SphereGeometry(.006,8,6),M.blood);d.scale.y=2.5;d.visible=false;scene.add(d);drops.push(d)}
+
+// altar, ramp, sanctuary (north = +X, east = +Z)
+const ALT=V(ALTAR_N-8,0,0),RAMP_GAP=AMAH,RAMP_X1=ALTAR_N-16+AMAH*2-RAMP_GAP,RAMP_X0=RAMP_X1-16,RAMP_H=4.5,rampY=x=>RAMP_H*(x-RAMP_X0)/(RAMP_X1-RAMP_X0);
+{const b=(w,h,d,x,y,z,m=M.altar)=>{const o=mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);scene.add(o);return o},A=o=>L(o,'מזבח','Altar');
+ // Middot 3:1 (amot): 32x32 base; yesod 1 high runs the whole north and west sides and only 1 amah into the south and east;
+ // body 30x30 up to the sovev at 6; then in 1 amah, 28x28 up to 9; horns 1x1x1 at the outer corners. Red line at mid-height (5).
+ const a=AMAH,X=ALT.x,Y=(o,he,en)=>L(o,he,en);
+ Y(b(a,a,32*a,X+15.5*a,a/2,0),'יסוד','Yesod (base): along the whole north side');
+ Y(b(32*a,a,a,X,a/2,-15.5*a),'יסוד','Yesod (base): along the whole west side');
+ Y(b(a,a,a,X-15.5*a,a/2,-14.5*a),'יסוד','Yesod: reaches only 1 amah into the south side');
+ Y(b(a,a,a,X+14.5*a,a/2,15.5*a),'יסוד','Yesod: reaches only 1 amah into the east side');
+ A(b(30*a,6*a,30*a,X,3*a,0));
+ Y(b(30*a+.03,.07,30*a+.03,X,5*a,0,new THREE.MeshStandardMaterial({color:'#b3261e',roughness:.8})),'חוט הסיקרא','Red line around the middle of the altar’s height');
+ Y(b(28*a,3*a,28*a,X,7.5*a,0),'מזבח · סובב','Altar above the sovev (the 1-amah ledge at 6 amot)');
+ for(const[x,z]of[[-1,-1],[-1,1],[1,-1],[1,1]])Y(b(a,a,a,X+x*13.5*a,9.5*a,z*13.5*a),'קרן','Horn of the altar');
+ const fire=new THREE.PointLight('#ff8a3a',14,14);fire.position.set(ALT.x-2.6,5.6,2.9);scene.add(fire);
+ const sh=new THREE.Shape();// stops one amah short of the altar, and steps over the sovev ledge without touching it
+ const XB=X-15*a-RAMP_GAP;sh.moveTo(RAMP_X0,0);sh.lineTo(XB,0);sh.lineTo(XB,6*a+RAMP_GAP);sh.lineTo(RAMP_X1,6*a+RAMP_GAP);sh.lineTo(RAMP_X1,RAMP_H);sh.lineTo(RAMP_X0,0);
+ const r=mesh(new THREE.ExtrudeGeometry(sh,{depth:8,bevelEnabled:false}),M.altar);r.position.z=-4;scene.add(L(r,'כבש','Ramp (south of the altar), separated from it by a gap of one amah'));
+ // on top (Tamid 2:2-5): the ash pile in the middle, the large pile on the east side, the incense pile by the SW horn
+ const TOP=9*a;
+ const ash=new THREE.LatheGeometry([[0,0],[3.4,0],[2.9,.35],[2.0,.85],[1.0,1.15],[0,1.25]].map(([r,y])=>new THREE.Vector2(r*.5,y)),48);
+ displace(ash,.09,4,9);const am=L(mesh(ash,M.ash),'תפוח','Ash pile (tapuach) in the middle of the altar');am.position.set(X,TOP,0);scene.add(am);
+ const logs=(g,n,len,layers,r=.07)=>{for(let l=0;l<layers;l++)for(let i=0;i<n;i++){const m=mesh(new THREE.CylinderGeometry(r*rnd(.85,1.15),r*rnd(.85,1.15),len*rnd(.9,1),10),M.log);
+   m.rotation.x=PI/2;m.rotation.z=rnd(-.05,.05);m.position.set((i-(n-1)/2)*r*3.4+(l%2)*r*1.7,r+l*r*1.85,rnd(-.05,.05));g.add(m)}};
+ const big=new THREE.Group();big.position.set(X-2.6,TOP,2.9);logs(big,11,3.8,4,.085);scene.add(L(big,'מערכה גדולה','The large wood pile: on the east side toward the south, facing east; only its corner touches the ash pile'));
+ const inc=new THREE.Group();inc.position.set(X-13.5*a+4*a,TOP,-12*a);logs(inc,5,1.1,3,.05);inc.rotation.y=PI/2;scene.add(L(inc,'מערכה שנייה','The second pile, for the incense coals: by the SW horn, 4 amot to the north'));
+ FLAMES.push(...[...Array(14)].map((_,i)=>{const f=mesh(new THREE.ConeGeometry(.16,.7,8),M.flame);f.castShadow=false;f.position.set(X-2.6+rnd(-.9,.9),TOP+.6,2.9+rnd(-1.4,1.4));f.userData.ph=rnd(0,6);f.raycast=()=>{};scene.add(f);return f}));
+ b(50,48,8,ALT.x+2,24,-44);const door=b(10,20,.4,ALT.x+2,10,-39.9,new THREE.MeshStandardMaterial({color:'#2a1d12',roughness:.8}));}
+
+/* ---------------- kohanim ---------------- */
+const KOH=[
+  ['ראש ורגל ימנית','Head & right hind leg'],['שתי הידיים','Both forelegs'],['עוקץ ורגל שמאלית','Rump & left hind leg'],
+  ['חזה וגרה','Chest & neck'],['שתי הדפנות','Both flanks'],['קרביים וכרעיים','Innards & shins'],
+  ['סולת','Fine flour'],['חביתין','Griddle-cakes'],['יין','Wine']];
+const ROW_X=-3.1,ROW_Z0=1.0,ROW_DZ=.68;
+const K=KOH.map(([he,en],i)=>{
+  const g=new THREE.Group();scene.add(g);
+  const prof=[[0,0],[.25,0],[.235,.3],[.2,.85],[.205,1.2],[.215,1.38],[.17,1.46],[.06,1.5],[0,1.5]].map(([r,y])=>new THREE.Vector2(r,y));
+  const robe=mesh(new THREE.LatheGeometry(prof,40),M.linen);robe.scale.z=.7;g.add(robe);
+  const sash=mesh(new THREE.CylinderGeometry(.208,.212,.09,40,1,true),M.sash);sash.scale.z=.72;sash.position.y=1.0;g.add(sash);
+  for(const x of[-.05,.05]){const t=mesh(new THREE.BoxGeometry(.05,.5,.01),M.sash);t.position.set(x,.73,.155);g.add(t)}
+  g.add(ell(M.skin,[.085,.105,.095],[0,1.6,0]),ell(M.beard,[.07,.06,.05],[0,1.53,.05],.15,8));
+  g.add(ell(M.linen,[.11,.075,.115],[0,1.69,-.005],.12,8));
+  const wrap=mesh(new THREE.TorusGeometry(.098,.022,10,30),M.linen);wrap.rotation.x=PI/2;wrap.position.y=1.66;g.add(wrap);
+  const A={};
+  for(const s of[1,-1]){ // s=1 left (+X), s=-1 right (-X) when facing +Z
+    const sh=V(s*.2,1.37,0),el=V(s*.24,1.13,.07),hn=V(s*.2,1.0,.27);
+    g.add(tube([sh,el,hn],t=>.05-.012*t,M.linen,{tub:16,rad:12}));g.add(ell(M.skin,[.035,.03,.045],[hn.x,hn.y,hn.z+.02]));
+    const a=new THREE.Object3D();a.position.set(s*.2,1.0,.32);g.add(a);A[s>0?'L':'R']=a;
+  }
+  const B=new THREE.Group();B.position.set(0,.98,.36);g.add(B);A.B=B;
+  const vessel=(prof,m)=>mesh(new THREE.LatheGeometry(prof.map(([r,y])=>new THREE.Vector2(r,y)),36),m);
+  if(i===5){const v=vessel([[0,-.06],[.12,-.05],[.21,.04],[.22,.06],[.205,.06],[.19,.03],[.11,-.035],[0,-.045]],M.silver);v.material=M.silver.clone();v.material.side=THREE.DoubleSide;B.add(v)}
+  if(i===6){B.add(vessel([[0,-.04],[.14,-.03],[.16,.05],[.15,.05],[0,.0]],M.silver));B.add(ell(M.flour,[.13,.06,.13],[0,.04,0],.1,5))}
+  if(i===7){const pan=vessel([[0,-.01],[.17,-.01],[.18,.02],[.17,.02],[0,.0]],M.silver);B.add(pan);for(let k=0;k<6;k++){const c=mesh(new THREE.CylinderGeometry(.05,.05,.015,20),M.cake);c.position.set(Math.cos(k)*.09,.02,Math.sin(k)*.09);B.add(c)}}
+  if(i===8){B.add(vessel([[0,-.06],[.07,-.05],[.09,.04],[.05,.12],[.03,.2],[.04,.22],[.03,.22]],M.gold));}
+  const el=document.createElement('div');el.className='klabel';el.innerHTML=`${i+1} · ${en}<span dir="rtl">${he}</span>`;
+  const lab=new CSS2DObject(el);lab.position.set(0,2.0,0);g.add(lab);g.userData.lab=lab;
+  g.userData.home=V(ROW_X,0,ROW_Z0+i*ROW_DZ);g.position.copy(g.userData.home);g.rotation.y=PI/2;
+  return {g,...A};
+});
+
+/* ---------------- animation engine ---------------- */
+let INSTANT=false,anims=[],clock=0;
+const ease=k=>k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+function animCam(...a){anim(...a);anims.at(-1).cam=true}
+function anim(dur,setup,delay=0){if(INSTANT){setup()(1);return}anims.push({t0:clock+delay,dur,setup,fn:null})}
+function tick(dt){clock+=dt;anims=anims.filter(a=>{if(clock<a.t0)return true;if(!a.fn)a.fn=a.setup();const k=Math.min(1,(clock-a.t0)/a.dur);a.fn(k);return k<1})}
+const Q=(x=0,y=0,z=0)=>new THREE.Quaternion().setFromEuler(new THREE.Euler(x,y,z,'YXZ'));
+function moveTo(obj,parent,pos,quat,{scale=1,dur=1.6,delay=0,arc=.3}={}){
+  anim(dur,()=>{parent.attach(obj);const p0=obj.position.clone(),q0=obj.quaternion.clone(),s0=obj.scale.x;
+    return k=>{const e=ease(k);obj.position.lerpVectors(p0,pos,e);obj.position.y+=Math.sin(PI*e)*arc;obj.quaternion.slerpQuaternions(q0,quat,e);obj.scale.setScalar(s0+(scale-s0)*e)}},delay);
+}
+function knifeCut(target,slice=V(.14,-.04,0),delay=0,dur=1.3){
+  anim(dur,()=>{const p0=knife.position.clone(),a=target.clone().add(V(0,0,.17)).addScaledVector(slice,-.5),b=a.clone().add(slice);
+    return k=>{if(k<.4)knife.position.lerpVectors(p0,a,ease(k/.4));else if(k<.75)knife.position.lerpVectors(a,b,ease((k-.4)/.35));else knife.position.lerpVectors(b,KNIFE_REST,ease((k-.75)/.25))}},delay);
+}
+function camTo(pos,target,dur=1.8,delay=0){if(INSTANT)return;
+  animCam(dur,()=>{const p0=camera.position.clone(),t0=controls.target.clone();return k=>{const e=ease(k);camera.position.lerpVectors(p0,pos,e);controls.target.lerpVectors(t0,target,e)}},delay)}
+const CAMS={C:[V(.8,1.35,1.55),V(0,1.1,0)],K:[V(-.4,2.2,8.2),V(-3,1.1,3.6)],A:[V(16,30,32),V(-28,0,-2)],L:[V(10,24,14),V(-9,0,0)],D:[V(-1.7,2.5,7.6),V(-1.9,1.15,0.6)]};
+
+/* ---------------- steps ---------------- */
+let S=null;
+const W=(x,y,z)=>S.root.localToWorld(V(x,y,z));
+const center=o=>new THREE.Box3().setFromObject(o).getCenter(V(0,0,0));
+function give(key,k,side,{pos=[0,0,.04],rot=[0,0,0],scale=1,delay=1.05,cutAt}={}){
+  knifeCut(cutAt||center(S.P[key]));moveTo(S.P[key],K[k-1][side],V(...pos),Q(...rot),{scale,delay});
+}
+const STEPS=[
+ {he:'בֵּית הַמִּטְבָּחַיִם',en:'The slaughter area',q:"בֵּית הַמִּטְבָּחַיִם הָיָה לִצְפוֹנוֹ שֶׁל מִזְבֵּחַ, וְעָלָיו שְׁמֹנָה עַמּוּדִים נַנָּסִין, וּרְבִיעִית שֶׁל אֶרֶז עַל גַּבֵּיהֶן, וְאֻנְקְלָיוֹת שֶׁל בַּרְזֶל הָיוּ קְבוּעִין בָּהֶן, וּשְׁלשָׁה סְדָרִים הָיָה לְכָל אֶחָד וְאֶחָד, שֶׁבָּהֶן תּוֹלִין. וּמַפְשִׁיטִין עַל שֻׁלְחָנוֹת שֶׁל שַׁיִשׁ שֶׁבֵּין הָעַמּוּדִים",
+  ex:"The slaughter area is north of the altar. Going north from the altar: 8 amot of open floor, then the area of the rings (24 amot), 4 amot to the tables, 4 amot to the pillars, and 8 amot to the courtyard wall. The 24 rings, one for each priestly watch, were instituted by Yochanan the High Priest. Each is a hinged iron arc set in the floor; the animal’s neck goes under it during slaughter so it cannot thrash, since the tamid was not tied. They stood in six rows of four (some say four rows of six). The morning tamid was slaughtered at the northwest corner of the altar on the second ring, the afternoon one at the northeast corner. Here these are rings 5 and 8: the second row from the altar, at its west and east ends (gold; hover to name them). It was then hung on the iron hooks: each of the eight low stone pillars carries a square cedar post with three tiers of hooks, for large or small animals. The innards were washed on the eight marble tables. The mishna gives only the north–south distances; the east–west spacing of pillars, tables and rings here is a reconstruction, at about 0.5 m per amah.",
+  src:"Tamid 3:5 (quoted; also Middot 3:5); Middot 5:2 (distances); Middot 3:5 with Bartenura (rings, cedar posts, three tiers of hooks); Tamid 4:1 (which ring); Shekalim 6:4 (eight marble tables)",
+  run(){camTo(...CAMS.L,2.2)}},
+ {he:'תְּלִיָּה',en:'Hung on the iron hooks',q:"לֹא הָיָה שׁוֹבֵר בּוֹ אֶת הָרֶגֶל, אֶלָּא נוֹקְבוֹ מִתּוֹךְ עַרְכּוּבּוֹ וְתוֹלֶה בוֹ",
+  ex:"After the slaughter the lamb hangs head-down from the iron hooks over the short pillars north of the altar. Butchers would cut through one leg and thread the other leg through it. Here no leg is broken. Instead both hind legs are pierced and hung on hooks, so that when the right leg comes off later the animal still hangs by the left. The piercing is just above the joint, through the tendon, so the shins can be cut off while it hangs.",
+  src:"Bartenura and Tosafot Yom Tov on 4:2 (both legs pierced); Tiferet Yisrael, Yachin 4:2 (above the joint, at the tendons); Middot 3:5 (pillars and hooks)",run(){camTo(...CAMS.D,2)}},
+ {he:'הֶפְשֵׁט עַד הֶחָזֶה',en:'Flaying down to the chest',q:"הָיָה מַפְשִׁיט וְיוֹרֵד עַד שֶׁהוּא מַגִּיעַ לֶחָזֶה",
+  ex:"The hide is stripped from the top downward. He stops at the chest because the skin of the neck is loose. If he flayed the chest first, the skin would drop down around the head and make it hard to cut the head off cleanly.",
+  src:"Tiferet Yisrael, Yachin 4:2",
+  run(){anim(3.4,()=>{const c0=clip.constant;return k=>{clip.constant=c0+(CHEST_Y-c0)*ease(k);knife.position.set(.1*Math.sin(k*30),clip.constant,.36);if(k===1)knife.position.copy(KNIFE_REST)}})}},
+ {he:'הָרֹאשׁ',en:'The head',to:'Kohen 1 · right hand',key:'head',q:"הִגִּיעַ לֶחָזֶה, חָתַךְ אֶת הָרֹאשׁ וּנְתָנוֹ לְמִי שֶׁזָּכָה בוֹ",
+  ex:"The head is cut off and given to the kohen who won it in the lottery. It is cut first as a sign that it is offered first. It keeps its skin, since the head of a burnt offering is not flayed.",
+  src:"Tiferet Yisrael, Yachin 4:2 (citing Chullin 27a); the lottery for the limbs: Tamid 3:1",
+  run(){give('head',1,'R',{pos:[0,.06,.06],rot:[-PI/2,PI,0],cutAt:W(0,-.965,.06)})}},
+ {he:'הַכְּרָעַיִם',en:'The shins',to:'Kohen 6 · bowl',key:'shinHR',q:"חָתַךְ אֶת הַכְּרָעַיִם וּנְתָנָן לְמִי שֶׁזָּכָה בָהֶן",
+  ex:"From each of the four legs he cuts the lowest section, up to the knee joint. The shins of a burnt offering are flayed too, and the hooves stay attached. They are offered only at the end, on top of the innards, but he takes them off now because they are already flayed and the front pair sticks out and gets in his way.",
+  src:"Bartenura 4:2 (the shins are part of the flaying); Tiferet Yisrael, Yachin 4:2 (citing Rambam, Maaseh HaKorbanot 6, on the hooves)",
+  run(){[['shinHR',[.07,.13,-.05],[0,0,PI/2]],['shinHL',[-.07,.13,-.05],[0,0,-PI/2]],['shinFR',[.07,.15,.05],[0,.3,PI/2]],['shinFL',[-.07,.15,.05],[0,-.3,-PI/2]]]
+    .forEach(([k,p,r],i)=>{knifeCut(center(S.P[k]),V(.14,-.04,0),i*.9,1.1);moveTo(S.P[k],K[5].B,V(...p),Q(...r),{delay:i*.9+.8})})}},
+ {he:'מֵרוּק הַהֶפְשֵׁט וּקְרִיעַת הַלֵּב',en:'Finishing the flaying; tearing the heart',key:'heart',q:"מֵרַק אֶת הַהֶפְשֵׁט, קָרַע אֶת הַלֵּב וְהוֹצִיא אֶת דָּמוֹ",
+  ex:"He finishes the flaying over the chest, the neck and the forelegs. Then he tears the heart to let its blood out. The commentators ask how: the body is still closed, and the heart stays attached (it later goes with the neck). The Rosh suggests this clause belongs after the body is opened. Tiferet Yisrael suggests he reached in through the slaughter cut and tore the heart open in place, so the blood in it drained out through the neck to the ground and would not later soil the pieces, the kohen carrying the heart, or his garments. He also explains why this comes after the head is off: otherwise the blood would run over the head. The animation follows Tiferet Yisrael.",
+  src:"Tosafot Yom Tov 4:2 (citing the Mefaresh); Tiferet Yisrael, Yachin 4:2 (citing the Rosh)",
+  run(){anim(2.6,()=>{const c0=clip.constant;return k=>{clip.constant=c0+(-1-c0)*ease(k);knife.position.set(.1*Math.sin(k*24),Math.max(clip.constant,.4),.3);if(k===1)knife.position.copy(KNIFE_REST)}});
+   knifeCut(center(S.P.heart),V(0,-.08,0),2.7);
+   anim(3.5,()=>k=>{M.heart.emissiveIntensity=k<1?Math.pow(Math.sin(k*PI*7),2)*.9:0},3.4);
+   anim(4,()=>{const top=W(0,-.97,.06);return k=>drops.forEach((d,i)=>{const f=(k*5+i/drops.length)%1;d.visible=k<1;d.position.set(top.x+Math.sin(i*7)*.02,top.y*(1-f),top.z+Math.cos(i*5)*.02)})},3.4);
+   anim(4,()=>k=>puddle.scale.setScalar(.05+.95*k),3.6)}},
+ {he:'הַיָּדַיִם',en:'The forelegs',to:'Kohen 2 · both hands',key:'foreR',q:"חָתַךְ אֶת הַיָּדַיִם וּנְתָנָן לְמִי שֶׁזָּכָה בָהֶן",
+  ex:"Both forelegs are cut off at the shoulder, where they join the body. Their lower sections already went with the shins. He could have taken the right hind leg first, but the animal’s weight still hangs on the hind legs.",
+  src:"Tiferet Yisrael, Yachin 4:2; Tosafot Yom Tov 4:2 (citing the Mefaresh)",
+  run(){give('foreR',2,'R',{pos:[0,-.02,.03]});give('foreL',2,'L',{pos:[0,-.02,.03],delay:1.5})}},
+ {he:'הָרֶגֶל הַיְמָנִית',en:'The right hind leg',to:'Kohen 1 · left hand',key:'hindR',q:"עָלָה לָרֶגֶל הַיְמָנִית, חֲתָכָהּ וּנְתָנָהּ לְמִי שֶׁזָּכָה בָהּ, וּשְׁתֵּי בֵיצִים עִמָּהּ",
+  ex:"He reaches up to the right hind leg and cuts it off at the body with the two testicles. It goes to the kohen who holds the head. The animal now hangs by the left leg alone.",
+  src:"Tosafot Yom Tov 4:2; Tiferet Yisrael, Yachin 4:2; Rambam, Maaseh HaKorbanot 6:5",
+  run(){give('hindR',1,'L',{pos:[0,-.03,.04],cutAt:W(.08,.06,0)})}},
+ {he:'קְרִיעָה',en:'Opening the body',q:"קְרָעוֹ, וְנִמְצָא כֻלּוֹ גָלוּי לְפָנָיו",
+  ex:"He slits the belly open lengthwise. Because the right leg is already off, everything inside lies open in front of him. With the leg still on, the same cut would not have exposed it like this.",
+  src:"Tosafot Yom Tov 4:2 (citing the Mefaresh); Tiferet Yisrael, Yachin 4:2",
+  run(){knifeCut(W(0,-.15,.2),V(0,-.45,0),0,1.6);anim(1.6,()=>{const r0=S.P.belly.map(([p])=>p.rotation.y);return k=>S.P.belly.forEach(([p,s],i)=>p.rotation.y=r0[i]+s*1.75*ease(k))},1.2)}},
+ {he:'הַפֶּדֶר',en:'The fats',to:'Onto the head · Kohen 1',key:'fats',q:"נָטַל אֶת הַפֶּדֶר וּנְתָנוֹ עַל בֵּית שְׁחִיטַת הָרֹאשׁ מִלְמַעְלָן",
+  ex:"The peder is the fat covering the innards. He lays it over the slaughter cut on the head out of respect, so the blood at the cut is not seen. The neck also has a slaughter cut, but whoever carries it can turn the cut toward himself. The head is carried with the cut facing up, so it needs covering.",
+  src:"Bartenura 4:2; Tosafot Yom Tov 4:2; Tiferet Yisrael, Yachin 4:2",
+  run(){moveTo(S.P.fats,S.P.head,V(0,.16,.03),Q(PI/2,0,0),{scale:.5,dur:2,arc:.4})}},
+ {he:'הַקְּרָבַיִם',en:'The innards',to:'Kohen 6 · bowl',key:'innards',q:"נָטַל אֶת הַקְּרָבַיִם וּנְתָנָן לְמִי שֶׁזָּכָה בָהֶם לַהֲדִיחָן. וְהַכֶּרֶס מְדִיחִין אוֹתָהּ בְּבֵית מְדִיחִין כָּל צָרְכָּהּ. וְהַקְּרָבַיִם מְדִיחִין אוֹתָן שְׁלשָׁה פְעָמִים בְּמִעוּטָהּ, עַל שֻׁלְחָנוֹת שֶׁל שַׁיִשׁ שֶׁבֵּין הָעַמּוּדִים",
+  ex:"The innards go to the sixth kohen to be washed in water, as the Torah commands for the innards and shins of a burnt offering. The stomach is washed separately in the washing chamber, as often as it needs, so its contents do not soil the rest. The intestines are washed at least three times, because they are narrow and hard to clean, on the marble tables between the pillars.",
+  src:"Leviticus 1:13; Bartenura 4:2; Rambam, Maaseh HaKorbanot 6:6",
+  run(){moveTo(S.P.innards,K[5].B,V(0,.04,0),Q(),{scale:.62,dur:2,arc:.4})}},
+ {he:'הַפְרָשַׁת הָרֵיאָה וְאֶצְבַּע הַכָּבֵד',en:'Separating lung, liver and liver lobe',key:'liverSub',q:"נָטַל אֶת הַסַּכִּין וְהִפְרִישׁ אֶת הָרֵאָה מִן הַכָּבֵד, וְאֶצְבַּע הַכָּבֵד מִן הַכָּבֵד, וְלֹא הָיָה מְזִיזָהּ מִמְּקוֹמָהּ",
+  ex:"He had put the knife down to lift out the fat and innards by hand. Now he picks it up again to cut precisely. He separates the lung from the liver and the finger of the liver (the small lobe) from the liver. The lung goes with the neck, the liver with the right flank, the lobe with the rump. He does not move the lobe because it is barely attached and would fall off. He does this before taking out the chest so that removing the chest does not tear them apart in the wrong places.",
+  src:"Bartenura 4:3; Tiferet Yisrael, Yachin 4:3",
+  run(){knifeCut(W(.02,-.48,.06),V(.12,0,0),0);knifeCut(W(.075,-.39,-.02),V(0,-.06,0),1.3);
+   anim(.8,()=>{const p=S.P.liverSub.position.clone();return k=>S.P.liverSub.position.set(p.x+.012*k,p.y+.012*k,p.z)},.9)}},
+ {he:'הֶחָזֶה',en:'The chest',to:'Kohen 4 · right hand',key:'chest',q:"נָקַב אֶת הֶחָזֶה וּנְתָנוֹ לְמִי שֶׁזָּכָה בוֹ",
+  ex:"He cuts all the way around the breast where it joins the body and lifts it out. The chest sits over the flanks like a tent roof, so removing it leaves an opening like a window. That is why the mishna says he pierced (נָקַב) it.",
+  src:"Tiferet Yisrael, Yachin 4:3",
+  run(){give('chest',4,'R',{pos:[0,-.04,.05],rot:[0,PI,0]})}},
+ {he:'הַדֹּפֶן הַיְמָנִית',en:'The right flank',to:'Kohen 5 · right hand',key:'rightFlank',q:"עָלָה לַדֹּפֶן הַיְמָנִית, הָיָה חוֹתֵךְ וְיוֹרֵד עַד הַשִּׁדְרָה, וְלֹא הָיָה נוֹגֵעַ בַּשִּׁדְרָה, עַד שֶׁהוּא מַגִּיעַ לִשְׁתֵּי צְלָעוֹת רַכּוֹת. חֲתָכָהּ וּנְתָנָהּ לְמִי שֶׁזָּכָה בָהּ, וְהַכָּבֵד תְּלוּיָה בָהּ",
+  ex:"He cuts down along the spine without touching it, because the whole spine stays with the left flank. He leaves two soft ribs at the neck end, which go with the neck, and two at the rump end, which go with the rump. The flank goes to the fifth kohen with the liver attached.",
+  src:"Bartenura 4:3; Tiferet Yisrael, Yachin 4:3",
+  run(){give('rightFlank',5,'R',{pos:[0,-.05,.06],rot:[0,PI,0],cutAt:W(.05,-.3,-.18)})}},
+ {he:'הַגֵּרָה',en:'The neck',to:'Kohen 4 · left hand',key:'neck',q:"בָּא לוֹ לַגֵּרָה, וְהִנִּיחַ בָּהּ שְׁתֵּי צְלָעוֹת מִכָּאן וּשְׁתֵּי צְלָעוֹת מִכָּאן. חֲתָכָהּ וּנְתָנָהּ לְמִי שֶׁזָּכָה בָהּ, וְהַקָּנֶה וְהַלֵּב וְהָרֵאָה תְּלוּיִם בָּהּ",
+  ex:"The neck comes off with two ribs on each side: the two left over from the right flank and two taken from the left flank. The windpipe, heart and lungs hang from it. The fourth kohen holds it with the ribs between his fingers.",
+  src:"Tiferet Yisrael, Yachin 4:3; Mishna Tamid 4:3",
+  run(){give('neck',4,'L',{pos:[0,-.02,.05],cutAt:W(0,-.62,.1)})}},
+ {he:'הַדֹּפֶן הַשְּׂמָאלִית',en:'The left flank',to:'Kohen 5 · left hand',key:'leftFlank',q:"בָּא לוֹ לַדֹּפֶן הַשְּׂמָאלִית, וְהִנִּיחַ בָּהּ שְׁתֵּי צְלָעוֹת רַכּוֹת מִלְמַעְלָן וּשְׁתֵּי צְלָעוֹת רַכּוֹת מִלְּמַטָּן… חֲתָכָהּ וּנְתָנָהּ לְמִי שֶׁזָּכָה בָהּ, וְהַשִּׁדְרָה עִמָּהּ, וְהַטְּחוֹל תָּלוּי בָּהּ",
+  ex:"As on the right, two soft ribs at each end stay off this flank: the lower two already went with the neck, and the upper two stay with the rump. The whole spine goes with this flank, and the spleen hangs from it. The mishna adds that this flank was actually the bigger one, but the right flank is called the big one because the liver hangs from it.",
+  src:"Tiferet Yisrael, Yachin 4:3; Mishna Tamid 4:3",
+  run(){give('leftFlank',5,'L',{pos:[0,-.05,.06],rot:[0,PI,0],cutAt:W(-.05,-.06,-.12)})}},
+ {he:'הָעֹקֶץ',en:'The rump and fat tail',to:'Kohen 3 · right hand',key:'oketz',q:"בָּא לוֹ לָעֹקֶץ, חוֹתְכוֹ וּנְתָנוֹ לְמִי שֶׁזָּכָה בוֹ, וְהָאַלְיָה וְאֶצְבַּע הַכָּבֵד וּשְׁתֵּי כְלָיוֹת עִמּוֹ",
+  ex:"The oketz is the rear section, from the kidneys to the end of the tail. It comes off with the fat tail, the liver lobe, both kidneys and the last two ribs on each side. The third kohen holds it in his right hand with the fat tail hanging between his fingers so he can grip it.",
+  src:"Tiferet Yisrael, Yachin 4:3; Mishna Tamid 4:3",
+  run(){give('oketz',3,'R',{pos:[0,.02,.06],rot:[PI,0,0],cutAt:W(-.05,.08,.05)});moveTo(S.P.yoteret,S.P.oketz,S.P.yoteret.position.clone().add(V(-.05,.12,.04)),Q(),{delay:2.7,dur:.6,arc:0})}},
+ {he:'הָרֶגֶל הַשְּׂמָאלִית',en:'The left hind leg',to:'Kohen 3 · left hand',key:'hindL',q:"נָטַל רֶגֶל הַשְּׂמָאלִי וּנְתָנָהּ לְמִי שֶׁזָּכָה בָהּ",
+  ex:"Last, the left hind leg comes off the hook and goes into the third kohen’s left hand, skin side out. Both hooks are now empty.",
+  src:"Mishna Tamid 4:3",
+  run(){moveTo(S.P.hindL,K[2].L,V(0,-.03,.04),Q(),{dur:1.8})}},
+ {he:'בְּשׁוּרָה',en:'Standing in a row',q:"נִמְצְאוּ כֻלָּן עוֹמְדִין בְּשׁוּרָה וְהָאֵבָרִים בְּיָדָם",
+  ex:"The nine kohanim stand in a row. The first holds the head in his right hand because it is the more important piece and heavier. Its nose, which is black, faces his arm so it is not on display. Its horns are between his fingers so it does not slip, and the slaughter cut faces up with the fat over it. He may carry the right leg in his left hand because this carrying does not hold up the atonement. The sixth carries the innards in a bowl with the shins on top. The seventh carries the fine flour for the meal offering that comes with the tamid. The eighth carries the high priest’s daily griddle-cakes (half offered in the morning, half in the evening). The ninth carries the wine libation.",
+  src:"Mishna Tamid 4:3; Bartenura 4:3; Tiferet Yisrael, Yachin 4:3",
+  run(){camTo(...CAMS.K,2.2)}},
+ {he:'אֶל הַכֶּבֶשׁ',en:'To the ramp',q:"הָלְכוּ וּנְתָנוּם מֵחֲצִי הַכֶּבֶשׁ וּלְמַטָּה בְּמַעֲרָבוֹ, וּמְלָחוּם",
+  ex:"They set everything down on the lower half of the ramp, on its west side facing the Sanctuary, and salt it. They use the lower half so that carrying it up to the altar afterward is clearly seen. On Shabbat the musaf limbs took the west side and the tamid went on the east. Then they go to the Chamber of Hewn Stone to read the Shema. The walk is sped up here.",
+  src:"Mishna Tamid 4:3; Leviticus 2:13 (salt); Bartenura 4:3 (citing Sukkah ch. 5); Tiferet Yisrael, Yachin 4:3",
+  run(){camTo(...CAMS.A,2.5);
+   K.forEach((k,i)=>{const end=V(RAMP_X1-9-i*.75,0,-3.1);end.y=rampY(end.x);
+     const way=[k.g.position.clone(),V(k.g.position.x,0,10),V(RAMP_X0-2,0,10),V(RAMP_X0-2,0,-3.1),V(RAMP_X0,0,-3.1),end];
+     const segs=way.slice(1).map((p,j)=>p.distanceTo(way[j])),tot=segs.reduce((a,b)=>a+b);
+     anim(10,()=>k2=>{let d=ease(k2)*tot,j=0;while(j<segs.length-1&&d>segs[j]){d-=segs[j];j++}
+       const a=way[j],b=way[j+1],t=Math.min(1,d/segs[j]);k.g.position.lerpVectors(a,b,t);
+       k.g.rotation.y=k2<1?Math.atan2(b.x-a.x,b.z-a.z):PI},1+i*.45);
+     const held=[...k.R.children,...k.L.children,...k.B.children.filter(c=>c.userData.label||i>5)];
+     held.forEach((o,j)=>{const dst=V(end.x+(j-(held.length-1)/2)*.32,0,-3.65);dst.y=rampY(dst.x)+.07;moveTo(o,scene,dst,Q(i===8?0:-PI/2*0,0,0),{delay:12.5+i*.25,dur:1.2,arc:.25})})});
+   camTo(V(RAMP_X1-5,5.5,4),V(RAMP_X1-12,1.8,-3.4),2.5,10.5)}},
+];
+
+/* ---------------- state & UI ---------------- */
+let cur=0,playing=false,activeLabel=null;
+function disposeTree(o){o.traverse(c=>{if(c.isMesh)c.geometry.dispose()})}
+function reset(){
+  anims=[];
+  if(S){for(const k in S.P){const p=S.P[k];if(p&&p.isObject3D){p.removeFromParent();disposeTree(p)}}S.root.removeFromParent();disposeTree(S.root)}
+  S=buildSheep();scene.add(S.root);
+  clip.constant=3;puddle.scale.setScalar(.001);M.heart.emissiveIntensity=0;drops.forEach(d=>d.visible=false);
+  knife.position.copy(KNIFE_REST);K.forEach(k=>{k.g.position.copy(k.g.userData.home);k.g.rotation.set(0,PI/2,0)});
+}
+const labelEl=document.createElement('div');labelEl.className='plabel';const plabel=new CSS2DObject(labelEl);
+function goTo(n){
+  n=Math.max(0,Math.min(STEPS.length-1,n));reset();
+  INSTANT=true;for(let i=0;i<n;i++)STEPS[i].run();INSTANT=false;
+  cur=n;const st=STEPS[n];st.run();
+  plabel.removeFromParent();
+  const tgt=st.key&&S.P[st.key];
+  if(tgt){const l=tgt.userData.label||{};labelEl.innerHTML=`${l.en||st.en}<span dir="rtl">${l.he||''}</span>`;plabel.position.set(0,.12,0);tgt.add(plabel)}
+  document.getElementById('sCount').textContent=`Step ${n+1} of ${STEPS.length}`;
+  document.getElementById('sHe').textContent=st.he;document.getElementById('sEn').textContent=st.en;
+  document.getElementById('sQ').textContent=st.q;document.getElementById('sSrc').innerHTML='<b>Sources:</b> '+st.src;document.getElementById('sEx').textContent=st.ex;
+  const to=document.getElementById('sTo');to.hidden=!st.to;to.textContent=st.to?'→ '+st.to:'';
+  [...list.children].forEach((li,i)=>{li.className=i<n?'done':i===n?'cur':''});
+  list.children[n].scrollIntoView({block:'nearest'});
+  document.getElementById('prev').disabled=n===0;document.getElementById('next').disabled=n===STEPS.length-1;
+}
+const list=document.getElementById('list');
+STEPS.forEach((s,i)=>{const li=document.createElement('li');li.innerHTML=`<button><span class="n">${i+1}</span><span class="e">${s.en}</span><span class="h">${s.he}</span></button>`;li.firstChild.onclick=()=>goTo(i);list.appendChild(li)});
+document.getElementById('next').onclick=()=>goTo(cur+1);
+document.getElementById('prev').onclick=()=>goTo(cur-1);
+document.getElementById('replay').onclick=()=>goTo(cur);
+const playBtn=document.getElementById('play');
+playBtn.onclick=()=>{playing=!playing;playBtn.setAttribute('aria-pressed',playing);if(playing&&cur===STEPS.length-1)goTo(0)};
+let idle=0;
+addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;if(e.key==='ArrowRight')goTo(cur+1);if(e.key==='ArrowLeft')goTo(cur-1)});
+document.getElementById('xray').onchange=e=>{for(const m of XRAY){m.transparent=e.target.checked;m.opacity=e.target.checked?.16:1;m.depthWrite=!e.target.checked;m.needsUpdate=true}};
+document.getElementById('lbl').onchange=e=>document.getElementById('labels').classList.toggle('hideLabels',!e.target.checked);
+for(const[id,c]of[['camC','C'],['camK','K'],['camL','L'],['camA','A']])document.getElementById(id).onclick=()=>camTo(...CAMS[c],1.5);
+
+// hover to name a part
+const ray=new THREE.Raycaster(),mouse=new THREE.Vector2(),tip=document.getElementById('tip');
+const FLEECE={he:'עור וצמר',en:'Hide & fleece'};
+renderer.domElement.addEventListener('pointermove',e=>{
+  const r=renderer.domElement.getBoundingClientRect();mouse.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);
+  ray.setFromCamera(mouse,camera);let found=null;
+  for(const h of ray.intersectObjects(scene.children,true)){
+    if(!h.object.visible)continue;
+    if(h.object.userData.fleece){if(h.point.y>clip.constant)continue;found=FLEECE;break}
+    let o=h.object;while(o&&!o.userData.label)o=o.parent;if(o){found=o.userData.label;break}
+    if(h.object.material?.alphaTest)continue;break;
+  }
+  tip.hidden=!found;if(found){tip.innerHTML=`<b dir="rtl">${found.he}</b> · ${found.en}`;tip.style.left=(e.clientX-r.left)+'px';tip.style.top=(e.clientY-r.top)+'px'}
+});
+renderer.domElement.addEventListener('pointerleave',()=>tip.hidden=true);
+
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h);css.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix()}
+new ResizeObserver(resize).observe(stage);resize();
+document.getElementById('loading').remove();
+goTo(0);
+const clk=new THREE.Clock();
+renderer.setAnimationLoop(()=>{
+  const tt=performance.now()/1000;FLAMES.forEach(f=>{const k=.7+.3*Math.sin(tt*9+f.userData.ph)+.15*Math.sin(tt*23+f.userData.ph*3);f.scale.set(1,k,1)});
+  const dt=Math.min(clk.getDelta(),.05);tick(dt);
+  if(playing){if(anims.length===0){idle+=dt;if(idle>1.4){idle=0;if(cur<STEPS.length-1)goTo(cur+1);else{playing=false;playBtn.setAttribute('aria-pressed',false)}}}else idle=0}
+  controls.update();{const far=camera.position.distanceTo(controls.target)>9;K.forEach(k=>k.g.userData.lab.visible=!far||cur===STEPS.length-1)}renderer.render(scene,camera);css.render(scene,camera);
+});
+</script>
