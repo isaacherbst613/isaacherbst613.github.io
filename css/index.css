@@ -1061,3 +1061,25 @@ body.fire #fireCanvas { display: block; }
 .snake3d-banner .sunder-sub {
     color: rgba(244, 247, 232, 0.92);
 }
+
+/* SUNDER + STREET SNAKE sit side by side, stacking on narrow screens */
+.banner-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.8rem;
+    width: min(1180px, 100%);
+    margin: 2.6rem auto 0;
+}
+
+.banner-row .sunder-banner {
+    flex: 1 1 340px;
+    width: auto;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.banner-row .sunder-title {
+    font-size: clamp(1.9rem, 4.2vw, 3.4rem);
+}
