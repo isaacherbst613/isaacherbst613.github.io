@@ -34,7 +34,9 @@ export function queries(f) {
   };
 }
 
-const MIRRORS = ['https://overpass-api.de/api/interpreter', 'https://overpass.private.coffee/api/interpreter', 'https://overpass.kumi.systems/api/interpreter'];
+// overpass-api.de is the one that answers reliably, so retries go back to it; the other two (often down) are the last resort.
+const MAIN = 'https://overpass-api.de/api/interpreter';
+const MIRRORS = [MAIN, MAIN, MAIN, MAIN, 'https://overpass.private.coffee/api/interpreter', 'https://overpass.kumi.systems/api/interpreter'];
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 export async function fetchOverpass(query, { tries = 6, onTry } = {}) {
   let last;
@@ -42,7 +44,7 @@ export async function fetchOverpass(query, { tries = 6, onTry } = {}) {
     try {
       onTry?.(i);
       const headers = typeof window === 'undefined' ? { 'User-Agent': 'street-snake-world-builder/1.0 (github.com/isaacherbst613)', Accept: '*/*' } : {};   // browsers add their own
-      const res = await fetch(MIRRORS[i % MIRRORS.length], { method: 'POST', headers, body: new URLSearchParams({ data: query }), signal: AbortSignal.timeout(100000) });
+      const res = await fetch(MIRRORS[i % MIRRORS.length], { method: 'POST', headers, body: new URLSearchParams({ data: query }), signal: AbortSignal.timeout(60000) });
       if (!res.ok) throw new Error('Overpass ' + res.status);
       const j = await res.json();
       if (!j.elements) throw new Error('Overpass returned no data');
@@ -112,19 +114,38 @@ export async function loadPreset(id) {
   return res.json();
 }
 
-// Any place: look the address up (OpenStreetMap Nominatim), then download its streets and buildings.
-export async function geocode(q) {
-  const res = await fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(q), { signal: AbortSignal.timeout(15000) });
-  if (!res.ok) throw new Error('Address search failed');
-  const r = (await res.json())[0];
-  if (!r) throw new Error('No place found for "' + q + '"');
-  return { lat: +r.lat, lon: +r.lon, name: r.display_name.split(',').slice(0, 3).join(',').trim() };
+// Any place: look the address up (OpenStreetMap Nominatim; one request per search, only when the user submits),
+// then download its streets and buildings. Exact house numbers work where OpenStreetMap has them.
+function shortName(r) {
+  const a = r.address || {}, road = [a.house_number, a.road].filter(Boolean).join(' ');
+  const town = a.city || a.town || a.village || a.hamlet || a.suburb || a.county;
+  const head = r.name && r.name !== a.road && r.name !== a.house_number ? r.name : '';
+  const parts = [head, road, town, a.state, (a.country_code || '').toUpperCase()].filter(Boolean);
+  return parts.filter((p, i) => parts.indexOf(p) === i).join(', ') || r.display_name.split(',').slice(0, 3).join(',').trim();
+}
+export async function searchPlaces(q) {
+  let res;
+  try { res = await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=8&q=' + encodeURIComponent(q), { signal: AbortSignal.timeout(20000) }); }
+  catch { throw new Error('Address search is not responding. Check your connection and try again.'); }
+  if (!res.ok) throw new Error('Address search is busy. Try again in a moment.');
+  const seen = new Set(), out = [];
+  for (const r of await res.json()) {
+    const k = (+r.lat).toFixed(3) + ',' + (+r.lon).toFixed(3);          // same spot (within ~100 m): keep the first
+    if (seen.has(k)) continue;
+    seen.add(k); out.push({ lat: +r.lat, lon: +r.lon, name: shortName(r) });
+    if (out.length === 5) break;
+  }
+  if (!out.length) throw new Error(`No place found for "${q}". Try adding the city or ZIP code.`);
+  return out;
 }
 export async function loadCustom({ lat, lon, name }, onStatus) {
   const f = fieldFor(lat, lon), q = queries(f);
   const retry = what => ({ onTry: i => onStatus?.(i ? `Map server is busy, retrying (${i + 1}/6)… ${what}` : what) });
-  const streets = await fetchOverpass(q.streets, retry('Downloading streets…'));
+  // streets and buildings are requested at the same time (about twice as fast as one after the other)
+  const [streets, scene] = await Promise.all([
+    fetchOverpass(q.streets, retry('Downloading streets and buildings…')),
+    fetchOverpass(q.scene, retry('Downloading streets and buildings…')),
+  ]);
   if (!streets.elements.some(e => e.type === 'way')) throw new Error('No drivable streets found there');
-  const scene = await fetchOverpass(q.scene, retry('Downloading buildings and trees…'));
   return convert(streets, scene, f, name);
 }

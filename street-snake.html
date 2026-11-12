@@ -32,10 +32,23 @@
   #scn a { color: #7dd3fc; }
   #scn input { width: 190px; margin-right: 6px; }
   #scnMsg { color: #fbbf24; }
-  #mapInfo { color: #a3e635; font-size: 12px; margin-bottom: 4px; }
-  #scn select { max-width: 230px; margin-bottom: 4px; }
-  #locForm input { width: 200px; }
-  #loading { text-align: center; line-height: 2; position: absolute; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; background: #111; color: #fff; font-size: 20px; }
+  #locbar { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 12; width: min(540px, calc(100vw - 380px)); min-width: 300px; color: #fff; }
+  #locForm { display: flex; align-items: center; gap: 6px; background: rgba(17,17,17,.9); border: 1px solid rgba(255,255,255,.18); border-radius: 12px; padding: 6px 8px; }
+  #locForm:focus-within { border-color: #38bdf8; }
+  #locIn { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; color: #fff; font-size: 15px; padding: 6px 4px; }
+  #locIn::placeholder { color: #9ca3af; }
+  #locForm button { background: #2563eb; color: #fff; border: 0; border-radius: 8px; padding: 6px 12px; font-size: 14px; cursor: pointer; }
+  #locForm button#locGeo { background: #374151; padding: 6px 9px; font-size: 16px; }
+  #locList { list-style: none; margin: 4px 0 0; padding: 4px; background: rgba(17,17,17,.96); border: 1px solid rgba(255,255,255,.18); border-radius: 12px; max-height: 46vh; overflow: auto; }
+  #locList li { padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 14px; line-height: 1.3; }
+  #locList li:hover, #locList li.active { background: #2563eb; }
+  #locList li.hd { cursor: default; background: none; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #9ca3af; padding: 8px 10px 2px; }
+  #locNow { display: inline-block; margin-top: 5px; padding: 3px 9px; border-radius: 8px; background: rgba(17,17,17,.75); font-size: 12px; color: #d9f99d; }
+  #locMsg:not(:empty) { margin-top: 4px; padding: 4px 9px; border-radius: 8px; background: rgba(17,17,17,.85); font-size: 13px; color: #fcd34d; }
+  body.playing #locbar, body.playing #scn { opacity: 0; pointer-events: none; }
+  @media (max-width: 800px) { #locbar { top: 150px; left: 12px; right: 12px; transform: none; width: auto; min-width: 0; } }
+  #loading small { color: #9ca3af; font-size: 13px; }
+  #loading { text-align: center; white-space: pre-line; line-height: 2; position: absolute; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; background: #111; color: #fff; font-size: 20px; }
   #msg { position: absolute; inset: 0; z-index: 11; display: flex; align-items: center; justify-content: center; pointer-events: none; }
   #msg div { background: rgba(17,17,17,.88); color: #fff; padding: 22px 30px; border-radius: 12px; text-align: center;
              font-size: 18px; line-height: 1.6; max-width: 430px; }
@@ -55,11 +68,19 @@
 <a id="back" href="index.html">&larr; isaacherbst.us</a>
 <canvas id="mini" width="210" height="190"></canvas>
 <div id="credit"><span id="gattr"></span>Street data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors</div>
-<div id="loading"><div><span id="loadMsg">Loading map data&hellip;</span><br><button id="loadCancel" hidden>Cancel</button></div></div>
+<div id="loading"><div><span id="loadMsg">Loading map data&hellip;</span><br><small id="loadHint" hidden>Maps for new places come from free public servers: this can take a minute or two.</small><br><button id="loadCancel" hidden>Cancel</button></div></div>
+<div id="locbar">
+  <form id="locForm" autocomplete="off">
+    <span id="locPin" aria-hidden="true">&#128205;</span>
+    <input id="locIn" type="text" placeholder="Search any address or place&hellip;" aria-label="Search any address or place" role="combobox" aria-expanded="false" aria-controls="locList" spellcheck="false" maxlength="120">
+    <button id="locGo" type="submit">Go</button>
+    <button id="locGeo" type="button" title="Use my current location" aria-label="Use my current location">&#9678;</button>
+  </form>
+  <ul id="locList" role="listbox" hidden></ul>
+  <div id="locNow"></div>
+  <div id="locMsg" role="status"></div>
+</div>
 <div id="scn">
-  Location: <select id="loc"></select>
-  <form id="locForm" hidden><input id="locIn" placeholder="Address or place, e.g. Times Square" autocomplete="off"><button>Go</button></form>
-  <div id="mapInfo"></div>
   Scenery: <b id="scnMode">Stylized</b> &middot; <a href="#" id="scnSwitch">Use Google 3D Tiles</a> <a href="#" id="scnForget" hidden>&middot; Forget key</a>
   <form id="keyForm" hidden>Enter the access code, or paste your own Google Maps API key (Map Tiles API enabled). It stays in this browser.<br>
     <input id="keyIn" type="password" placeholder="Access code or API key" autocomplete="off"><button>Unlock</button></form>
@@ -69,7 +90,7 @@
 <script type="module">
 import * as THREE from 'three';
 
-import { PRESETS, makeProj, loadPreset, loadCustom, geocode } from './street-snake-world.js';
+import { PRESETS, makeProj, loadPreset, loadCustom, searchPlaces } from './street-snake-world.js';
 import { unlockKey } from './street-snake-key.js';
 
 // Street, building and tree data: © OpenStreetMap contributors (ODbL).
@@ -81,6 +102,12 @@ const store = {
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 let loc; try { loc = JSON.parse(store.get('snakeLoc')); } catch { loc = null; }
 loc = loc && (loc.id || loc.custom) ? loc : { id: PRESETS[0].id };
+{ // a shared link wins: ?loc=<preset id>  or  ?at=<lat>,<lon>&name=<label>
+  const q = new URLSearchParams(location.search), at = (q.get('at') || '').split(',').map(Number);
+  if (at.length === 2 && at.every(Number.isFinite) && Math.abs(at[0]) <= 85 && Math.abs(at[1]) <= 180)
+    loc = { custom: { lat: at[0], lon: at[1], name: (q.get('name') || 'Custom location').slice(0, 80) } };
+  else if (PRESETS.some(x => x.id === q.get('loc'))) loc = { id: q.get('loc') };
+}
 let world, locError = '';
 try { locError = sessionStorage.getItem('snakeLocError') || ''; sessionStorage.removeItem('snakeLocError'); } catch { /* ignore */ }
 try {
@@ -88,9 +115,10 @@ try {
     const key = 'snakeWorld:' + loc.custom.lat.toFixed(4) + ',' + loc.custom.lon.toFixed(4);
     try { world = JSON.parse(sessionStorage.getItem(key)); } catch { world = null; }
     if (!world) {
-      document.getElementById('loadCancel').hidden = false;
+      document.getElementById('loadCancel').hidden = false; document.getElementById('loadHint').hidden = false;
       document.getElementById('loadCancel').onclick = () => { store.set('snakeLoc', null); location.reload(); };
-      world = await loadCustom(loc.custom, m => { document.getElementById('loadMsg').textContent = m; });
+      document.getElementById('loadMsg').textContent = `Mapping ${loc.custom.name}…`;
+      world = await loadCustom(loc.custom, m => { document.getElementById('loadMsg').textContent = `${loc.custom.name}\n${m}`; });
       try { sessionStorage.setItem(key, JSON.stringify(world)); } catch { /* too big to cache */ }
     }
   } else world = await loadPreset(loc.id);
@@ -101,6 +129,8 @@ try {
   world = await loadPreset(PRESETS[0].id);
 }
 document.getElementById('loading').remove();
+const isCustom = !!loc.custom && !locError;       // an address the visitor chose (not a preset)
+try { history.replaceState(null, '', location.pathname + (isCustom ? `?at=${loc.custom.lat},${loc.custom.lon}&name=${encodeURIComponent(loc.custom.name)}` : `?loc=${locError ? PRESETS[0].id : loc.id}`)); } catch { /* ignore */ }   // so the address bar is a shareable link
 const DATA = { n: world.n, w: world.w }, FIELD = world.field, SCENE = { b: world.b, w: world.wt, t: world.t }, WORLD_NAME = world.name;
 
 // ---- Tuning knobs ----
@@ -465,6 +495,16 @@ const buildings = [];
 const shadowCatcher = new THREE.Mesh(ribbon(edges.map(e => e.pts), 7.6, 0, 6), new THREE.ShadowMaterial({ opacity: 0.38 }));
 shadowCatcher.receiveShadow = true; shadowCatcher.visible = false; scene.add(shadowCatcher);
 
+// Address pin: a tall cyan beam and ring at the searched address (the center of the map).
+const pin = new THREE.Group(); pin.visible = isCustom; scene.add(pin);
+{
+  const cy = new THREE.MeshBasicMaterial({ color: '#22d3ee', transparent: true, opacity: 0.4, depthWrite: false, side: THREE.DoubleSide, fog: false });
+  const beam = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 1.1, 260, 12, 1, true), cy); beam.rotation.x = Math.PI / 2; beam.position.z = 130;
+  const ringP = new THREE.Mesh(new THREE.RingGeometry(8, 10.5, 40), new THREE.MeshBasicMaterial({ color: '#22d3ee', transparent: true, opacity: 0.75, side: THREE.DoubleSide, depthWrite: false }));
+  ringP.position.z = 0.35;
+  const head = new THREE.Mesh(new THREE.SphereGeometry(3.2, 16, 12), new THREE.MeshBasicMaterial({ color: '#67e8f9', fog: false })); head.position.z = 34;
+  pin.add(beam, ringP, head);
+}
 // Ring on the next intersection (green = a turn pressed now will count).
 const ringM = new THREE.MeshBasicMaterial({ color: '#94a3b8', transparent: true, opacity: 0.9, side: THREE.DoubleSide, depthWrite: false });
 const ring = new THREE.Mesh(new THREE.RingGeometry(8.5, 10.5, 48), ringM); ring.position.z = 0.25; scene.add(ring);
@@ -678,29 +718,70 @@ function drawMini(pts) {
   const dot = (p, r, c) => { mctx.fillStyle = c; mctx.beginPath(); mctx.arc(...M(p), r, 0, 7); mctx.fill(); };
   dot(pts.at(-1), 4, '#bbf7d0');
   dot(food, 5, '#f97316');
+  if (isCustom) { mctx.strokeStyle = '#22d3ee'; mctx.lineWidth = 2; mctx.beginPath(); mctx.arc(...M([0, 0]), 6, 0, 7); mctx.stroke(); }
 }
 
-// ---------------------------------- Location picker ----------------------------------
+// ---------------------------------- Location bar ----------------------------------
+// Type an address and press Go (one search request, no per-keystroke lookups); pick from the matches.
+// Click the empty box for recent places and the presets. The address bar becomes a shareable link.
 {
-  const sel = $('loc'), SEARCH = '__search';
-  const opt = (v, label, selected) => { const o = document.createElement('option'); o.value = v; o.textContent = label; o.selected = !!selected; sel.append(o); };
-  for (const q of PRESETS) opt(q.id, q.name, !loc.custom && q.id === loc.id && !locError);
-  if (loc.custom && !locError) opt('__custom', loc.custom.name, true);
-  opt(SEARCH, 'Search an address…');
-  if (locError) $('scnMsg').textContent = locError;
-  $('mapInfo').textContent = `Mapped ${(boardEdges.reduce((s, e) => s + e.len, 0) / 1000).toFixed(1)} km of streets · ${deadEdges.size} dead-end streets kept food-free`;
-  sel.onchange = () => {
-    if (sel.value === SEARCH) { $('locForm').hidden = false; $('locIn').focus(); return; }
-    if (sel.value === '__custom') return;
-    store.set('snakeLoc', JSON.stringify({ id: sel.value })); location.reload();
+  const inp = $('locIn'), list = $('locList'), msg = $('locMsg');
+  const recents = () => { try { return JSON.parse(store.get('snakeRecent')) || []; } catch { return []; } };
+  const go = place => {                       // place: { id } for a preset, or { lat, lon, name } for an address
+    if (place.id) { store.set('snakeLoc', JSON.stringify({ id: place.id })); location.assign(location.pathname + '?loc=' + place.id); return; }
+    const precision = place.approx ? 3 : 5;   // "my location" is rounded to ~100 m, since it ends up in the link
+    const c = { lat: +place.lat.toFixed(precision), lon: +place.lon.toFixed(precision), name: place.name.slice(0, 80) };
+    if (!place.approx) store.set('snakeRecent', JSON.stringify([c, ...recents().filter(r => r.name !== c.name)].slice(0, 5)));
+    store.set('snakeLoc', JSON.stringify({ custom: c }));
+    location.assign(location.pathname + `?at=${c.lat},${c.lon}&name=${encodeURIComponent(c.name)}`);
+  };
+  let items = [], active = -1;
+  const mark = i => { items.forEach((x, k) => x.el.classList.toggle('active', k === i)); active = i; items[i]?.el.scrollIntoView({ block: 'nearest' }); };
+  const show = groups => {
+    list.textContent = ''; items = []; active = -1;
+    for (const g of groups) {
+      if (g.title) { const h = document.createElement('li'); h.className = 'hd'; h.textContent = g.title; list.append(h); }
+      for (const it of g.items) {
+        const el = document.createElement('li'); el.setAttribute('role', 'option'); el.textContent = it.label;
+        el.onmousedown = e => { e.preventDefault(); go(it.place); };
+        items.push({ el, place: it.place }); list.append(el);
+      }
+    }
+    list.hidden = !items.length; inp.setAttribute('aria-expanded', String(!list.hidden));
+  };
+  const rest = () => show([
+    recents().length ? { title: 'Recent', items: recents().map(r => ({ label: r.name, place: r })) } : null,
+    { title: 'Preset places', items: PRESETS.map(x => ({ label: x.name, place: { id: x.id } })) },
+  ].filter(Boolean));
+  inp.onfocus = () => { if (!inp.value.trim()) rest(); };
+  inp.oninput = () => { msg.textContent = ''; if (!inp.value.trim()) rest(); else { list.hidden = true; items = []; active = -1; } };
+  inp.onblur = () => setTimeout(() => { list.hidden = true; inp.setAttribute('aria-expanded', 'false'); }, 120);
+  inp.onkeydown = e => {
+    if (e.key === 'Escape') { list.hidden = true; inp.blur(); }
+    else if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && items.length) { e.preventDefault(); mark((active + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length); }
   };
   $('locForm').onsubmit = async e => {
     e.preventDefault();
-    const q = $('locIn').value.trim(); if (!q) return;
-    $('scnMsg').textContent = 'Searching…';
-    try { const place = await geocode(q); store.set('snakeLoc', JSON.stringify({ custom: place })); location.reload(); }
-    catch (err) { $('scnMsg').textContent = err.message || String(err); }
+    if (active >= 0) return go(items[active].place);
+    const q = inp.value.trim(); if (!q) return;
+    msg.textContent = 'Searching…';
+    try {
+      const found = await searchPlaces(q);
+      msg.textContent = '';
+      if (found.length === 1) return go(found[0]);
+      show([{ title: `Pick the right one for "${q}"`, items: found.map(f => ({ label: f.name, place: f })) }]);
+    } catch (err) { msg.textContent = err.message || String(err); list.hidden = true; }
   };
+  $('locGeo').onclick = () => {
+    if (!navigator.geolocation) { msg.textContent = 'Your browser cannot share a location.'; return; }
+    msg.textContent = 'Finding you…';
+    navigator.geolocation.getCurrentPosition(
+      pos => go({ lat: pos.coords.latitude, lon: pos.coords.longitude, name: 'My location', approx: true }),
+      err => { msg.textContent = 'Could not get your location (' + (err.message || 'permission denied') + ').'; }, { timeout: 10000 });
+  };
+  inp.placeholder = isCustom ? `Search any address (now: ${loc.custom.name})` : 'Search any address or place…';
+  $('locNow').textContent = `${WORLD_NAME} · ${(boardEdges.reduce((s, x) => s + x.len, 0) / 1000).toFixed(1)} km of streets mapped · ${deadEdges.size} dead-end streets kept food-free`;
+  if (locError) msg.textContent = locError;
 }
 
 // ---------------------------------- Google Photorealistic 3D Tiles (optional) ----------------------------------
@@ -800,13 +881,16 @@ function placeFood() {
 }
 
 function reset() {
-  // Start on the longest-enough street closest to the center.
-  const mid = e => pointAt({ e, fwd: true }, e.len / 2);
-  const startEdge = [120, 60, 20, 0].map(m => boardEdges.filter(e => e.len > m)).find(a => a.length).sort((a, b) => dst(mid(a), [0, 0]) - dst(mid(b), [0, 0]))[0];
-  cur = { e: startEdge, fwd: true }; s = 0; dist = 0;
+  // Start on the street nearest the center (the address), at the nearest point, heading down its longer side.
+  const near = e => { let b = { d: 1e9, along: 0 }; for (let i = 1; i < e.pts.length; i++) { const a = e.pts[i - 1], c = e.pts[i], l2 = (c[0] - a[0]) ** 2 + (c[1] - a[1]) ** 2 || 1, k = clamp01((-a[0] * (c[0] - a[0]) - a[1] * (c[1] - a[1])) / l2), d = Math.hypot(a[0] + (c[0] - a[0]) * k, a[1] + (c[1] - a[1]) * k); if (d < b.d) b = { d, along: e.cum[i - 1] + k * Math.sqrt(l2) }; } return b; };
+  const pool = [60, 20, 0].map(m => boardEdges.filter(e => e.len > m)).find(a => a.length);
+  const startEdge = pool.map(e => ({ e, ...near(e) })).sort((a, b) => a.d - b.d)[0];
+  const fwd0 = startEdge.e.len - startEdge.along >= startEdge.along;
+  cur = { e: startEdge.e, fwd: fwd0 }; s = fwd0 ? startEdge.along : startEdge.e.len - startEdge.along; dist = 0;
+  if (cur.e.len - s < 40) s = 0;                                  // too close to the end of the street: start at its beginning
   L_ = START_LEN; speed = START_SPEED; score = 0; queued = null; visits = {}; bulges = []; mouthOpen = 0; gulp = 0;
   gz = startZ;
-  trail = [{ p: pointAt(cur, 0), d: 0, z: gz }];
+  trail = [{ p: pointAt(cur, s), d: 0, z: gz }];
   placeFood();
 }
 
@@ -886,7 +970,7 @@ function render(dt = 0) {
   if (pts.length > 1) buildBody(pts, dist - L_); else snakeMesh.geometry.setIndex([]);
   let back = pts[0];
   for (let i = pts.length - 2; i >= 0; i--) if (dst(pts[i], head) >= 8) { back = pts[i]; break; }
-  const hb = pts.length > 1 ? bearing(back, head) : leaveBearing(cur), sway = pts.length > 1 ? clamp01((dist - tailD) / 20) : 0;
+  const hb = pts.length > 1 ? bearing(back, head) : bearing(pointAt(cur, s), pointAt(cur, Math.min(cur.e.len, s + 5))), sway = pts.length > 1 ? clamp01((dist - tailD) / 20) : 0;
   const hr = hb * RAD, off = wig(dist) * sway;
   headG.position.set(head[0] - Math.cos(hr) * off, head[1] + Math.sin(hr) * off, head[2] + HB * 0.72 + headLift);
   headG.rotation.z = -hr + Math.atan(WIG_A / WIG_L * Math.cos(dist / WIG_L)) * sway;
@@ -911,6 +995,7 @@ function render(dt = 0) {
   mouse.position.z = scared * 1.3 + Math.max(0, Math.sin(now * 5)) * 0.25 * (1 - scared);
 
   // Mouse, ring, markers and shadow surface sit on the local ground
+  pin.position.z = tiles ? startZ : 0;
   if (tiles) foodZ = groundAt(food, foodZ);
   foodG.position.z = foodZ; shadowCatcher.position.z = gz + 0.25;
   // Next-intersection ring and the floating arrow
@@ -956,6 +1041,7 @@ addEventListener('keydown', ev => {
 let last = performance.now();
 function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  document.body.classList.toggle('playing', state === 'play');   // hide the search bar and scenery box while driving
   if (state === 'play') {
     for (const k of held) speed = Math.max(MIN_SPEED, Math.min(MAX_SPEED, speed + THROTTLE[k] * ACCEL * dt));
     step(dt); chase(dt);
@@ -974,7 +1060,7 @@ show(`<h1>Street Snake</h1>${esc(WORLD_NAME)}, at street level. Steer with <b>&l
 Hold <b>&uarr;</b> / <b>&darr;</b> (or W / S) to speed up or slow down.<br>
 Turns only count <b>close to an intersection</b> (the ring turns green).<br>
 No key: you go straight. No street ahead, dead ends (red barriers), the striped wall and your own body are fatal.<br>
-Hunt the mice: follow the floating arrow, the orange light beam, or the minimap.<br><br>
+Hunt the mice: follow the floating arrow, the orange light beam, or the minimap.${isCustom ? '<br>Your address is the cyan beam.' : ''}<br><br>
 Press <b>Space</b> to start &middot; <b>P</b> to pause`);
 requestAnimationFrame(frame);
 </script>
