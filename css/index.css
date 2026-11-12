@@ -1029,3 +1029,35 @@ body.fire #fireCanvas { display: block; }
     color: rgba(255, 237, 216, 0.85);
     line-height: 1.6;
 }
+
+/* ---------- STREET SNAKE banner (reuses the SUNDER banner layout) ---------- */
+
+.snake3d-banner {
+    background: linear-gradient(180deg, #4f8fd6 0%, #a9cdee 46%, #6a9a4d 46%, #3f6b33 100%);
+    color: #f4f7e8;
+    margin-top: 1.8rem;
+    transform: rotate(-0.5deg);
+}
+
+.snake3d-banner:hover {
+    transform: translate(-3px, -5px) rotate(0deg);
+}
+
+.snake3d-banner .sunder-title {
+    filter: drop-shadow(0 3px 14px rgba(20, 60, 20, 0.6));
+}
+
+.snake3d-banner .sunder-title span {
+    background: linear-gradient(180deg, #f6f1c9 0%, #cdbf8d 45%, #8a6a2f 80%, #f6f1c9 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.snake3d-banner .sunder-kicker {
+    color: #fff3b0;
+}
+
+.snake3d-banner .sunder-sub {
+    color: rgba(244, 247, 232, 0.92);
+}
