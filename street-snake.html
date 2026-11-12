@@ -768,8 +768,8 @@ function drawMini(pts) {
     try {
       const found = await searchPlaces(q);
       msg.textContent = '';
-      if (found.length === 1) return go(found[0]);
-      show([{ title: `Pick the right one for "${q}"`, items: found.map(f => ({ label: f.name, place: f })) }]);
+      if (found.length === 1 && !found.note) return go(found[0]);     // an exact single match goes straight there
+      show([{ title: found.note || `Pick the right one for "${q}"`, items: found.map(f => ({ label: f.name, place: f })) }]);   // a looser match asks first
     } catch (err) { msg.textContent = err.message || String(err); list.hidden = true; }
   };
   $('locGeo').onclick = () => {

@@ -120,12 +120,14 @@ function shortName(r) {
   const a = r.address || {}, road = [a.house_number, a.road].filter(Boolean).join(' ');
   const town = a.city || a.town || a.village || a.hamlet || a.suburb || a.county;
   const head = r.name && r.name !== a.road && r.name !== a.house_number ? r.name : '';
-  const parts = [head, road, town, a.state, (a.country_code || '').toUpperCase()].filter(Boolean);
+  const parts = [head, road, a.suburb, town, a.state, (a.country_code || '').toUpperCase()].filter(Boolean);
   return parts.filter((p, i) => parts.indexOf(p) === i).join(', ') || r.display_name.split(',').slice(0, 3).join(',').trim();
 }
-export async function searchPlaces(q) {
+const sleep2 = ms => new Promise(r => setTimeout(r, ms));
+async function nominatim(q) {
+  const headers = typeof window === 'undefined' ? { 'User-Agent': 'street-snake-world-builder/1.0 (github.com/isaacherbst613)' } : {};   // browsers add their own
   let res;
-  try { res = await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=8&q=' + encodeURIComponent(q), { signal: AbortSignal.timeout(20000) }); }
+  try { res = await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=8&q=' + encodeURIComponent(q), { headers, signal: AbortSignal.timeout(20000) }); }
   catch { throw new Error('Address search is not responding. Check your connection and try again.'); }
   if (!res.ok) throw new Error('Address search is busy. Try again in a moment.');
   const seen = new Set(), out = [];
@@ -135,8 +137,31 @@ export async function searchPlaces(q) {
     seen.add(k); out.push({ lat: +r.lat, lon: +r.lon, name: shortName(r) });
     if (out.length === 5) break;
   }
-  if (!out.length) throw new Error(`No place found for "${q}". Try adding the city or ZIP code.`);
   return out;
+}
+
+// People type addresses loosely ("17ave", a wrong ZIP, no punctuation), and the search is literal. So: try the query as typed,
+// then a cleaned-up version, then looser ones. A looser match comes back with a note so the visitor can confirm it.
+const ordinal = n => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th');
+const STREET = 'ave|av|avenue|st|street|rd|road|blvd|boulevard|dr|drive|ln|lane|pl|place|ct|court|pkwy|parkway|hwy|highway|way|ter|terrace';
+export const cleanQuery = q => q.replace(/\s+/g, ' ').trim()
+  .replace(new RegExp(String.raw`\b(\d+)(?:st|nd|rd|th)?\s*(${STREET})\b\.?`, 'gi'), (m, n, w) => ordinal(+n) + ' ' + w);   // "17ave" -> "17th ave"
+const noZip = q => q.replace(/[\s,]+\d{5}(?:-\d{4})?$/, '');
+const streetOnly = q => q.replace(/^\d+[a-z]?\s+(?=\D)/i, '');
+export function queryVariants(q) {
+  const c = cleanQuery(q), z = noZip(c), s = streetOnly(z);
+  return [[q, ''], [c, ''], [z, 'No match with that ZIP code, so here are results without it.'],
+          [s, 'Could not find that exact house number, so here are matches for the street.']]
+    .filter(([v], i, a) => v.length > 3 && a.findIndex(x => x[0].toLowerCase() === v.toLowerCase()) === i);
+}
+export async function searchPlaces(q) {
+  const variants = queryVariants(q);
+  for (let i = 0; i < variants.length; i++) {
+    if (i) await sleep2(1100);                                            // be polite: at most one request a second
+    const found = await nominatim(variants[i][0]);
+    if (found.length) { if (variants[i][1]) found.note = variants[i][1]; return found; }
+  }
+  throw new Error(`No place found for "${q}". Check the spelling, or write it like "5001 17th Ave, Brooklyn NY".`);
 }
 export async function loadCustom({ lat, lon, name }, onStatus) {
   const f = fieldFor(lat, lon), q = queries(f);
