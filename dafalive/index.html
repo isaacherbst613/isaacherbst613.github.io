@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DafAlive</title>
+<meta name="description" content="Interactive visualizations of the Gemara, by daf.">
+<link rel="icon" type="image/png" sizes="32x32" href="../items/favicon_new/favicon-32x32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700&family=Assistant:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="dafalive.css">
+<style>
+body{line-height:1.5}
+.wrap{max-width:1040px;margin:0 auto;padding:28px 16px 40px}
+header{display:flex;flex-wrap:wrap;gap:6px 20px;align-items:end;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:18px}
+.home{font-size:12px;color:var(--muted);text-decoration:none}
+.home:hover{color:var(--brass)}
+.logo{font-family:var(--serif);font-size:clamp(34px,7vw,54px);margin:0;line-height:1;font-weight:700}
+.logo span{color:var(--brass)}
+.tag{margin:6px 0 0;color:var(--muted);max-width:46ch}
+.logo-he{font-size:28px;color:var(--brass);margin:0}
+#q{width:100%;box-sizing:border-box;margin:20px 0 6px;font:16px var(--sans);color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 12px}
+#q::placeholder{color:var(--muted)}
+#count{font-size:12px;color:var(--muted);margin:0}
+h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--brass);margin:28px 0 10px;font-weight:600}
+
+/* by daf: one block per masechta, one row per amud */
+#byDaf{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.mas{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 14px}
+.mas h3{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 4px;font-size:15px}
+.mas h3 .he{font-size:20px}
+.daf{display:grid;grid-template-columns:58px 1fr;gap:10px;align-items:baseline;padding:6px 0;border-top:1px solid #2c261f}
+.daf .d{font-family:var(--serif);font-size:18px;color:var(--brass);direction:rtl;text-align:right}
+.daf .d small{display:block;font:12px var(--sans);color:var(--muted);direction:ltr}
+.daf ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.daf a{color:var(--ink);text-decoration:none;font-weight:600}
+.daf a:hover{color:var(--brass)}
+
+/* all visualizations */
+#all{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.viz{display:flex;flex-direction:column;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;color:var(--ink);text-decoration:none;transition:border-color .15s,transform .15s}
+.viz:hover{border-color:var(--brass);transform:translateY(-2px)}
+.viz .kind{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.viz b{font-family:var(--serif);font-size:20px;line-height:1.2}
+.viz .he{font-size:16px;color:#d9cebd}
+.viz p{margin:0;font-size:14px;color:#d9cebd}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:auto;padding-top:4px}
+.chips span{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:1px 8px;color:var(--brass)}
+.empty{color:var(--muted)}
+footer{margin-top:36px;font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+footer a{color:var(--brass)}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <a class="home" href="../">← isaacherbst.us</a>
+      <h1 class="logo">Daf<span>Alive</span></h1>
+      <p class="tag">The Gemara, brought to life: interactive models and visualizations you can click, turn and play with, sorted by daf.</p>
+    </div>
+    <p class="logo-he he">הדף החי</p>
+  </header>
+
+  <input id="q" type="search" placeholder="Search a daf or topic: Arakhin 8b, ערכין…" aria-label="Search by daf or topic" autocomplete="off">
+  <p id="count" aria-live="polite"></p>
+
+  <h2>By daf</h2>
+  <div id="byDaf"></div>
+
+  <h2>All visualizations</h2>
+  <div id="all"></div>
+
+  <footer>Texts via <a href="https://www.sefaria.org" target="_blank" rel="noopener">Sefaria</a>. These are learning aids, not psak.</footer>
+</div>
+
+<script type="module">
+import { VIZ, parseDaf } from './dafalive.js';
+const $ = id => document.getElementById(id), esc = s => s.replace(/[&<>"]/g, c => `&#${c.charCodeAt(0)};`);
+
+// what a search can match for each visualization: its own words + every daf it touches, in English and Hebrew
+const hay = v => [v.title, v.he, v.blurb, v.kind, v.source, ...v.dapim.flatMap(d => {
+  const p = parseDaf(d); return [d, `${p.masechta} ${p.daf}`, p.heRef, p.he]; })].join(' ').toLowerCase();
+
+function render(){
+  const q = $('q').value.trim().toLowerCase();
+  const list = VIZ.filter(v => !q || q.split(/\s+/).every(w => hay(v).includes(w)));
+
+  // invert viz -> dapim into masechta -> amud -> [viz]
+  const rows = new Map();
+  for (const v of list) for (const d of v.dapim) {
+    const p = parseDaf(d);
+    (rows.get(p.key) || rows.set(p.key, { p, viz: [] }).get(p.key)).viz.push(v);
+  }
+  const byMas = new Map();
+  for (const r of [...rows.values()].sort((a, b) => a.p.key - b.p.key))
+    (byMas.get(r.p.masechta) || byMas.set(r.p.masechta, []).get(r.p.masechta)).push(r);
+
+  $('byDaf').innerHTML = [...byMas].map(([m, rs]) => `<section class="mas">
+    <h3><span>${esc(m)}</span><span class="he">${rs[0].p.he}</span></h3>
+    ${rs.map(({ p, viz }) => `<div class="daf"><div class="d">${p.heRef.split(' ').pop()}<small>${p.daf}${p.amud}</small></div>
+      <ul>${viz.map(v => `<li><a href="${v.href}">${esc(v.title)}</a></li>`).join('')}</ul></div>`).join('')}
+  </section>`).join('') || '<p class="empty">No daf matches that yet.</p>';
+
+  $('all').innerHTML = list.map(v => `<a class="viz" href="${v.href}">
+    <span class="kind">${esc(v.kind)} · ${esc(v.source)}</span>
+    <b>${esc(v.title)}</b><span class="he">${v.he}</span><p>${esc(v.blurb)}</p>
+    <span class="chips">${v.dapim.map(d => `<span>${d}</span>`).join('')}</span></a>`).join('') || '<p class="empty">Nothing matches.</p>';
+
+  $('count').textContent = `${list.length} of ${VIZ.length} visualizations · ${rows.size} dapim`;
+}
+$('q').addEventListener('input', render);
+render();
+</script>

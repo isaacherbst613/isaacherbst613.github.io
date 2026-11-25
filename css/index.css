@@ -1083,3 +1083,32 @@ body.fire #fireCanvas { display: block; }
 .banner-row .sunder-title {
     font-size: clamp(1.9rem, 4.2vw, 3.4rem);
 }
+
+/* ---------- DafAlive banner (reuses the SUNDER banner layout) ---------- */
+
+.dafalive-banner {
+    background: radial-gradient(120% 90% at 50% 0%, #3a2e20 0%, #1d1915 60%, #15120f 100%);
+    color: #efe6d6;
+    transform: rotate(0.4deg);
+}
+
+.dafalive-banner .sunder-title {
+    font-family: "Frank Ruhl Libre", Georgia, serif;
+    font-stretch: 100%;
+    filter: drop-shadow(0 3px 14px rgba(201, 163, 91, 0.45));
+}
+
+.dafalive-banner .sunder-title span {
+    background: linear-gradient(180deg, #f6e7c4 0%, #c9a35b 60%, #8a6a2f 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.dafalive-banner .sunder-kicker {
+    color: #c9a35b;
+}
+
+.dafalive-banner .sunder-sub {
+    color: rgba(239, 230, 214, 0.85);
+}
