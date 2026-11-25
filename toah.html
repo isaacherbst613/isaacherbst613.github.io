@@ -282,7 +282,7 @@ function render(){
   document.getElementById('views').innerHTML = VIEWS.map(([v, t]) => `<button data-v="${v}" aria-pressed="${view === v}">${t}</button>`).join('');
   const chip = h => `<button data-h="${h}" aria-pressed="${view === h}" title="Suppose her ${scen(h)}">${h || 'תחילת נדה'}</button>`;
   document.getElementById('chips').innerHTML =
-    '<span class="muted" style="font-size:13px">Or test one possibility. She doesn\'t know where her first sighting fell. Suppose it was</span>' +
+    '<span class="muted" style="font-size:13px">Suppose she is currently holding at</span>' +
     chip(0) + '<span class="muted" style="font-size:13px">or zivah day</span>' + H.slice(1).map(chip).join('');
 
   const cells = cal.children;
