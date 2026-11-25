@@ -100,7 +100,7 @@ td.bad{color:#ff7a6e;text-align:center}
       <span><i class="stripe"></i>ספק: the scenarios disagree</span>
     </div>
     <div id="cal" role="grid" aria-label="Calendar of 63 days"></div>
-    <p class="hint">Red drop = she saw. Gold frame = <b>פתח</b>. Hover or focus any day to see what it is in each scenario. Try the Gemara's cases from the table, or your own (e.g. scenario "ז10": seeing on days 1–3 makes days 1–2 zivah days 10–11 and day 3 תחילת נדה, so she is <i>not</i> a zavah).</p>
+    <p class="hint">Red drop = she saw. Gold frame = <b>פתח</b>. Hover or focus any day to see what it is in each scenario. Try the Gemara's cases from the table, or your own (e.g. mark days 1–3 and suppose zivah day 10: seeing on days 1–3 makes days 1–2 zivah days 10–11 and day 3 תחילת נדה, so she is <i>not</i> a zavah).</p>
     <div class="row" style="margin-top:10px"><button id="clear">Clear calendar</button></div>
   </main>
 
@@ -126,7 +126,7 @@ td.bad{color:#ff7a6e;text-align:center}
     </div>
     <div class="card">
       <h2>The Baraita (click a row to load it)</h2>
-      <table id="bar"></table>
+      <table id="bar" dir="rtl"></table>
       <p class="muted" style="font-size:12px">✓ = the calendar's own count reproduces the Baraita's number.</p>
     </div>
     <div class="card">
@@ -150,7 +150,13 @@ const H = [0,1,2,3,4,5,6,7,8,9,10,11]; // 0 = first sighting is תחילת נד�
 const COL = {n:'var(--n)', z:'var(--z)', zg:'var(--zg)', f:'var(--f)'};
 const NAME = {n:'נדה', z:'ימי זיבה', zg:'זבה גדולה', f:'פתוחה (past the 11)'};
 const scen = h => h === 0 ? 'first sighting = תחילת נדה' : `first sighting = zivah day ${h}`;
-let seen = new Set(), view = 'all', hover = 0;
+const short = h => h ? `zivah day ${h}` : 'תחילת נדה';
+const heNum = n => { // gematria for small counts, e.g. 17 -> י״ז
+  const o = ['','א','ב','ג','ד','ה','ו','ז','ח','ט'], t = ['','י','כ','ל','מ','נ','ס','ע','פ','צ'];
+  const s = n === 15 ? 'טו' : n === 16 ? 'טז' : t[Math.floor(n / 10)] + o[n % 10];
+  return s.length > 1 ? s.slice(0, -1) + '״' + s.slice(-1) : s + '׳';
+};
+let seen = new Set(), view = 'worst', hover = 0;
 
 // One scenario, day by day, per Rashi. Returns out[d] = {s, k, saw, ev, asur, clean, end}.
 function sim(seen, h){
@@ -212,7 +218,7 @@ document.getElementById('bar').innerHTML = BAR.map((t, i) => {
 }).join('') + `<tr class="pick" data-n="20"><td class="he">…ויותר</td><td class="he">שאין פתח פחות משבעה</td><td class="${pischah(daysSet(20)) === 7 ? 'ok' : 'bad'}">${pischah(daysSet(20)) === 7 ? '✓' : '✗'}</td></tr>`;
 document.getElementById('bar').onclick = e => {
   const tr = e.target.closest('tr'); if (!tr) return;
-  seen = daysSet(+tr.dataset.n); view = 'all'; render();
+  seen = daysSet(+tr.dataset.n); view = 'worst'; render();
 };
 
 // ---------- UI ----------
@@ -229,9 +235,9 @@ cal.onclick = e => {
 };
 const inspect = e => { const b = e.target.closest('.day'); if (b){ hover = +b.dataset.d; render(); } };
 cal.onmouseover = inspect; cal.onfocusin = inspect;
-document.getElementById('clear').onclick = () => { seen = new Set(); view = 'all'; render(); };
+document.getElementById('clear').onclick = () => { seen = new Set(); view = 'worst'; render(); };
 
-const VIEWS = [['all','All scenarios (ספק)'],['worst','Worst case'],['best','Best case']];
+const VIEWS = [['worst','Worst case'],['best','Best case'],['all','All scenarios (ספק)']];
 document.getElementById('views').onclick = e => { const v = e.target.dataset.v; if (v){ view = v; render(); } };
 document.getElementById('chips').onclick = e => { const v = e.target.dataset.h; if (v){ view = +v; render(); } };
 
@@ -263,8 +269,10 @@ function storyFor(run, last){
 
 function render(){
   document.getElementById('views').innerHTML = VIEWS.map(([v, t]) => `<button data-v="${v}" aria-pressed="${view === v}">${t}</button>`).join('');
-  document.getElementById('chips').innerHTML = '<span class="muted" style="font-size:12px">Scenario, first sighting =</span>' +
-    H.map(h => `<button data-h="${h}" aria-pressed="${view === h}" title="${scen(h)}">${h ? 'ז' + h : 'נ1'}</button>`).join('');
+  const chip = h => `<button data-h="${h}" aria-pressed="${view === h}" title="Suppose her ${scen(h)}">${h || 'תחילת נדה'}</button>`;
+  document.getElementById('chips').innerHTML =
+    '<span class="muted" style="font-size:13px">Or test one possibility. She doesn\'t know where her first sighting fell. Suppose it was</span>' +
+    chip(0) + '<span class="muted" style="font-size:13px">or zivah day</span>' + H.slice(1).map(chip).join('');
 
   const cells = cal.children;
   const $ = id => document.getElementById(id);
@@ -301,7 +309,8 @@ function render(){
   }
 
   const n = A.pes - A.last - 1;
-  $('title').innerHTML = `<span class="he">פתחה ${n}</span>: ${n} clean days after her last sighting`;
+  $('title').innerHTML = `She needs ${n} clean days <span class="he" style="display:inline">(פתחה ${heNum(n)})</span>`
+    + `<div class="muted" style="font:400 14px var(--sans);margin-top:4px">Her last sighting is day ${A.last}. If she stays clean through day ${A.pes - 1}, her next sighting (day ${A.pes} or later) is surely תחילת נדה.</div>`;
   $('sMut').textContent = mut > N ? `day ${mut} (off the calendar)` : `day ${mut}`;
   $('sPes').textContent = (run ? run.pes : A.pes) - A.last - 1;
   $('sum').innerHTML = run
@@ -313,7 +322,7 @@ function render(){
   const d = hover && hover <= N ? hover : null;
   if (!d){ $('insp').textContent = 'Hover a day.'; return; }
   const groups = {};
-  for (const x of A.runs){ const r = x.out[d]; const k = r ? r.s : '-'; (groups[k] ||= []).push(x.h ? 'ז' + x.h : 'נ1'); }
+  for (const x of A.runs){ const r = x.out[d]; const k = r ? r.s : '-'; (groups[k] ||= []).push(short(x.h)); }
   $('insp').innerHTML = `<b>Day ${d}</b>${seen.has(d) ? ' (she saw)' : ''}<br>` + Object.entries(groups).map(([k, hs]) =>
     k === '-' ? `<div class="g">Before her first sighting.</div>`
       : `<div class="g"><i style="background:${COL[k]}"></i><span><span class="he">${NAME[k]}</span> in ${hs.length === 12 ? 'every scenario' : hs.length + ' scenario' + (hs.length > 1 ? 's' : '') + ': ' + hs.join(', ')}</span></div>`
