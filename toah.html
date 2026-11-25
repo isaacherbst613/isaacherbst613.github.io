@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pesach B'To'ah</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700&family=Assistant:wght@400;600;700&display=swap">
+<style>
+/* Same parchment-dark look as tamid.html: calendar stage + study panel (side on desktop, below on phones). */
+:root{
+  --bg:#15120f; --panel:#1d1915; --line:#3a322a; --ink:#efe6d6; --muted:#a8998a;
+  --brass:#c9a35b;
+  --n:#9b2a24; --z:#b07a2a; --zg:#6a3d9a; --f:#2e6e48;
+  --serif:"Frank Ruhl Libre", "Times New Roman", serif;
+  --sans:"Assistant", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme:dark;
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);margin:0}
+#app{display:grid;grid-template-columns:1fr 410px;height:100%}
+main{overflow:auto;padding:18px 22px 28px;min-width:0}
+aside{background:var(--panel);border-left:1px solid var(--line);overflow:auto;min-width:0}
+.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--brass)}
+h1{font-family:var(--serif);font-size:22px;margin:2px 0 0;font-weight:700}
+h2{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--brass);margin:0 0 6px;font-weight:600}
+.he{font-family:var(--serif);direction:rtl;text-align:right}
+.head{padding:16px 18px 10px;border-bottom:1px solid var(--line)}
+.card{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+p{margin:0;line-height:1.55;font-size:14px}
+.muted{color:var(--muted)}
+blockquote{margin:0;padding:8px 12px;border-right:3px solid var(--brass);background:rgba(201,163,91,.07);font-size:17px;line-height:1.6}
+button{font:600 13px var(--sans);color:var(--ink);background:#2a241e;border:1px solid var(--line);border-radius:4px;padding:6px 10px;cursor:pointer}
+button:hover{border-color:var(--brass)}
+button:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+button[aria-pressed="true"]{background:var(--brass);color:#1a150f;border-color:var(--brass)}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chips button{padding:4px 8px;font-size:12px;min-width:30px}
+
+/* toolbar + legend */
+.bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 10px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:0 0 12px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:-2px;margin-right:5px}
+.stripe{background:repeating-linear-gradient(135deg,var(--n) 0 4px,var(--z) 4px 8px)}
+
+/* calendar */
+#cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;max-width:820px}
+.day{position:relative;aspect-ratio:1/0.82;display:flex;flex-direction:column;justify-content:space-between;align-items:stretch;
+  text-align:left;padding:5px 6px;background:#1f1a16;border:1px solid var(--line);border-radius:5px;font-weight:400;overflow:hidden}
+.day .num{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.day .tag{font-family:var(--serif);font-size:13px;direction:rtl;text-align:right;line-height:1.15;color:#fff;text-shadow:0 1px 2px #000a}
+.day.c{color:#fff}
+.day.c .num{color:#f3e9da}
+.day.saw::after{content:"";position:absolute;top:6px;right:6px;width:11px;height:11px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
+  background:#ff5b4d;box-shadow:0 0 0 2px #15120f}
+.day.pesach{outline:3px solid var(--brass);outline-offset:-3px}
+.day.mut .num::after{content:" ✓ מותרת";font-family:var(--serif);color:#bfe8c9}
+.day.hov{box-shadow:0 0 0 2px #fff6}
+.hint{font-size:12px;color:var(--muted);margin-top:10px;max-width:820px;line-height:1.5}
+
+/* results */
+.big{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{background:#241f1a;border:1px solid var(--line);border-radius:5px;padding:8px 10px}
+.stat b{display:block;font-size:22px;font-family:var(--serif);color:var(--brass)}
+.stat span{font-size:12px;color:var(--muted)}
+ol.trace{margin:0;padding:0 0 0 18px;font-size:13px;line-height:1.5;display:flex;flex-direction:column;gap:4px}
+ol.trace .he{display:inline;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+td{padding:4px 6px;border-bottom:1px solid #2c261f}
+tr.pick{cursor:pointer}
+tr.pick:hover td{background:#26201a}
+td.ok{color:#7fd19a;text-align:center}
+td.bad{color:#ff7a6e;text-align:center}
+#insp{font-size:13px;line-height:1.5}
+#insp .g{display:flex;gap:6px;align-items:baseline}
+#insp i{display:inline-block;width:10px;height:10px;border-radius:2px;flex:none}
+.foot{font-size:11px;color:var(--muted);padding:10px 18px 16px;line-height:1.5}
+.foot a{color:var(--brass)}
+@media (max-width:900px){
+  #app{grid-template-columns:1fr;height:auto}
+  main{padding:14px 16px 20px}
+  aside{border-left:0;border-top:1px solid var(--line)}
+  .day{padding:3px 4px}
+  .day .tag{font-size:11px}
+  .day.mut .num::after{content:" ✓"}
+}
+</style>
+
+<div id="app">
+  <main>
+    <div class="eyebrow">Arachin 8a–b · Mishna 2:1 · following Rashi</div>
+    <h1 class="he" style="text-align:left;direction:ltr">אֵין פֶּתַח בְּטוֹעָה פָּחוֹת מִשִּׁבְעָה וְלֹא יָתֵר עַל שִׁבְעָה עָשָׂר</h1>
+    <p class="muted" style="margin:6px 0 14px;max-width:820px">Click days to mark when she saw. She is a <i>to'ah</i>: she doesn't know where she stands in the cycle of 7 niddah days and 11 zivah days. The calendar plays out every possibility and shows when she's <b>מותרת</b> (Rav Adda: "count seven and be permitted") and when her <b>פתח</b> comes, the first day every possibility agrees that a new sighting is תחילת נדה (Rabba: "to fix her cycle").</p>
+    <div class="bar" id="views"></div>
+    <div class="bar chips" id="chips"></div>
+    <div class="legend">
+      <span><i style="background:var(--n)"></i>ימי נדה (7)</span>
+      <span><i style="background:var(--z)"></i>11 ימי זיבה</span>
+      <span><i style="background:var(--zg)"></i>זבה גדולה, counting 7 clean</span>
+      <span><i style="background:var(--f)"></i>Past the 11: next sighting is תחילת נדה</span>
+      <span><i class="stripe"></i>ספק: the scenarios disagree</span>
+    </div>
+    <div id="cal" role="grid" aria-label="Calendar of 63 days"></div>
+    <p class="hint">Red drop = she saw. Gold frame = <b>פתח</b>. Hover or focus any day to see what it is in each scenario. Try the Gemara's cases from the table, or your own (e.g. scenario "ז10": seeing on days 1–3 makes days 1–2 zivah days 10–11 and day 3 תחילת נדה, so she is <i>not</i> a zavah).</p>
+    <div class="row" style="margin-top:10px"><button id="clear">Clear calendar</button></div>
+  </main>
+
+  <aside>
+    <div class="head">
+      <div class="eyebrow">Result</div>
+      <h1 id="title">Click a day to begin</h1>
+    </div>
+    <div class="card">
+      <div class="big">
+        <div class="stat"><b id="sMut">–</b><span>Permitted (מותרת) from</span></div>
+        <div class="stat"><b id="sPes">–</b><span>פתח: clean days needed</span></div>
+      </div>
+      <p id="sum" class="muted"></p>
+    </div>
+    <div class="card">
+      <h2>The story of this scenario</h2>
+      <ol class="trace" id="trace"></ol>
+    </div>
+    <div class="card">
+      <h2>Day inspector</h2>
+      <div id="insp" class="muted">Hover a day.</div>
+    </div>
+    <div class="card">
+      <h2>The Baraita (click a row to load it)</h2>
+      <table id="bar"></table>
+      <p class="muted" style="font-size:12px">✓ = the calendar's own count reproduces the Baraita's number.</p>
+    </div>
+    <div class="card">
+      <h2>Rashi's key points</h2>
+      <blockquote class="he">פתח - תחילת נדות… ואם לא ראתה באותן י״א יום ג׳ רצופין אינה זבה, וכשתראה אחרי כן בין ראתה סמוך בין שהרחיקה ראייתה הויא תחילת נדה</blockquote>
+      <p>The 11 days after the 7 niddah days are zivah days. Three straight days of seeing inside them makes her a <i>zavah gedolah</i> (7 clean days + korban). If the 11 pass without that, her next sighting, even the very next day, is תחילת נדה.</p>
+      <blockquote class="he">וכן כולה ברייתא מספקינן לה שנים הראשונים בסוף זיבה והאחרונים מן הנדות… דאי אמרת ג׳ מהן סוף זיבה תו לא הוו אחריני ימי נדות כל זמן שלא ישבה ז׳ נקיים</blockquote>
+      <p>The worst case is always that her first two days were the last two zivah days (10 and 11), so the third day starts a new niddah. Three days can't all be end-of-zivah, since that would make her a zavah.</p>
+      <blockquote class="he">ושמיני זה עדיין מן האחד עשר הוא ואינה תחילת נדה, שאין בין סוף נדה לתחילת נדה פחות מי״א יום</blockquote>
+      <p>Even after a zavah's 7 clean days, she isn't back to תחילת נדה until the 11 days themselves are over.</p>
+      <blockquote class="he">רב אדא טעי וסבר דכל הנך… למשרייה לגברא קאמרי · נדה ופתחה - שתדע מאימת תמנה ימי נדה</blockquote>
+      <p>The 17 isn't about being permitted to her husband (that comes after seven). It's about when her count is back in order.</p>
+    </div>
+    <div class="foot">Text: Mishna Arachin 2:1, Bavli Arachin 8a–b and Rashi there, via <a href="https://www.sefaria.org/Arakhin.8a" target="_blank" rel="noopener">Sefaria</a>. The model follows Rashi: the first sighting is either תחילת נדה or one of the 11 zivah days (12 scenarios), with no other sightings outside the calendar. "Permitted" is simplified: after 7 niddah days, after a zavah's 7 clean days, or after the clean day of a שומרת יום כנגד יום. It shows the idea and is not a psak.</div>
+  </aside>
+</div>
+
+<script>
+const N = 63, T = N + 60;            // show 63 days, simulate further so late milestones still resolve
+const H = [0,1,2,3,4,5,6,7,8,9,10,11]; // 0 = first sighting is תחילת נדה; j = first sighting is zivah day j
+const COL = {n:'var(--n)', z:'var(--z)', zg:'var(--zg)', f:'var(--f)'};
+const NAME = {n:'נדה', z:'ימי זיבה', zg:'זבה גדולה', f:'פתוחה (past the 11)'};
+const scen = h => h === 0 ? 'first sighting = תחילת נדה' : `first sighting = zivah day ${h}`;
+let seen = new Set(), view = 'all', hover = 0;
+
+// One scenario, day by day, per Rashi. Returns out[d] = {s, k, saw, ev, asur, clean, end}.
+function sim(seen, h){
+  const out = new Array(T + 2).fill(null);
+  if (!seen.size) return out;
+  const first = Math.min(...seen);
+  let mode = h ? 'post' : 'free', nd = 0, wd = h, zava = false, clean = 0, run = 0, shom = 0;
+  for (let d = first; d <= T + 1; d++){
+    const saw = seen.has(d); let r;
+    if (mode === 'free' && saw){ mode = 'nidda'; nd = 1; }
+    if (mode === 'nidda'){
+      r = {s:'n', k:nd, saw, ev: nd === 1 ? 'nstart' : nd === 7 ? 'nend' : null, asur:true};
+      if (++nd > 7){ mode = 'post'; wd = 1; run = 0; zava = false; }
+    } else if (mode === 'post'){
+      let ev = null;
+      if (saw){
+        if (zava) clean = 0;
+        else if (++run >= 3){ zava = true; clean = 0; ev = 'zava'; }
+        else { ev = 'katan'; shom = 2; }   // seen day + the next day (יום כנגד יום)
+      } else { run = 0; if (zava) clean++; }
+      r = zava ? {s:'zg', k:wd, clean, saw, ev, asur:true} : {s:'z', k:wd, saw, ev, asur: shom > 0};
+      wd++;
+      if (zava && clean >= 7){ zava = false; run = 0; r.ev = 'zdone'; r.left = Math.max(0, 12 - wd); }
+      if (!zava && wd > 11){ mode = 'free'; r.end = true; }
+    } else r = {s:'f', saw:false, asur: shom > 0};
+    if (shom > 0) shom--;
+    out[d] = r;
+  }
+  return out;
+}
+
+// First day after the last sighting where the scenario is "free" (פתח) / permitted.
+function marks(out, last){
+  let pes = 0, mut = 0;
+  for (let d = last + 1; d <= T + 1 && !(pes && mut); d++){
+    if (!pes && out[d].s === 'f') pes = d;
+    if (!mut && !out[d].asur) mut = d;
+  }
+  return {pes, mut};
+}
+
+function analyze(seen){
+  const last = Math.max(...seen);
+  const runs = H.map(h => { const out = sim(seen, h); return {h, out, ...marks(out, last)}; });
+  const worst = runs.reduce((a, b) => b.pes > a.pes ? b : a);
+  const best  = runs.reduce((a, b) => b.pes < a.pes ? b : a);
+  return {last, runs, worst, best, pes: worst.pes, mut: Math.max(...runs.map(r => r.mut))};
+}
+
+// ---------- Baraita table + self-check ----------
+const BAR = ['יום אחד','שני ימים','שלשה ימים','ארבעה ימים','חמשה ימים','ששה ימים','שבעה ימים','שמונה ימים','תשעה ימים','עשרה ימים','אחד עשר','שנים עשר','שלשה עשר'];
+const BARN = [17,17,17,16,15,14,13,12,11,10,9,8,7];
+const BARHE = ['י״ז','י״ז','י״ז','ט״ז','ט״ו','י״ד','י״ג','י״ב','י״א','י׳','ט׳','ח׳','ז׳'];
+const daysSet = n => new Set(Array.from({length:n}, (_, i) => i + 1));
+const pischah = s => { const a = analyze(s); return a.pes - a.last - 1; };
+document.getElementById('bar').innerHTML = BAR.map((t, i) => {
+  const got = pischah(daysSet(i + 1)), ok = got === BARN[i];
+  return `<tr class="pick" data-n="${i+1}"><td class="he">${t} טמא ראיתי</td><td class="he">פתחה ${BARHE[i]}</td><td class="${ok?'ok':'bad'}">${ok ? '✓' : '✗ ' + got}</td></tr>`;
+}).join('') + `<tr class="pick" data-n="20"><td class="he">…ויותר</td><td class="he">שאין פתח פחות משבעה</td><td class="${pischah(daysSet(20)) === 7 ? 'ok' : 'bad'}">${pischah(daysSet(20)) === 7 ? '✓' : '✗'}</td></tr>`;
+document.getElementById('bar').onclick = e => {
+  const tr = e.target.closest('tr'); if (!tr) return;
+  seen = daysSet(+tr.dataset.n); view = 'all'; render();
+};
+
+// ---------- UI ----------
+const cal = document.getElementById('cal');
+for (let d = 1; d <= N; d++){
+  const b = document.createElement('button');
+  b.className = 'day'; b.dataset.d = d;
+  b.innerHTML = `<span class="num">${d}</span><span class="tag"></span>`;
+  cal.append(b);
+}
+cal.onclick = e => {
+  const b = e.target.closest('.day'); if (!b) return;
+  const d = +b.dataset.d; seen.has(d) ? seen.delete(d) : seen.add(d); render();
+};
+const inspect = e => { const b = e.target.closest('.day'); if (b){ hover = +b.dataset.d; render(); } };
+cal.onmouseover = inspect; cal.onfocusin = inspect;
+document.getElementById('clear').onclick = () => { seen = new Set(); view = 'all'; render(); };
+
+const VIEWS = [['all','All scenarios (ספק)'],['worst','Worst case'],['best','Best case']];
+document.getElementById('views').onclick = e => { const v = e.target.dataset.v; if (v){ view = v; render(); } };
+document.getElementById('chips').onclick = e => { const v = e.target.dataset.h; if (v){ view = +v; render(); } };
+
+function tagFor(r){
+  if (!r) return '';
+  if (r.s === 'n') return `נדה ${r.k}`;
+  if (r.s === 'z') return `זוב ${r.k}` + (r.saw ? '<br>יום כנגד יום' : '');
+  if (r.s === 'zg') return r.saw ? 'זבה' : `זבה · נקי ${r.clean}`;
+  return '';
+}
+
+function storyFor(run, last){
+  const li = [], o = run.out, first = Math.min(...seen);
+  li.push(`Assume her <b>${scen(run.h)}</b>` + (run.h ? ` (her last niddah ended ${run.h - 1} day${run.h === 2 ? '' : 's'} before it).` : '.'));
+  const stop = Math.max(run.pes, run.mut);
+  for (let d = first; d <= stop; d++){
+    const r = o[d];
+    if (r.ev === 'nstart') li.push(d === first ? `Day ${d}: she sees. Niddah days ${d}–${d+6}.` : `Day ${d}: she sees after the 11 are over, so this is <span class="he">תחילת נדה</span>. Niddah days ${d}–${d+6}.`);
+    if (r.ev === 'nend') li.push(`Day ${d}: last niddah day. Days ${d+1}–${d+11} are the 11 zivah days.`);
+    if (r.ev === 'katan') li.push(`Day ${d}: she sees on zivah day ${r.k}, ${r.k === 11 ? 'the last one' : 'not 3 in a row'}: <span class="he">שומרת יום כנגד יום</span>.`);
+    if (r.ev === 'zava') li.push(`Day ${d}: third straight day inside the 11, so she is a <span class="he">זבה גדולה</span>: 7 clean days and a korban.`);
+    if (r.ev === 'zdone') li.push(`Day ${d}: 7th clean day, her zivah is over` + (r.left ? `, but she is still inside the 11 for ${r.left} more day${r.left > 1 ? 's' : ''} (Rashi on 12).` : '.'));
+    if (r.end && d >= first) li.push(`Day ${d}: last of the 11 zivah days.`);
+    if (d === run.mut) li.push(`Day ${d}: <b>מותרת</b> (if she doesn't see again).`);
+    if (d === run.pes) li.push(`Day ${d}: <b>פתח</b>. Any sighting from here on is <span class="he">תחילת נדה</span>.`);
+  }
+  return li.map(x => `<li>${x}</li>`).join('');
+}
+
+function render(){
+  document.getElementById('views').innerHTML = VIEWS.map(([v, t]) => `<button data-v="${v}" aria-pressed="${view === v}">${t}</button>`).join('');
+  document.getElementById('chips').innerHTML = '<span class="muted" style="font-size:12px">Scenario, first sighting =</span>' +
+    H.map(h => `<button data-h="${h}" aria-pressed="${view === h}" title="${scen(h)}">${h ? 'ז' + h : 'נ1'}</button>`).join('');
+
+  const cells = cal.children;
+  const $ = id => document.getElementById(id);
+  if (!seen.size){
+    for (const c of cells){ c.className = 'day'; c.style.background = ''; c.querySelector('.tag').innerHTML = ''; c.setAttribute('aria-label', `Day ${c.dataset.d}`); }
+    $('title').textContent = 'Click a day to begin'; $('sMut').textContent = '–'; $('sPes').textContent = '–';
+    $('sum').textContent = 'Mark the days she saw. Or load a case from the Baraita below.';
+    $('trace').innerHTML = ''; $('insp').textContent = 'Hover a day.';
+    return;
+  }
+
+  const A = analyze(seen);
+  const run = view === 'all' ? null : view === 'worst' ? A.worst : view === 'best' ? A.best : A.runs[view];
+  const pes = run ? run.pes : A.pes, mut = run ? run.mut : A.mut;
+
+  for (const c of cells){
+    const d = +c.dataset.d;
+    let bg = '', tag = '';
+    if (run){ const r = run.out[d]; if (r){ bg = COL[r.s]; tag = tagFor(r); } }
+    else {
+      const kinds = [...new Set(A.runs.map(x => x.out[d] && x.out[d].s).filter(Boolean))];
+      if (kinds.length === 1) bg = COL[kinds[0]];
+      else if (kinds.length > 1){
+        bg = `repeating-linear-gradient(135deg,${kinds.map((k, i) => `${COL[k]} ${i*7}px ${(i+1)*7}px`).join(',')})`;
+        tag = 'ספק';
+      }
+      if (kinds.length === 1 && kinds[0] === 'f') tag = '';
+    }
+    c.style.background = bg;
+    c.querySelector('.tag').innerHTML = d === pes ? 'פתח' : tag;
+    c.className = 'day' + (bg ? ' c' : '') + (seen.has(d) ? ' saw' : '') + (d === pes ? ' pesach' : '') + (d === mut ? ' mut' : '') + (d === hover ? ' hov' : '');
+    c.setAttribute('aria-pressed', seen.has(d));
+    c.setAttribute('aria-label', `Day ${d}${seen.has(d) ? ', she saw' : ''}${d === pes ? ', pesach' : ''}`);
+  }
+
+  const n = A.pes - A.last - 1;
+  $('title').innerHTML = `<span class="he">פתחה ${n}</span>: ${n} clean days after her last sighting`;
+  $('sMut').textContent = mut > N ? `day ${mut} (off the calendar)` : `day ${mut}`;
+  $('sPes').textContent = (run ? run.pes : A.pes) - A.last - 1;
+  $('sum').innerHTML = run
+    ? `Showing one scenario: <b>${scen(run.h)}</b>. In this scenario the פתח comes on day ${run.pes}. Taking every scenario into account it's day ${A.pes} (worst case: ${scen(A.worst.h)}).`
+    : `Since she doesn't know which scenario is true, we're <i>machmir</i> both ways until every scenario agrees: <b>פתח on day ${A.pes}</b> (worst case: ${scen(A.worst.h)}). Best case: ${scen(A.best.h)}, פתח already on day ${A.best.pes}. She's permitted from day ${A.mut} in every scenario.`;
+  $('trace').innerHTML = run ? storyFor(run, A.last)
+    : `<li>Pick <b>Worst case</b>, <b>Best case</b>, or one scenario chip to follow its story day by day.</li>`;
+
+  const d = hover && hover <= N ? hover : null;
+  if (!d){ $('insp').textContent = 'Hover a day.'; return; }
+  const groups = {};
+  for (const x of A.runs){ const r = x.out[d]; const k = r ? r.s : '-'; (groups[k] ||= []).push(x.h ? 'ז' + x.h : 'נ1'); }
+  $('insp').innerHTML = `<b>Day ${d}</b>${seen.has(d) ? ' (she saw)' : ''}<br>` + Object.entries(groups).map(([k, hs]) =>
+    k === '-' ? `<div class="g">Before her first sighting.</div>`
+      : `<div class="g"><i style="background:${COL[k]}"></i><span><span class="he">${NAME[k]}</span> in ${hs.length === 12 ? 'every scenario' : hs.length + ' scenario' + (hs.length > 1 ? 's' : '') + ': ' + hs.join(', ')}</span></div>`
+  ).join('');
+}
+render();
+</script>
