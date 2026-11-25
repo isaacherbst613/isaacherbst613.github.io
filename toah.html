@@ -256,7 +256,7 @@ function tagFor(r){
   if (!r) return '';
   if (r.s === 'n') return `נדה ${r.k}`;
   if (r.s === 'z') return `זוב ${r.k}` + (r.saw ? '<br><span class="x">יום כנגד יום</span>' : '');
-  if (r.s === 'zg') return r.saw ? 'זבה' : `זבה · נקי ${r.clean}`;
+  if (r.s === 'zg') return r.saw ? (r.k <= 11 ? `זבה · זוב ${r.k}` : 'זבה') : `זבה · נקי ${r.clean}`;
   return '';
 }
 
