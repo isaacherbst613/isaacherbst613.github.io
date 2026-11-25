@@ -23,7 +23,7 @@ aside{background:var(--panel);border-left:1px solid var(--line);overflow:auto;mi
 .eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--brass)}
 h1{font-family:var(--serif);font-size:22px;margin:2px 0 0;font-weight:700}
 h2{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--brass);margin:0 0 6px;font-weight:600}
-.he{font-family:var(--serif);direction:rtl;text-align:right}
+.he{font-family:var(--serif);direction:rtl;text-align:right;unicode-bidi:isolate}
 .head{padding:16px 18px 10px;border-bottom:1px solid var(--line)}
 .card{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
 p{margin:0;line-height:1.55;font-size:14px}
@@ -82,7 +82,17 @@ td.bad{color:#ff7a6e;text-align:center}
   .day{padding:3px 4px}
   .day .tag{font-size:11px}
   .day.mut .num::after{content:" ✓"}
+  .day .tag br, .day .tag .x{display:none}
+  .day.saw::after{width:8px;height:8px;top:4px;right:4px}
+  button{min-height:36px}
+  .chips button{min-width:36px}
+  body{padding-bottom:58px}
+  body #mini{display:block}
 }
+/* phones: the result panel is far below the calendar, so keep the answer pinned to the bottom */
+#mini{display:none;position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--panel);border-top:1px solid var(--brass);
+  padding:8px 16px calc(8px + env(safe-area-inset-bottom));font-size:14px;line-height:1.35}
+#mini b{color:var(--brass);font-family:var(--serif)}
 </style>
 
 <div id="app">
@@ -103,6 +113,7 @@ td.bad{color:#ff7a6e;text-align:center}
     <p class="hint">Red drop = she saw. Gold frame = <b>פתח</b>. Hover or focus any day to see what it is in each scenario. Try the Gemara's cases from the table, or your own (e.g. mark days 1–3 and suppose zivah day 10: seeing on days 1–3 makes days 1–2 zivah days 10–11 and day 3 תחילת נדה, so she is <i>not</i> a zavah).</p>
     <div class="row" style="margin-top:10px"><button id="clear">Clear calendar</button></div>
   </main>
+  <div id="mini" aria-live="polite"></div>
 
   <aside>
     <div class="head">
@@ -244,7 +255,7 @@ document.getElementById('chips').onclick = e => { const v = e.target.dataset.h; 
 function tagFor(r){
   if (!r) return '';
   if (r.s === 'n') return `נדה ${r.k}`;
-  if (r.s === 'z') return `זוב ${r.k}` + (r.saw ? '<br>יום כנגד יום' : '');
+  if (r.s === 'z') return `זוב ${r.k}` + (r.saw ? '<br><span class="x">יום כנגד יום</span>' : '');
   if (r.s === 'zg') return r.saw ? 'זבה' : `זבה · נקי ${r.clean}`;
   return '';
 }
@@ -281,6 +292,7 @@ function render(){
     $('title').textContent = 'Click a day to begin'; $('sMut').textContent = '–'; $('sPes').textContent = '–';
     $('sum').textContent = 'Mark the days she saw. Or load a case from the Baraita below.';
     $('trace').innerHTML = ''; $('insp').textContent = 'Hover a day.';
+    $('mini').textContent = 'Tap the days she saw. The full explanation is below the calendar.';
     return;
   }
 
@@ -309,8 +321,9 @@ function render(){
   }
 
   const n = A.pes - A.last - 1;
-  $('title').innerHTML = `She needs ${n} clean days <span class="he" style="display:inline">(פתחה ${heNum(n)})</span>`
+  $('title').innerHTML = `She needs ${n} clean days (<bdi class="he">פתחה ${heNum(n)}</bdi>)`
     + `<div class="muted" style="font:400 14px var(--sans);margin-top:4px">Her last sighting is day ${A.last}. If she stays clean through day ${A.pes - 1}, her next sighting (day ${A.pes} or later) is surely תחילת נדה.</div>`;
+  $('mini').innerHTML = `<b><bdi>פתחה ${heNum(n)}</bdi></b> = ${n} clean days. From day ${A.pes}, a sighting is surely <bdi>תחילת נדה</bdi>. Permitted (<bdi>מותרת</bdi>) from day ${A.mut}.`;
   $('sMut').textContent = mut > N ? `day ${mut} (off the calendar)` : `day ${mut}`;
   $('sPes').textContent = (run ? run.pes : A.pes) - A.last - 1;
   $('sum').innerHTML = run
